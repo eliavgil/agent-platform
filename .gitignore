@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+
+# Local Netlify folder
+.netlify
+
+# OS & editor
+.DS_Store
+.claude/

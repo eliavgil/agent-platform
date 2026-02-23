@@ -736,6 +736,12 @@ export default function HomePage() {
     profile?.role === 'admin' ? '/admin' :
     profile?.role === 'agent' ? '/agent' : '/teacher'
 
+  const ctaTo = !user
+    ? '/login'
+    : profile?.role === 'teacher'
+    ? '/teacher/new-request'
+    : dashRoute
+
   const S1        = '#07080f'   // hero dark background (unchanged)
   const LIGHT_BG  = '#f8fafc'   // sections background
   const LIGHT_ALT = '#f1f5f9'   // alternate sections
@@ -828,6 +834,20 @@ export default function HomePage() {
                                  border: '1px solid rgba(99,102,241,0.20)' }}>
                     {profile?.full_name?.split(' ')[0] || 'שלום'}
                   </span>
+                  {profile?.role !== 'admin' && (
+                    <Link
+                      to={dashRoute}
+                      className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
+                      style={{
+                        background: profile?.role === 'agent'
+                          ? 'rgba(168,85,247,0.12)' : 'rgba(99,102,241,0.10)',
+                        color: profile?.role === 'agent' ? '#a855f7' : '#4338ca',
+                        border: `1px solid ${profile?.role === 'agent'
+                          ? 'rgba(168,85,247,0.30)' : 'rgba(99,102,241,0.20)'}`,
+                      }}>
+                      {profile?.role === 'agent' ? 'לאיזור הסוכן' : 'לאיזור המורה'}
+                    </Link>
+                  )}
                   {isAdmin && (
                     <Link to="/admin"
                           className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
@@ -923,7 +943,7 @@ export default function HomePage() {
                  style={{ border: '1.5px solid rgba(249,115,22,.5)', color: '#fb923c', background: 'rgba(249,115,22,.08)' }}>
                 🛠️ גלה את הכלים
               </a>
-              <Link to={user ? `${dashRoute}/new-request` : '/login'}
+              <Link to={ctaTo}
                     className="cta-secondary px-8 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
                     style={{ border: '1.5px solid rgba(99,102,241,.5)', color: '#a5b4fc', background: 'rgba(99,102,241,.08)' }}>
                 📝 שלח בקשה
@@ -971,7 +991,7 @@ export default function HomePage() {
           )}
 
           <div className="text-center mt-8">
-            <Link to={user ? `${dashRoute}/new-request` : '/login'}
+            <Link to={ctaTo}
                   className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
                   style={{ background: 'rgba(99,102,241,0.08)', color: '#4338ca', border: '1px solid rgba(99,102,241,0.2)' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.15)'}
@@ -1035,7 +1055,7 @@ export default function HomePage() {
           )}
 
           <div className="text-center mt-8">
-            <Link to={user ? `${dashRoute}/new-request` : '/login'}
+            <Link to={ctaTo}
                   className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all shadow-lg"
                   style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '.88'}
@@ -1078,7 +1098,7 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-14">
-            <Link to={user ? `${dashRoute}/new-request` : '/login'}
+            <Link to={ctaTo}
                   className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-white font-bold text-base transition-all shadow-xl"
                   style={{ background: '#6366f1' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#4f46e5'}

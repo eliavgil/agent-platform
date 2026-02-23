@@ -5,7 +5,7 @@ import ChatWindow from '../../components/chat/ChatWindow'
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge'
 import Avatar from '../../components/ui/Avatar'
 import Button from '../../components/ui/Button'
-import { ArrowRight, Download, PlayCircle, CheckCircle } from 'lucide-react'
+import { ArrowRight, Download, PlayCircle, CheckCircle, Cpu } from 'lucide-react'
 
 export default function AgentChat() {
   const { id } = useParams()
@@ -55,7 +55,7 @@ export default function AgentChat() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] -mt-8 -mx-6">
       {/* Top Bar */}
-      <div className="flex-shrink-0 px-6 py-4 bg-dark-800 border-b border-dark-600/50">
+      <div className="flex-shrink-0 px-6 py-4 bg-dark-800 border-b border-purple-500/20">
         <div className="max-w-6xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate('/agent/requests')}
@@ -71,6 +71,12 @@ export default function AgentChat() {
               </h1>
               <StatusBadge status={request.status} />
               <PriorityBadge priority={request.priority} />
+              {request.ai_tools && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/15 border border-purple-500/30 text-purple-300 rounded-full text-xs font-medium">
+                  <Cpu size={11} />
+                  {request.ai_tools}
+                </span>
+              )}
             </div>
             <p className="text-xs text-dark-400 mt-0.5 truncate">{request.description}</p>
           </div>
@@ -90,11 +96,11 @@ export default function AgentChat() {
 
             {/* Teacher info */}
             {request.teacher && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-dark-700 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                 <Avatar name={request.teacher.full_name} size="xs" />
                 <div>
                   <p className="text-xs font-medium text-gray-200">{request.teacher.full_name}</p>
-                  <p className="text-xs text-dark-400">מורה</p>
+                  <p className="text-xs text-purple-400">מורה</p>
                 </div>
               </div>
             )}
@@ -105,8 +111,8 @@ export default function AgentChat() {
                 {request.status === 'assigned' && (
                   <Button
                     variant="outline"
-                    size="sm"
-                    icon={<PlayCircle size={14} />}
+                    size="md"
+                    icon={<PlayCircle size={16} />}
                     loading={updatingStatus}
                     onClick={() => handleStatusChange('in_progress')}
                   >
@@ -116,8 +122,8 @@ export default function AgentChat() {
                 {request.status === 'in_progress' && (
                   <Button
                     variant="success"
-                    size="sm"
-                    icon={<CheckCircle size={14} />}
+                    size="md"
+                    icon={<CheckCircle size={16} />}
                     loading={updatingStatus}
                     onClick={() => handleStatusChange('completed')}
                   >

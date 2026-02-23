@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Avatar from '../ui/Avatar'
 import Button from '../ui/Button'
-import { LogOut, Bot, Shield } from 'lucide-react'
+import { LogOut, Bot, Shield, Globe, ExternalLink } from 'lucide-react'
 
 export default function Sidebar({ navItems, role }) {
   const { profile, signOut, isAdmin } = useAuth()
@@ -76,6 +76,22 @@ export default function Sidebar({ navItems, role }) {
             </li>
           ))}
         </ul>
+
+        {role === 'agent' && (
+          <div className="mt-3 pt-3 border-t border-dark-700/50">
+            <a
+              href="https://promptheussite.netlify.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+                text-dark-300 hover:bg-dark-800 hover:text-gray-200 transition-all duration-150"
+            >
+              <Globe size={16} className="flex-shrink-0" />
+              <span>אתר הנבחרת</span>
+              <ExternalLink size={12} className="mr-auto text-dark-500" />
+            </a>
+          </div>
+        )}
       </nav>
 
       {/* User Profile */}

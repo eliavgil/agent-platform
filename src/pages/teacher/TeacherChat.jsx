@@ -47,7 +47,7 @@ export default function TeacherChat() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] -mt-8 -mx-6">
       {/* Top Bar */}
-      <div className="flex-shrink-0 px-6 py-4 bg-dark-800 border-b border-dark-600/50">
+      <div className="flex-shrink-0 px-6 py-4 bg-dark-800 border-b border-blue-500/20">
         <div className="max-w-6xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate('/teacher/requests')}
@@ -80,19 +80,19 @@ export default function TeacherChat() {
               </a>
             )}
             {request.agent ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-dark-700 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                 <Avatar name={request.agent.full_name} size="xs" />
                 <div>
                   <p className="text-xs font-medium text-gray-200">{request.agent.full_name}</p>
-                  <p className="text-xs text-dark-400">סוכן AI</p>
+                  <p className="text-xs text-blue-400">סוכן AI</p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-dark-700 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                 <div className="w-6 h-6 rounded-full bg-dark-600 flex items-center justify-center">
-                  <Bot size={12} className="text-dark-400" />
+                  <Bot size={12} className="text-blue-400" />
                 </div>
-                <p className="text-xs text-dark-400">ממתין לסוכן</p>
+                <p className="text-xs text-blue-300/70">ממתין לסוכן</p>
               </div>
             )}
           </div>

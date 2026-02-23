@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
         setLoading(false)
       })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       // Never let Supabase events override a local admin session
       if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
         setUser(ADMIN_USER)
@@ -55,10 +55,15 @@ export function AuthProvider({ children }) {
         setLoading(false)
         return
       }
-      setUser(session?.user ?? null)
       if (session?.user) {
+        setUser(session.user)
         await fetchProfile(session.user)
-      } else {
+      } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
+        // Only clear auth state when we're certain there's no session:
+        // SIGNED_OUT = explicit sign-out or expired refresh token
+        // INITIAL_SESSION with no session = first load, truly unauthenticated
+        // Other events (e.g. mid-token-refresh) → keep existing state to avoid premature redirect
+        setUser(null)
         setProfile(null)
         setLoading(false)
       }

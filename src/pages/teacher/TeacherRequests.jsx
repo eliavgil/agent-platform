@@ -41,7 +41,8 @@ export default function TeacherRequests() {
 
   const loadRequests = async () => {
     setLoading(true)
-    const { data } = await getTeacherRequests(user.id)
+    const { data, error } = await getTeacherRequests(user.id)
+    if (error) console.error('[TeacherRequests] error:', error)
     setRequests(data || [])
     setLoading(false)
   }

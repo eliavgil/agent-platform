@@ -40,6 +40,7 @@ export default function AdminRequests() {
   const [assignModal, setAssignModal] = useState(null) // request to assign
   const [selectedAgent, setSelectedAgent] = useState('')
   const [assigning, setAssigning] = useState(false)
+  const [assignError, setAssignError] = useState('')
 
   useEffect(() => {
     loadData()
@@ -66,10 +67,17 @@ export default function AdminRequests() {
   const handleAssign = async () => {
     if (!selectedAgent) return
     setAssigning(true)
-    await updateRequest(assignModal.id, {
+    setAssignError('')
+    const { error } = await updateRequest(assignModal.id, {
       agent_id: selectedAgent,
       status: 'assigned',
     })
+    if (error) {
+      console.error('[AdminRequests] handleAssign error:', error)
+      setAssignError('שגיאה בהקצאת הסוכן. ייתכן שחסרות הרשאות — נסה שוב.')
+      setAssigning(false)
+      return
+    }
     setAssignModal(null)
     setSelectedAgent('')
     loadRequests()
@@ -239,7 +247,7 @@ export default function AdminRequests() {
       {/* Assign Agent Modal */}
       <Modal
         isOpen={!!assignModal}
-        onClose={() => { setAssignModal(null); setSelectedAgent('') }}
+        onClose={() => { setAssignModal(null); setSelectedAgent(''); setAssignError('') }}
         title={`הקצה סוכן לבקשה`}
         size="sm"
       >
@@ -259,8 +267,13 @@ export default function AdminRequests() {
                 <option key={agent.id} value={agent.id}>{agent.full_name}</option>
               ))}
             </Select>
+            {assignError && (
+              <p className="text-xs text-danger bg-danger/10 border border-danger/30 rounded-lg px-3 py-2">
+                {assignError}
+              </p>
+            )}
             <div className="flex gap-2 justify-end pt-1">
-              <Button variant="secondary" onClick={() => { setAssignModal(null); setSelectedAgent('') }}>
+              <Button variant="secondary" onClick={() => { setAssignModal(null); setSelectedAgent(''); setAssignError('') }}>
                 ביטול
               </Button>
               <Button

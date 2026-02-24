@@ -30,6 +30,7 @@ export default function AdminChat() {
   const [selectedAgent, setSelectedAgent] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('')
   const [updating, setUpdating] = useState(false)
+  const [manageError, setManageError] = useState('')
 
   useEffect(() => {
     Promise.all([loadRequest(), getAgents().then(({ data }) => setAgents(data || []))])
@@ -47,6 +48,7 @@ export default function AdminChat() {
 
   const handleSaveManage = async () => {
     setUpdating(true)
+    setManageError('')
     const updates = {}
     if (selectedAgent !== request.agent_id) {
       updates.agent_id = selectedAgent || null
@@ -58,7 +60,13 @@ export default function AdminChat() {
       updates.status = selectedStatus
     }
     if (Object.keys(updates).length > 0) {
-      await updateRequest(id, updates)
+      const { error } = await updateRequest(id, updates)
+      if (error) {
+        console.error('[AdminChat] handleSaveManage error:', error)
+        setManageError('שגיאה בעדכון הבקשה. ייתכן שחסרות הרשאות — נסה שוב.')
+        setUpdating(false)
+        return
+      }
       await loadRequest()
     }
     setUpdating(false)
@@ -205,8 +213,13 @@ export default function AdminChat() {
             ))}
           </Select>
 
+          {manageError && (
+            <p className="text-xs text-danger bg-danger/10 border border-danger/30 rounded-lg px-3 py-2">
+              {manageError}
+            </p>
+          )}
           <div className="flex gap-2 justify-end pt-2">
-            <Button variant="secondary" onClick={() => setShowManage(false)}>
+            <Button variant="secondary" onClick={() => { setShowManage(false); setManageError('') }}>
               ביטול
             </Button>
             <Button onClick={handleSaveManage} loading={updating}>

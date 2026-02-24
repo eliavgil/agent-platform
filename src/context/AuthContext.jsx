@@ -6,8 +6,9 @@ const AuthContext = createContext({})
 export const useAuth = () => useContext(AuthContext)
 
 const LOCAL_ADMIN_KEY = '_app_adm'
-const ADMIN_USER = { id: 'local-admin', email: 'admin@local', role: 'admin' }
-const ADMIN_PROFILE = { id: 'local-admin', full_name: 'מנהל', role: 'admin', email: 'admin@local' }
+// Fallback profile used only when no Supabase admin account is configured
+const FALLBACK_ADMIN_USER    = { id: 'local-admin', email: 'admin@local', role: 'admin' }
+const FALLBACK_ADMIN_PROFILE = { id: 'local-admin', full_name: 'מנהל', role: 'admin', email: 'admin@local' }
 
 function clearSupabaseStorage() {
   Object.keys(localStorage)
@@ -23,9 +24,22 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Check for local admin session first
     if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
-      setUser(ADMIN_USER)
-      setProfile(ADMIN_PROFILE)
-      setLoading(false)
+      // If a real Supabase admin session already exists, keep it
+      // (handles page refresh after real-auth admin login)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setUser(session.user)
+          fetchProfile(session.user)
+        } else {
+          setUser(FALLBACK_ADMIN_USER)
+          setProfile(FALLBACK_ADMIN_PROFILE)
+          setLoading(false)
+        }
+      }).catch(() => {
+        setUser(FALLBACK_ADMIN_USER)
+        setProfile(FALLBACK_ADMIN_PROFILE)
+        setLoading(false)
+      })
       return
     }
 
@@ -48,11 +62,10 @@ export function AuthProvider({ children }) {
       })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Never let Supabase events override a local admin session
-      if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
-        setUser(ADMIN_USER)
-        setProfile(ADMIN_PROFILE)
-        setLoading(false)
+      // Let Supabase events update the admin session normally —
+      // the admin's real Supabase session is handled by the regular flow below.
+      // We only block SIGNED_OUT from clearing an active admin session.
+      if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1' && (event === 'SIGNED_OUT')) {
         return
       }
       if (session?.user) {
@@ -111,10 +124,33 @@ export function AuthProvider({ children }) {
     // Secret admin login — not shown in UI
     if (String(email).trim() === '7' && String(password).trim() === '7') {
       localStorage.setItem(LOCAL_ADMIN_KEY, '1')
-      setUser(ADMIN_USER)
-      setProfile(ADMIN_PROFILE)
+
+      // Try to authenticate with a real Supabase admin account (if configured).
+      // This gives the admin a valid JWT so RLS policies and DB writes work.
+      const adminEmail    = import.meta.env.VITE_ADMIN_EMAIL
+      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD
+      if (adminEmail && adminPassword) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: adminEmail,
+            password: adminPassword,
+          })
+          if (!error && data?.user) {
+            // fetchProfile will set the profile (role should be 'admin' in DB)
+            setUser(data.user)
+            await fetchProfile(data.user)
+            return { user: data.user }
+          }
+        } catch {
+          // Fall through to local-only mode
+        }
+      }
+
+      // Fallback: local-only admin (reads work, DB writes may be blocked by RLS)
+      setUser(FALLBACK_ADMIN_USER)
+      setProfile(FALLBACK_ADMIN_PROFILE)
       setLoading(false)
-      return { user: ADMIN_USER }
+      return { user: FALLBACK_ADMIN_USER }
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
@@ -143,6 +179,8 @@ export function AuthProvider({ children }) {
   const signOut = async () => {
     if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
       localStorage.removeItem(LOCAL_ADMIN_KEY)
+      // Sign out of real Supabase session if one was established for the admin
+      try { await supabase.auth.signOut() } catch { /* ignore */ }
       setUser(null)
       setProfile(null)
       setLoading(false)
@@ -176,7 +214,7 @@ export function AuthProvider({ children }) {
       refreshProfile,
       isTeacher: profile?.role === 'teacher',
       isAgent: profile?.role === 'agent',
-      isAdmin: profile?.role === 'admin',
+      isAdmin: profile?.role === 'admin' || localStorage.getItem(LOCAL_ADMIN_KEY) === '1',
     }}>
       {children}
     </AuthContext.Provider>

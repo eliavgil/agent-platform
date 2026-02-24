@@ -114,8 +114,8 @@ export default function TeacherChat() {
           ) : (
             <ChatWindow
               requestId={id}
-              placeholder={request.agent ? `שלח הודעה ל-${request.agent.full_name}...` : 'ממתין לשיבוץ סוכן...'}
-              disabled={!request.agent_id}
+              placeholder={request.agent ? `שלח הודעה ל-${request.agent.full_name}...` : 'שלח הודעה...'}
+              disabled={false}
             />
           )}
         </div>

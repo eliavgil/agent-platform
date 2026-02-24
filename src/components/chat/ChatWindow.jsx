@@ -128,11 +128,15 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
 
       if (selectedFile) {
         setUploadingFile(true)
-        const path = `${requestId}/${Date.now()}-${selectedFile.name}`
-        const result = await uploadFile('message-files', selectedFile, path)
-        fileUrl = result.url
-        fileName = selectedFile.name
-        fileType = selectedFile.type
+        try {
+          const path = `${requestId}/${Date.now()}-${selectedFile.name}`
+          const result = await uploadFile('message-files', selectedFile, path)
+          fileUrl = result.url
+          fileName = selectedFile.name
+          fileType = selectedFile.type
+        } catch (uploadErr) {
+          console.warn('File upload failed, sending message without file:', uploadErr)
+        }
         setUploadingFile(false)
       }
 

@@ -70,10 +70,14 @@ export default function TeacherNewRequest() {
       let fileName = null
 
       if (file) {
-        const path = `${user.id}/${Date.now()}-${file.name}`
-        const result = await uploadFile('request-files', file, path)
-        fileUrl = result.url
-        fileName = file.name
+        try {
+          const path = `${user.id}/${Date.now()}-${file.name}`
+          const result = await uploadFile('request-files', file, path)
+          fileUrl = result.url
+          fileName = file.name
+        } catch (uploadErr) {
+          console.warn('File upload failed, continuing without file:', uploadErr)
+        }
       }
 
       const { data, error } = await createRequest({

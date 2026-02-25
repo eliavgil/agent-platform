@@ -76,7 +76,8 @@ export default function TeacherNewRequest() {
           fileUrl = result.url
           fileName = file.name
         } catch (uploadErr) {
-          console.warn('File upload failed, continuing without file:', uploadErr)
+          console.warn('File upload failed:', uploadErr)
+          setErrors(prev => ({ ...prev, file: 'העלאת הקובץ נכשלה. הבקשה תישלח ללא קובץ.' }))
         }
       }
 
@@ -233,6 +234,9 @@ export default function TeacherNewRequest() {
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
                   </label>
+                )}
+                {errors.file && (
+                  <p className="text-xs text-warning mt-2">{errors.file}</p>
                 )}
               </CardBody>
             </Card>

@@ -88,6 +88,7 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
   const [sending, setSending] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploadingFile, setUploadingFile] = useState(false)
+  const [uploadError, setUploadError] = useState('')
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -135,11 +136,16 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
           fileName = selectedFile.name
           fileType = selectedFile.type
         } catch (uploadErr) {
-          console.warn('File upload failed, sending message without file:', uploadErr)
+          console.warn('File upload failed:', uploadErr)
+          setUploadError('העלאת הקובץ נכשלה. נסה שוב.')
+          setUploadingFile(false)
+          setSending(false)
+          return
         }
         setUploadingFile(false)
       }
 
+      setUploadError('')
       await sendMessage({
         request_id: requestId,
         sender_id: user.id,
@@ -202,6 +208,9 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
       {/* Input */}
       {!disabled && (
         <div className="border-t border-dark-700 px-4 py-3">
+          {uploadError && (
+            <p className="text-xs text-danger mb-2 px-1">{uploadError}</p>
+          )}
           {selectedFile && (
             <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-dark-700 rounded-lg text-sm">
               <File size={14} className="text-accent flex-shrink-0" />
@@ -216,7 +225,7 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
               ref={fileInputRef}
               type="file"
               className="hidden"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              onChange={(e) => { setSelectedFile(e.target.files?.[0] || null); setUploadError('') }}
             />
             <button
               type="button"

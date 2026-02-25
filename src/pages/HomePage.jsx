@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getTools } from '../lib/googleSheets'
+import { getTools, getOutputs } from '../lib/googleSheets'
 import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -601,8 +601,6 @@ function HomeToolCard({ tool }) {
 
 function HomeExampleCard({ example }) {
   const [hovered, setHovered] = useState(false)
-  const [imgFailed, setImgFailed] = useState(false)
-  const isImg = /\.(jpg|jpeg|png|gif|webp|svg)/i.test(example.url || '')
 
   return (
     <div
@@ -616,32 +614,45 @@ function HomeExampleCard({ example }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div className="h-36 flex items-center justify-center overflow-hidden"
-           style={{ background: '#f8fafc' }}>
-        {isImg && !imgFailed ? (
-          <img src={example.url} alt={example.caption}
-               className="w-full h-full object-cover"
-               onError={() => setImgFailed(true)} />
-        ) : (
-          <div className="flex flex-col items-center gap-2 opacity-40">
-            <ExternalLink size={26} className="text-orange-400" />
-          </div>
+      {/* Emoji banner */}
+      <div className="h-28 flex flex-col items-center justify-center gap-2"
+           style={{ background: hovered ? 'rgba(249,115,22,0.08)' : '#f8fafc' }}>
+        <span className="text-4xl select-none leading-none">{example.emoji}</span>
+        {example.aiTool && (
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(249,115,22,0.15)', color: '#ea580c' }}>
+            {example.aiTool}
+          </span>
         )}
       </div>
 
       <div className="p-4">
-        <span className="text-xs font-semibold text-orange-500 block mb-1">{example.toolName}</span>
-        <h3 className="text-sm font-bold leading-snug" style={{ color: '#0f172a' }}>{example.caption}</h3>
-
-        {hovered && (
-          <div className="mt-3 animate-fade-in">
-            <a href={example.url} target="_blank" rel="noopener noreferrer"
+        <h3 className="text-sm font-bold leading-snug mb-1" style={{ color: '#0f172a' }}>{example.name}</h3>
+        {(example.subject || example.grade) && (
+          <p className="text-xs mb-1.5" style={{ color: '#64748b' }}>
+            {[example.subject, example.grade].filter(Boolean).join(' · ')}
+          </p>
+        )}
+        {example.shortDesc && (
+          <p className="text-xs leading-relaxed" style={{
+            color: '#475569',
+            display: '-webkit-box',
+            WebkitLineClamp: hovered ? 'unset' : 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: hovered ? 'visible' : 'hidden',
+          }}>
+            {example.shortDesc}
+          </p>
+        )}
+        {hovered && example.link && (
+          <div className="mt-3">
+            <a href={example.link} target="_blank" rel="noopener noreferrer"
                onClick={e => e.stopPropagation()}
                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
                style={{ background: 'rgba(249,115,22,0.1)', color: '#ea580c' }}
                onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.2)'}
                onMouseLeave={e => e.currentTarget.style.background = 'rgba(249,115,22,0.1)'}>
-              <ExternalLink size={11} /> פתח דוגמה
+              <ExternalLink size={11} /> פתח תוצר
             </a>
           </div>
         )}
@@ -720,17 +731,32 @@ export default function HomePage() {
   const [toolsLoading, setToolsLoading] = useState(true)
   const [agentsLoading, setAgentsLoading] = useState(true)
 
+  const [outputs, setOutputs] = useState([])
+  const [emojiMap, setEmojiMap] = useState({})
+
   useEffect(() => {
-    getTools().then(({ data }) => { setTools(data || []); setToolsLoading(false) })
+    getTools().then(({ data }) => {
+      setTools(data || [])
+      setToolsLoading(false)
+      const map = {}
+      for (const t of (data || [])) {
+        if (t.name && t.logoEmoji) map[t.name.toLowerCase()] = t.logoEmoji
+      }
+      setEmojiMap(map)
+    })
+    getOutputs().then(({ data }) => setOutputs(data || []))
     fetchStudentNames().then(names => { setStudents(names); setAgentsLoading(false) })
   }, [])
 
-  const examples = tools.flatMap(tool => {
-    const arr = []
-    if (tool.example1Url) arr.push({ url: tool.example1Url, caption: tool.example1Caption || tool.name, toolName: tool.name })
-    if (tool.example2Url) arr.push({ url: tool.example2Url, caption: tool.example2Caption || tool.name, toolName: tool.name })
-    return arr
-  })
+  const examples = outputs.map(o => ({
+    name: o.name,
+    aiTool: o.aiTool,
+    emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || '🤖',
+    shortDesc: o.shortDesc || o.description || '',
+    subject: o.subject,
+    grade: o.grade,
+    link: o.link,
+  }))
 
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :

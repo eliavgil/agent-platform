@@ -71,7 +71,8 @@ export default function TeacherNewRequest() {
 
       if (file) {
         try {
-          const path = `${user.id}/${Date.now()}-${file.name}`
+          const ext = file.name.includes('.') ? file.name.split('.').pop() : ''
+          const path = `${user.id}/${Date.now()}${ext ? '.' + ext : ''}`
           const result = await uploadFile('request-files', file, path)
           fileUrl = result.url
           fileName = file.name

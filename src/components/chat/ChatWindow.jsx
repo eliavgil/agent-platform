@@ -130,7 +130,8 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
       if (selectedFile) {
         setUploadingFile(true)
         try {
-          const path = `${requestId}/${Date.now()}-${selectedFile.name}`
+          const ext = selectedFile.name.includes('.') ? selectedFile.name.split('.').pop() : ''
+          const path = `${requestId}/${Date.now()}${ext ? '.' + ext : ''}`
           const result = await uploadFile('message-files', selectedFile, path)
           fileUrl = result.url
           fileName = selectedFile.name

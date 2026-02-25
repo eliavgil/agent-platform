@@ -1,5 +1,5 @@
 const SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRkPkz9IHtPxV5noSxrh6LaT0lZq6QYD2WCJh9rbgiD9j9RZgUNVxDvAMDbm0JQZpHXSxSARBLj_NOr/pub?output=csv'
+  'https://docs.google.com/spreadsheets/d/1jI9CkDIVyJOqmdcOdQpvq1n2wuMXNBJ6BjpLkIPWe2c/gviz/tq?tqx=out:csv&gid=0'
 
 // Maps any CSV column header → expected JS field name
 const FIELD_MAP = {
@@ -40,12 +40,15 @@ const FIELD_MAP = {
   'פעיל': 'is_active', 'active': 'is_active', 'is active': 'is_active', 'isactive': 'is_active',
 }
 
+const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url'])
+
 function normalizeRow(raw) {
   const out = {}
   for (const [key, value] of Object.entries(raw)) {
     const clean = key.trim().toLowerCase().replace(/\s+/g, ' ')
     const mapped = FIELD_MAP[clean] ?? FIELD_MAP[key.trim()] ?? key.trim()
-    out[mapped] = value
+    // Strip values that look like labels rather than real URLs
+    out[mapped] = (URL_FIELDS.has(mapped) && value && !value.startsWith('http')) ? '' : value
   }
   return out
 }

@@ -97,7 +97,10 @@ export function AuthProvider({ children }) {
 
   const fetchProfile = async (supabaseUser) => {
     try {
-      const { data, error } = await getProfile(supabaseUser.id)
+      const { data, error } = await Promise.race([
+        getProfile(supabaseUser.id),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('profile timeout')), 5000)),
+      ])
       if (error || !data) {
         // Create profile for new OAuth users
         const newProfile = {

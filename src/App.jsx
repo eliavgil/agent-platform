@@ -24,6 +24,7 @@ function AppRoutes() {
   const { user, profile, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
+  if (user && !profile) return <LoadingScreen />
 
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :

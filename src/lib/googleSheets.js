@@ -45,11 +45,16 @@ const FIELD_MAP = {
   'מקצוע': 'subject',
   'נושא': 'topic',
   'כיתה': 'grade',
-  'כלי ai בשימוש': 'aiTool', 'כלי ai': 'aiTool',
+  'כלי ai בשימוש': 'aiTool', 'כלי ai': 'aiTool', 'כלי': 'aiTool',
   'סוכן אחראי': 'agent', 'סוכן': 'agent',
+  'תיאור קצר': 'shortDesc', 'קצר': 'shortDesc',
+  'תיאור מלא': 'fullDesc', 'מלא': 'fullDesc', 'תיאור מפורט': 'fullDesc',
+  'ביקורת': 'review', 'ביקורת מורה': 'review', 'חוות דעת': 'review',
+  'שם המורה': 'reviewerName', 'שם מורה': 'reviewerName',
+  'קישור': 'link', 'לינק': 'link', 'קישור לתוצר': 'link', 'link': 'link',
 }
 
-const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url'])
+const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url', 'link'])
 
 function normalizeRow(raw) {
   const out = {}

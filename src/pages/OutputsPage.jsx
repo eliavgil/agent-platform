@@ -1,138 +1,123 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getTools, getOutputs } from '../lib/googleSheets'
-import { Bot, X, Search, User } from 'lucide-react'
+import { Bot, ExternalLink, Search, Quote } from 'lucide-react'
 
 const DARK = { background: '#07080f' }
 const CARD_BG = 'rgba(255,255,255,0.04)'
 const CARD_BORDER = 'rgba(255,255,255,0.08)'
+const CARD_HEIGHT = 260
 
-function OutputCard({ output, emoji, onClick }) {
+function OutputCard({ output, emoji }) {
+  const [hovered, setHovered] = useState(false)
+  const hasExtra = output.fullDesc || output.review || output.link
+
   return (
     <div
-      onClick={() => onClick(output)}
-      className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-1"
-      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = 'rgba(249,115,22,0.4)'
-        e.currentTarget.style.background = 'rgba(249,115,22,0.06)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = CARD_BORDER
-        e.currentTarget.style.background = CARD_BG
-      }}
+      className="relative"
+      style={{ height: CARD_HEIGHT }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* Emoji banner */}
-      <div className="h-28 flex items-center justify-center"
-           style={{ background: 'rgba(249,115,22,0.08)' }}>
-        <span className="text-5xl select-none">{emoji}</span>
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        {output.category && (
-          <span className="inline-block mb-2 text-xs px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
-            {output.category}
-          </span>
-        )}
-        <h3 className="text-sm font-bold text-white leading-snug mb-1">{output.name}</h3>
-        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
-          {[output.subject, output.grade].filter(Boolean).join(' · ')}
-        </p>
-        {output.aiTool && (
-          <span className="inline-block mt-2 text-xs font-semibold text-orange-400">{output.aiTool}</span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function OutputModal({ output, emoji, onClose }) {
-  useEffect(() => {
-    const handler = (e) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden"
-           style={{ background: '#141620', border: '1px solid rgba(255,255,255,0.12)' }}>
-        <button onClick={onClose}
-                className="absolute top-4 left-4 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                style={{ background: 'rgba(255,255,255,0.1)' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}>
-          <X size={15} className="text-white" />
-        </button>
-
-        {/* Hero: prominent emoji + tool name */}
-        <div className="flex flex-col items-center justify-center pt-10 pb-6 px-6 gap-3"
-             style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.12) 0%, transparent 100%)' }}>
-          <span className="text-7xl select-none drop-shadow-lg">{emoji}</span>
+      <div
+        className="absolute left-0 right-0 top-0 rounded-2xl overflow-hidden transition-all duration-300"
+        style={{
+          background: hovered ? '#141620' : CARD_BG,
+          border: `1px solid ${hovered ? 'rgba(249,115,22,0.45)' : CARD_BORDER}`,
+          boxShadow: hovered ? '0 24px 48px rgba(0,0,0,0.6)' : 'none',
+          zIndex: hovered ? 30 : 1,
+          minHeight: CARD_HEIGHT,
+        }}
+      >
+        {/* Emoji banner */}
+        <div
+          className="flex flex-col items-center justify-center gap-2 py-5"
+          style={{ background: hovered ? 'rgba(249,115,22,0.1)' : 'rgba(249,115,22,0.06)' }}
+        >
+          <span className="text-4xl select-none leading-none">{emoji}</span>
           {output.aiTool && (
-            <span className="px-4 py-1.5 rounded-full text-sm font-bold"
-                  style={{ background: 'rgba(249,115,22,0.2)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)' }}>
+            <span
+              className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+              style={{ background: 'rgba(249,115,22,0.2)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.25)' }}
+            >
               {output.aiTool}
             </span>
           )}
         </div>
 
-        <div className="px-6 pb-6 space-y-4">
-          {/* Title + category */}
-          <div>
-            {output.category && (
-              <span className="inline-block mb-1.5 text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
-                {output.category}
-              </span>
-            )}
-            <h2 className="text-xl font-bold text-white leading-snug">{output.name}</h2>
-          </div>
-
-          {/* Meta row */}
-          <div className="flex flex-wrap gap-3">
-            {output.subject && (
-              <div className="flex flex-col">
-                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>מקצוע</span>
-                <span className="text-sm font-medium text-white">{output.subject}</span>
-              </div>
-            )}
-            {output.topic && (
-              <div className="flex flex-col">
-                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>נושא</span>
-                <span className="text-sm font-medium text-white">{output.topic}</span>
-              </div>
-            )}
-            {output.grade && (
-              <div className="flex flex-col">
-                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>כיתה</span>
-                <span className="text-sm font-medium text-white">{output.grade}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          {output.description && (
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {output.description}
+        {/* Base content — always visible */}
+        <div className="px-4 pt-3 pb-4">
+          {output.category && (
+            <span
+              className="inline-block mb-1.5 text-xs px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}
+            >
+              {output.category}
+            </span>
+          )}
+          <h3 className="text-sm font-bold text-white leading-snug mb-1">{output.name}</h3>
+          <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            {[output.subject, output.topic, output.grade].filter(Boolean).join(' · ')}
+          </p>
+          {output.shortDesc && (
+            <p
+              className="text-xs leading-relaxed"
+              style={{
+                color: 'rgba(255,255,255,0.55)',
+                display: '-webkit-box',
+                WebkitLineClamp: hovered ? 'unset' : 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: hovered ? 'visible' : 'hidden',
+              }}
+            >
+              {output.shortDesc}
             </p>
           )}
 
-          {/* Agent */}
-          {output.agent && (
-            <div className="flex items-center gap-2 pt-2 border-t"
-                 style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                   style={{ background: 'rgba(255,255,255,0.1)' }}>
-                <User size={13} className="text-white/60" />
-              </div>
-              <div>
-                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>סוכן אחראי</p>
-                <p className="text-sm font-medium text-white">{output.agent}</p>
-              </div>
+          {/* Expanded content — only on hover */}
+          {hovered && hasExtra && (
+            <div
+              className="mt-3 pt-3 space-y-3"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              {output.fullDesc && output.fullDesc !== output.shortDesc && (
+                <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                  {output.fullDesc}
+                </p>
+              )}
+
+              {output.review && (
+                <div
+                  className="rounded-xl p-3 space-y-1.5"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <div className="flex items-start gap-1.5">
+                    <Quote size={12} className="text-orange-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs italic leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                      {output.review}
+                    </p>
+                  </div>
+                  {output.reviewerName && (
+                    <p className="text-xs font-semibold text-orange-400 text-left">
+                      — {output.reviewerName}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {output.link && (
+                <a
+                  href={output.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+                  style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
+                >
+                  פתח תוצר
+                  <ExternalLink size={11} />
+                </a>
+              )}
             </div>
           )}
         </div>
@@ -147,7 +132,6 @@ export default function OutputsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('הכל')
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     Promise.all([getOutputs(), getTools()]).then(([outRes, toolRes]) => {
@@ -161,7 +145,8 @@ export default function OutputsPage() {
     })
   }, [])
 
-  const getEmoji = (aiTool) => emojiMap[aiTool?.toLowerCase()] || '🤖'
+  const getEmoji = (output) =>
+    output.logoEmoji || emojiMap[output.aiTool?.toLowerCase()] || '🤖'
 
   const categories = ['הכל', ...new Set(outputs.map(o => o.category).filter(Boolean))]
 
@@ -175,6 +160,7 @@ export default function OutputsPage() {
         o.subject?.toLowerCase().includes(q) ||
         o.topic?.toLowerCase().includes(q) ||
         o.aiTool?.toLowerCase().includes(q) ||
+        o.shortDesc?.toLowerCase().includes(q) ||
         o.description?.toLowerCase().includes(q)
       )
     })
@@ -183,23 +169,30 @@ export default function OutputsPage() {
     <div dir="rtl" className="min-h-screen" style={DARK}>
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 border-b"
-           style={{ background: 'rgba(7,8,15,0.88)', backdropFilter: 'blur(16px)', borderColor: 'rgba(255,255,255,0.06)' }}>
+      <nav
+        className="sticky top-0 z-40 border-b"
+        style={{ background: 'rgba(7,8,15,0.88)', backdropFilter: 'blur(16px)', borderColor: 'rgba(255,255,255,0.06)' }}
+      >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/Logo_promptheus.png" alt="Prometheus" className="h-9 w-9 object-contain" />
             <span className="font-bold text-white text-sm hidden sm:block">פרומפתאוס AI</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/" className="text-sm px-3 py-2 rounded-lg transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.55)' }}
-                  onMouseEnter={e => e.target.style.color = '#fff'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.55)'}>
+            <Link
+              to="/"
+              className="text-sm px-3 py-2 rounded-lg transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+              onMouseEnter={e => e.target.style.color = '#fff'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.55)'}
+            >
               דף הבית
             </Link>
-            <Link to="/login"
-                  className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-                  style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}>
+            <Link
+              to="/login"
+              className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+              style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
+            >
               כניסה
             </Link>
           </div>
@@ -208,8 +201,10 @@ export default function OutputsPage() {
 
       {/* Header */}
       <div className="max-w-6xl mx-auto px-6 pt-16 pb-8 text-center">
-        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4"
-              style={{ background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.2)' }}>
+        <span
+          className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4"
+          style={{ background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.2)' }}
+        >
           גלריית תוצרים
         </span>
         <h1 className="text-4xl font-black text-white mb-3">תוצרים ודוגמאות</h1>
@@ -235,12 +230,15 @@ export default function OutputsPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {categories.map(cat => (
-            <button key={cat} onClick={() => setFilter(cat)}
-                    className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
-                    style={filter === cat
-                      ? { background: '#f97316', color: '#fff' }
-                      : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }
-                    }>
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
+              style={filter === cat
+                ? { background: '#f97316', color: '#fff' }
+                : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }
+              }
+            >
               {cat}
             </button>
           ))}
@@ -252,12 +250,12 @@ export default function OutputsPage() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden animate-pulse"
-                   style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="h-28" style={{ background: 'rgba(255,255,255,0.06)' }} />
+              <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ height: CARD_HEIGHT, background: 'rgba(255,255,255,0.04)' }}>
+                <div className="h-24" style={{ background: 'rgba(255,255,255,0.06)' }} />
                 <div className="p-4 space-y-2">
                   <div className="h-3 rounded w-16" style={{ background: 'rgba(255,255,255,0.08)' }} />
                   <div className="h-4 rounded w-32" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                  <div className="h-3 rounded w-24" style={{ background: 'rgba(255,255,255,0.06)' }} />
                 </div>
               </div>
             ))}
@@ -272,19 +270,11 @@ export default function OutputsPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {filtered.map((output, i) => (
-              <OutputCard key={i} output={output} emoji={getEmoji(output.aiTool)} onClick={setSelected} />
+              <OutputCard key={i} output={output} emoji={getEmoji(output)} />
             ))}
           </div>
         )}
       </div>
-
-      {selected && (
-        <OutputModal
-          output={selected}
-          emoji={getEmoji(selected.aiTool)}
-          onClose={() => setSelected(null)}
-        />
-      )}
     </div>
   )
 }

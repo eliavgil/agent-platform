@@ -1,5 +1,7 @@
-const SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/1jI9CkDIVyJOqmdcOdQpvq1n2wuMXNBJ6BjpLkIPWe2c/gviz/tq?tqx=out:csv&gid=0'
+const SPREADSHEET_ID = '1jI9CkDIVyJOqmdcOdQpvq1n2wuMXNBJ6BjpLkIPWe2c'
+const SHEET_BASE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`
+const SHEET_URL = `${SHEET_BASE}&gid=0`
+const OUTPUTS_SHEET_URL = `${SHEET_BASE}&sheet=%D7%AA%D7%95%D7%A6%D7%A8%D7%99%D7%9D`
 
 // Maps any CSV column header → expected JS field name
 const FIELD_MAP = {
@@ -38,6 +40,13 @@ const FIELD_MAP = {
   'example2caption': 'example2Caption', 'example2 caption': 'example2Caption', 'example 2 caption': 'example2Caption',
   // is_active
   'פעיל': 'is_active', 'active': 'is_active', 'is active': 'is_active', 'isactive': 'is_active',
+  // outputs sheet
+  'שם התוצר': 'name',
+  'מקצוע': 'subject',
+  'נושא': 'topic',
+  'כיתה': 'grade',
+  'כלי ai בשימוש': 'aiTool', 'כלי ai': 'aiTool',
+  'סוכן אחראי': 'agent', 'סוכן': 'agent',
 }
 
 const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url'])
@@ -108,6 +117,19 @@ export const getTools = async () => {
     return { data: tools, error: null }
   } catch (error) {
     console.error('Failed to fetch tools from Google Sheets:', error)
+    return { data: [], error }
+  }
+}
+
+export const getOutputs = async () => {
+  try {
+    const response = await fetch(OUTPUTS_SHEET_URL)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const csv = await response.text()
+    const outputs = parseCSV(csv)
+    return { data: outputs, error: null }
+  } catch (error) {
+    console.error('Failed to fetch outputs from Google Sheets:', error)
     return { data: [], error }
   }
 }

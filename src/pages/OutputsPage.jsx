@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getTools } from '../lib/googleSheets'
-import { Bot, ExternalLink, X, Search } from 'lucide-react'
+import { getTools, getOutputs } from '../lib/googleSheets'
+import { Bot, X, Search, User } from 'lucide-react'
 
 const DARK = { background: '#07080f' }
 const CARD_BG = 'rgba(255,255,255,0.04)'
 const CARD_BORDER = 'rgba(255,255,255,0.08)'
 
-function OutputCard({ example, onClick }) {
-  const isImg = /\.(jpg|jpeg|png|gif|webp|svg)/i.test(example.url || '')
-  const [imgFailed, setImgFailed] = useState(false)
-
+function OutputCard({ output, emoji, onClick }) {
   return (
     <div
-      onClick={() => onClick(example)}
+      onClick={() => onClick(output)}
       className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-1"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       onMouseEnter={e => {
@@ -25,40 +22,33 @@ function OutputCard({ example, onClick }) {
         e.currentTarget.style.background = CARD_BG
       }}
     >
-      {/* Preview */}
-      <div className="h-40 flex items-center justify-center overflow-hidden"
-           style={{ background: 'rgba(255,255,255,0.02)' }}>
-        {isImg && !imgFailed ? (
-          <img src={example.url} alt={example.caption}
-               className="w-full h-full object-cover"
-               onError={() => setImgFailed(true)} />
-        ) : (
-          <div className="flex flex-col items-center gap-2 opacity-40">
-            <ExternalLink size={28} className="text-orange-400" />
-            <span className="text-xs text-white/50">לחץ לפתיחה</span>
-          </div>
-        )}
+      {/* Emoji banner */}
+      <div className="h-28 flex items-center justify-center"
+           style={{ background: 'rgba(249,115,22,0.08)' }}>
+        <span className="text-5xl select-none">{emoji}</span>
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <span className="text-xs font-semibold text-orange-400 block mb-1">{example.toolName}</span>
-        <h3 className="text-sm font-bold text-white leading-snug">{example.caption}</h3>
-        {example.category && (
-          <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full"
+        {output.category && (
+          <span className="inline-block mb-2 text-xs px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
-            {example.category}
+            {output.category}
           </span>
+        )}
+        <h3 className="text-sm font-bold text-white leading-snug mb-1">{output.name}</h3>
+        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          {[output.subject, output.grade].filter(Boolean).join(' · ')}
+        </p>
+        {output.aiTool && (
+          <span className="inline-block mt-2 text-xs font-semibold text-orange-400">{output.aiTool}</span>
         )}
       </div>
     </div>
   )
 }
 
-function OutputModal({ example, onClose }) {
-  const isImg = /\.(jpg|jpeg|png|gif|webp|svg)/i.test(example.url || '')
-  const [imgFailed, setImgFailed] = useState(false)
-
+function OutputModal({ output, emoji, onClose }) {
   useEffect(() => {
     const handler = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', handler)
@@ -78,37 +68,73 @@ function OutputModal({ example, onClose }) {
           <X size={15} className="text-white" />
         </button>
 
-        {/* Preview */}
-        <div className="h-56 flex items-center justify-center overflow-hidden"
-             style={{ background: 'rgba(255,255,255,0.02)' }}>
-          {isImg && !imgFailed ? (
-            <img src={example.url} alt={example.caption}
-                 className="w-full h-full object-cover"
-                 onError={() => setImgFailed(true)} />
-          ) : (
-            <div className="text-center opacity-50">
-              <ExternalLink size={40} className="text-orange-400 mx-auto mb-2" />
-              <p className="text-sm text-white/50">תצוגה מקדימה לא זמינה</p>
-            </div>
+        {/* Hero: prominent emoji + tool name */}
+        <div className="flex flex-col items-center justify-center pt-10 pb-6 px-6 gap-3"
+             style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.12) 0%, transparent 100%)' }}>
+          <span className="text-7xl select-none drop-shadow-lg">{emoji}</span>
+          {output.aiTool && (
+            <span className="px-4 py-1.5 rounded-full text-sm font-bold"
+                  style={{ background: 'rgba(249,115,22,0.2)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)' }}>
+              {output.aiTool}
+            </span>
           )}
         </div>
 
-        <div className="p-6 space-y-3">
+        <div className="px-6 pb-6 space-y-4">
+          {/* Title + category */}
           <div>
-            <span className="text-xs font-semibold text-orange-400">{example.toolName}</span>
-            <h2 className="text-xl font-bold text-white mt-0.5">{example.caption}</h2>
+            {output.category && (
+              <span className="inline-block mb-1.5 text-xs px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
+                {output.category}
+              </span>
+            )}
+            <h2 className="text-xl font-bold text-white leading-snug">{output.name}</h2>
           </div>
-          {example.description && (
+
+          {/* Meta row */}
+          <div className="flex flex-wrap gap-3">
+            {output.subject && (
+              <div className="flex flex-col">
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>מקצוע</span>
+                <span className="text-sm font-medium text-white">{output.subject}</span>
+              </div>
+            )}
+            {output.topic && (
+              <div className="flex flex-col">
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>נושא</span>
+                <span className="text-sm font-medium text-white">{output.topic}</span>
+              </div>
+            )}
+            {output.grade && (
+              <div className="flex flex-col">
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>כיתה</span>
+                <span className="text-sm font-medium text-white">{output.grade}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          {output.description && (
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {example.description}
+              {output.description}
             </p>
           )}
-          <a href={example.url} target="_blank" rel="noopener noreferrer"
-             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
-             style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}>
-            פתח דוגמה
-            <ExternalLink size={14} />
-          </a>
+
+          {/* Agent */}
+          {output.agent && (
+            <div className="flex items-center gap-2 pt-2 border-t"
+                 style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                   style={{ background: 'rgba(255,255,255,0.1)' }}>
+                <User size={13} className="text-white/60" />
+              </div>
+              <div>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>סוכן אחראי</p>
+                <p className="text-sm font-medium text-white">{output.agent}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -116,39 +142,42 @@ function OutputModal({ example, onClose }) {
 }
 
 export default function OutputsPage() {
-  const [tools, setTools] = useState([])
+  const [outputs, setOutputs] = useState([])
+  const [emojiMap, setEmojiMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('הכל')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
 
   useEffect(() => {
-    getTools().then(({ data }) => { setTools(data || []); setLoading(false) })
+    Promise.all([getOutputs(), getTools()]).then(([outRes, toolRes]) => {
+      setOutputs(outRes.data || [])
+      const map = {}
+      for (const tool of (toolRes.data || [])) {
+        if (tool.name && tool.logoEmoji) map[tool.name.toLowerCase()] = tool.logoEmoji
+      }
+      setEmojiMap(map)
+      setLoading(false)
+    })
   }, [])
 
-  const allExamples = tools.flatMap(tool => {
-    const items = []
-    if (tool.example1Url) items.push({
-      url: tool.example1Url,
-      caption: tool.example1Caption || `דוגמה מ-${tool.name}`,
-      toolName: tool.name,
-      category: tool.category,
-      description: tool.description,
-    })
-    if (tool.example2Url) items.push({
-      url: tool.example2Url,
-      caption: tool.example2Caption || `דוגמה מ-${tool.name}`,
-      toolName: tool.name,
-      category: tool.category,
-      description: tool.description,
-    })
-    return items
-  })
+  const getEmoji = (aiTool) => emojiMap[aiTool?.toLowerCase()] || '🤖'
 
-  const categories = ['הכל', ...new Set(tools.map(t => t.category).filter(Boolean))]
-  const filtered = allExamples
-    .filter(e => filter === 'הכל' || e.category === filter)
-    .filter(e => !search || e.caption.includes(search) || e.toolName.includes(search))
+  const categories = ['הכל', ...new Set(outputs.map(o => o.category).filter(Boolean))]
+
+  const filtered = outputs
+    .filter(o => filter === 'הכל' || o.category === filter)
+    .filter(o => {
+      if (!search) return true
+      const q = search.toLowerCase()
+      return (
+        o.name?.toLowerCase().includes(q) ||
+        o.subject?.toLowerCase().includes(q) ||
+        o.topic?.toLowerCase().includes(q) ||
+        o.aiTool?.toLowerCase().includes(q) ||
+        o.description?.toLowerCase().includes(q)
+      )
+    })
 
   return (
     <div dir="rtl" className="min-h-screen" style={DARK}>
@@ -191,21 +220,19 @@ export default function OutputsPage() {
 
       {/* Filters + Search */}
       <div className="max-w-6xl mx-auto px-6 mb-8 space-y-4">
-        {/* Search */}
         <div className="relative max-w-sm">
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="חפש תוצר..."
+            placeholder="חפש תוצר, מקצוע, כלי..."
             className="w-full pr-9 pl-4 py-2.5 rounded-xl text-sm text-white placeholder:text-white/30 outline-none transition-all"
             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
             onFocus={e => e.target.style.borderColor = 'rgba(249,115,22,0.4)'}
             onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
           />
         </div>
-        {/* Category tabs */}
         <div className="flex gap-2 flex-wrap">
           {categories.map(cat => (
             <button key={cat} onClick={() => setFilter(cat)}
@@ -227,7 +254,7 @@ export default function OutputsPage() {
             {[...Array(8)].map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden animate-pulse"
                    style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="h-40" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <div className="h-28" style={{ background: 'rgba(255,255,255,0.06)' }} />
                 <div className="p-4 space-y-2">
                   <div className="h-3 rounded w-16" style={{ background: 'rgba(255,255,255,0.08)' }} />
                   <div className="h-4 rounded w-32" style={{ background: 'rgba(255,255,255,0.08)' }} />
@@ -239,19 +266,25 @@ export default function OutputsPage() {
           <div className="text-center py-24">
             <Bot size={48} className="mx-auto mb-4 opacity-20 text-white" />
             <p style={{ color: 'rgba(255,255,255,0.35)' }}>
-              {allExamples.length === 0 ? 'עדיין אין תוצרים — בקרוב!' : 'לא נמצאו תוצרים תואמים'}
+              {outputs.length === 0 ? 'עדיין אין תוצרים — בקרוב!' : 'לא נמצאו תוצרים תואמים'}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {filtered.map((ex, i) => (
-              <OutputCard key={i} example={ex} onClick={setSelected} />
+            {filtered.map((output, i) => (
+              <OutputCard key={i} output={output} emoji={getEmoji(output.aiTool)} onClick={setSelected} />
             ))}
           </div>
         )}
       </div>
 
-      {selected && <OutputModal example={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <OutputModal
+          output={selected}
+          emoji={getEmoji(selected.aiTool)}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
   )
 }

@@ -25,9 +25,6 @@ function AppRoutes() {
 
   if (loading) return <LoadingScreen />
 
-  // If user is authenticated but profile hasn't loaded yet → prevent redirect loop
-  if (user && !profile) return <LoadingScreen />
-
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :
     profile?.role === 'agent' ? '/agent' : '/teacher'

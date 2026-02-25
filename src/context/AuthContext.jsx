@@ -24,9 +24,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Check for local admin session first
     if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
-      // If a real Supabase admin session already exists, keep it
-      // (handles page refresh after real-auth admin login)
+      // Timeout safety — if Supabase hangs, fall back to local-admin immediately
+      const adminTimeout = setTimeout(() => {
+        setUser(FALLBACK_ADMIN_USER)
+        setProfile(FALLBACK_ADMIN_PROFILE)
+        setLoading(false)
+      }, 5000)
+
       supabase.auth.getSession().then(({ data: { session } }) => {
+        clearTimeout(adminTimeout)
         if (session?.user) {
           setUser(session.user)
           fetchProfile(session.user)
@@ -36,6 +42,7 @@ export function AuthProvider({ children }) {
           setLoading(false)
         }
       }).catch(() => {
+        clearTimeout(adminTimeout)
         setUser(FALLBACK_ADMIN_USER)
         setProfile(FALLBACK_ADMIN_PROFILE)
         setLoading(false)
@@ -125,8 +132,17 @@ export function AuthProvider({ children }) {
     if (String(email).trim() === '7' && String(password).trim() === '7') {
       localStorage.setItem(LOCAL_ADMIN_KEY, '1')
 
-      // Try to authenticate with a real Supabase admin account (if configured).
-      // This gives the admin a valid JWT so RLS policies and DB writes work.
+      // 1. Reuse an existing Supabase session (e.g. logged in via Google earlier)
+      try {
+        const { data: { session: existing } } = await supabase.auth.getSession()
+        if (existing?.user) {
+          setUser(existing.user)
+          await fetchProfile(existing.user)
+          return { user: existing.user }
+        }
+      } catch { /* ignore */ }
+
+      // 2. Try password auth with configured admin credentials
       const adminEmail    = import.meta.env.VITE_ADMIN_EMAIL
       const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD
       if (adminEmail && adminPassword) {
@@ -136,17 +152,18 @@ export function AuthProvider({ children }) {
             password: adminPassword,
           })
           if (!error && data?.user) {
-            // fetchProfile will set the profile (role should be 'admin' in DB)
             setUser(data.user)
             await fetchProfile(data.user)
             return { user: data.user }
           }
-        } catch {
-          // Fall through to local-only mode
+          if (error) console.warn('[Admin] signInWithPassword failed:', error.message)
+        } catch (e) {
+          console.warn('[Admin] signInWithPassword threw:', e)
         }
       }
 
-      // Fallback: local-only admin (reads work, DB writes may be blocked by RLS)
+      // 3. Fallback: local-only (no JWT — Supabase RLS will block writes/reads)
+      console.warn('[Admin] falling back to local-only mode — DB operations may be blocked by RLS')
       setUser(FALLBACK_ADMIN_USER)
       setProfile(FALLBACK_ADMIN_PROFILE)
       setLoading(false)

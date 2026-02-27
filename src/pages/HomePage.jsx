@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { getTools, getOutputs } from '../lib/googleSheets'
+import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
 import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -298,135 +299,86 @@ function RobotFigure({ c, variant = 0 }) {
   )
 }
 
-// ── TorchSVG ──────────────────────────────────────────────────────────────────
+// ── TorchSVG — robotic arm from the right holding a torch ─────────────────────
 function TorchSVG() {
   return (
-    <svg viewBox="0 0 240 460" width="160" height="307" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="45 0 60 200" width="30" height="100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
         <linearGradient id="tMetal" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#07152a"/><stop offset="30%" stopColor="#0f2a55"/>
-          <stop offset="50%" stopColor="#1a4888" stopOpacity="0.9"/>
-          <stop offset="70%" stopColor="#0f2a55"/><stop offset="100%" stopColor="#07152a"/>
+          <stop offset="0%"   stopColor="#07152a"/>
+          <stop offset="30%"  stopColor="#0f2a55"/>
+          <stop offset="55%"  stopColor="#1a4888" stopOpacity="0.9"/>
+          <stop offset="75%"  stopColor="#0f2a55"/>
+          <stop offset="100%" stopColor="#07152a"/>
         </linearGradient>
         <linearGradient id="tBronze" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#2e1a06"/><stop offset="40%" stopColor="#7a5218"/>
-          <stop offset="60%" stopColor="#b88028"/><stop offset="100%" stopColor="#2e1a06"/>
+          <stop offset="0%"   stopColor="#2e1a06"/>
+          <stop offset="40%"  stopColor="#7a5218"/>
+          <stop offset="60%"  stopColor="#b88028"/>
+          <stop offset="100%" stopColor="#2e1a06"/>
         </linearGradient>
         <radialGradient id="tOuterFlame" cx="50%" cy="85%" r="65%">
-          <stop offset="0%" stopColor="#cc1800"/>
-          <stop offset="50%" stopColor="#ee4400" stopOpacity="0.9"/>
+          <stop offset="0%"   stopColor="#cc1800"/>
+          <stop offset="50%"  stopColor="#ee4400" stopOpacity="0.9"/>
           <stop offset="100%" stopColor="#ff5500" stopOpacity="0"/>
         </radialGradient>
         <radialGradient id="tMidFlame" cx="50%" cy="80%" r="60%">
-          <stop offset="0%" stopColor="#ff7700"/>
-          <stop offset="55%" stopColor="#ff9900"/>
+          <stop offset="0%"   stopColor="#ff7700"/>
+          <stop offset="55%"  stopColor="#ff9900"/>
           <stop offset="100%" stopColor="#ffbb00" stopOpacity="0"/>
         </radialGradient>
         <radialGradient id="tInnerFlame" cx="50%" cy="75%" r="55%">
-          <stop offset="0%" stopColor="#ffdd00"/>
+          <stop offset="0%"   stopColor="#ffdd00"/>
           <stop offset="100%" stopColor="#ff8800" stopOpacity="0.3"/>
         </radialGradient>
         <radialGradient id="tCore" cx="50%" cy="70%" r="50%">
-          <stop offset="0%" stopColor="#ffffff"/>
-          <stop offset="40%" stopColor="#ffffcc"/>
+          <stop offset="0%"   stopColor="#ffffff"/>
+          <stop offset="40%"  stopColor="#ffffcc"/>
           <stop offset="100%" stopColor="#ffee44" stopOpacity="0"/>
         </radialGradient>
-        <filter id="tGlow"><feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="tGlow">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
         <filter id="tFlameBlur">
-          <feGaussianBlur stdDeviation="7" result="b"/>
+          <feGaussianBlur stdDeviation="6" result="b"/>
           <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
 
-      {/* FLAME */}
+      {/* ── FLAME (centered at x=75) ── */}
       <g filter="url(#tFlameBlur)">
         <path className="tFlameOuter"
-          d="M120,132 C148,128 162,98 155,68 C150,44 136,16 120,8 C104,16 90,44 85,68 C78,98 92,128 120,132Z"
+          d="M75,68 C97,64 108,42 101,20 C96,4 85,0 75,0 C65,0 54,4 49,20 C42,42 53,64 75,68Z"
           fill="url(#tOuterFlame)" opacity="0.9"/>
-        <path className="tFlameLickL"
-          d="M113,132 C90,118 72,86 82,58 C89,40 101,26 113,20 C106,32 99,54 105,76 C110,94 116,118 113,132Z"
-          fill="#ee3300" opacity="0.5"/>
-        <path className="tFlameLickR"
-          d="M127,132 C150,118 168,86 158,58 C151,40 139,26 127,20 C134,32 141,54 135,76 C130,94 124,118 127,132Z"
-          fill="#ee3300" opacity="0.5"/>
         <path className="tFlameMid"
-          d="M120,132 C142,128 152,104 146,80 C142,58 132,32 120,26 C108,32 98,58 94,80 C88,104 98,128 120,132Z"
+          d="M75,68 C90,65 98,46 93,28 C89,14 83,4 75,1 C67,4 61,14 57,28 C52,46 60,65 75,68Z"
           fill="url(#tMidFlame)"/>
         <path className="tFlameInner"
-          d="M120,132 C133,130 140,110 136,90 C132,70 128,52 120,46 C112,52 108,70 104,90 C100,110 107,130 120,132Z"
+          d="M75,68 C84,66 90,52 86,37 C83,24 80,14 75,10 C70,14 67,24 64,37 C60,52 66,66 75,68Z"
           fill="url(#tInnerFlame)"/>
         <path className="tFlameCore"
-          d="M120,132 C126,130 130,116 128,102 C126,90 124,80 120,76 C116,80 114,90 112,102 C110,116 114,130 120,132Z"
+          d="M75,68 C79,67 82,56 80,45 C78,35 77,26 75,22 C73,26 72,35 70,45 C68,56 71,67 75,68Z"
           fill="url(#tCore)"/>
-        <circle cx="103" cy="74" r="2"   fill="#ffee00" style={{animation:'tSpark1 1.5s ease-out 0.2s infinite'}}/>
-        <circle cx="138" cy="66" r="1.5" fill="#ff8800" style={{animation:'tSpark2 1.8s ease-out 0.7s infinite'}}/>
-        <circle cx="126" cy="56" r="1"   fill="#fffaaa" style={{animation:'tSpark3 1.3s ease-out 1.1s infinite'}}/>
-        <circle cx="110" cy="48" r="1.5" fill="#ffcc00" style={{animation:'tSpark4 1.6s ease-out 0.4s infinite'}}/>
+        <circle cx="60" cy="28" r="1.5" fill="#ffee00" style={{animation:'tSpark1 1.5s ease-out 0.2s infinite'}}/>
+        <circle cx="91" cy="22" r="1.2" fill="#ff8800" style={{animation:'tSpark2 1.8s ease-out 0.7s infinite'}}/>
+        <circle cx="83" cy="12" r="0.9" fill="#fffaaa" style={{animation:'tSpark3 1.3s ease-out 1.1s infinite'}}/>
+        <circle cx="63" cy="10" r="1.1" fill="#ffcc00" style={{animation:'tSpark4 1.6s ease-out 0.4s infinite'}}/>
       </g>
 
-      {/* TORCH BOWL */}
-      <ellipse cx="120" cy="133" rx="26" ry="10" fill="#3a2008" stroke="#9a7022" strokeWidth="1"/>
-      <rect x="94"  y="133" width="52" height="22" rx="3" fill="url(#tBronze)"/>
-      <ellipse cx="120" cy="155" rx="28" ry="9" fill="#2a1806" stroke="#7a5518" strokeWidth="0.8"/>
+      {/* ── TORCH BOWL ── */}
+      <ellipse cx="75" cy="69" rx="22" ry="8"  fill="#3a2008" stroke="#9a7022" strokeWidth="0.9"/>
+      <rect    x="53"  y="69" width="44" height="18" rx="2.5" fill="url(#tBronze)"/>
+      <ellipse cx="75" cy="87" rx="24" ry="7.5" fill="#2a1806" stroke="#7a5518" strokeWidth="0.7"/>
 
-      {/* TORCH HANDLE */}
-      <rect x="109" y="154" width="22" height="118" rx="3" fill="url(#tBronze)"/>
-      {[170,186,200,214,228,242,254,262].map((y, i) => (
-        <rect key={i} x="107" y={y} width="26" height="5" rx="2" fill="#2a1806" stroke="#8a6018" strokeWidth="0.5"/>
+      {/* ── TORCH HANDLE ── */}
+      <rect x="65" y="86" width="20" height="110" rx="3" fill="url(#tBronze)"/>
+      {[100,115,130,145,160,174,185].map((y,i) => (
+        <rect key={i} x="63" y={y} width="24" height="4" rx="1.5" fill="#2a1806" stroke="#8a6018" strokeWidth="0.4"/>
       ))}
 
-      {/* MECHANICAL FIST */}
-      {/* PALM */}
-      <rect x="62" y="272" width="116" height="50" rx="10" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.4"/>
-      <line x1="80" y1="272" x2="80" y2="322" stroke="#1a6aff" strokeWidth="0.8" opacity=".5"/>
-      <line x1="160" y1="272" x2="160" y2="322" stroke="#1a6aff" strokeWidth="0.8" opacity=".5"/>
-      <circle cx="90" cy="296" r="3" fill="#22aaff" opacity=".9" filter="url(#tGlow)"/>
-      <circle cx="150" cy="300" r="2.5" fill="#22aaff" opacity=".7" filter="url(#tGlow)"/>
-      <circle cx="120" cy="310" r="2.5" fill="#22aaff" opacity=".7" filter="url(#tGlow)"/>
-
-      {/* INDEX FINGER */}
-      <rect x="68" y="226" width="20" height="48" rx="8" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.2"/>
-      <circle cx="78" cy="250" r="5.5" fill="#07152a" stroke="#2266bb" strokeWidth="1.3"/>
-      <rect x="71" y="247" width="14" height="5" rx="2" fill="#040d1c"/>
-
-      {/* MIDDLE FINGER */}
-      <rect x="93" y="216" width="20" height="58" rx="8" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.2"/>
-      <circle cx="103" cy="242" r="5.5" fill="#07152a" stroke="#2266bb" strokeWidth="1.3"/>
-      <rect x="96" y="239" width="14" height="5" rx="2" fill="#040d1c"/>
-
-      {/* RING FINGER */}
-      <rect x="118" y="220" width="20" height="54" rx="8" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.2"/>
-      <circle cx="128" cy="246" r="5.5" fill="#07152a" stroke="#2266bb" strokeWidth="1.3"/>
-      <rect x="121" y="243" width="14" height="5" rx="2" fill="#040d1c"/>
-
-      {/* PINKY */}
-      <rect x="143" y="232" width="18" height="42" rx="7" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.2"/>
-      <circle cx="152" cy="253" r="5" fill="#07152a" stroke="#2266bb" strokeWidth="1.3"/>
-      <rect x="146" y="250" width="12" height="5" rx="2" fill="#040d1c"/>
-
-      {/* THUMB — side */}
-      <rect x="46" y="255" width="22" height="42" rx="8" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.2"/>
-      <circle cx="57" cy="268" r="5" fill="#07152a" stroke="#2266bb" strokeWidth="1.5"/>
-      <rect x="50" y="265" width="14" height="4" rx="2" fill="#040d1c"/>
-      <rect x="50" y="275" width="14" height="4" rx="2" fill="#040d1c"/>
-
-      {/* WRIST */}
-      <rect x="70" y="308" width="100" height="36" rx="8" fill="url(#tMetal)" stroke="#18489a" strokeWidth="1.4"/>
-      <rect x="78" y="316" width="84" height="8"  rx="3" fill="#040d1c" stroke="#0a3060" strokeWidth="0.6"/>
-      <rect x="78" y="327" width="84" height="8"  rx="3" fill="#040d1c" stroke="#0a3060" strokeWidth="0.6"/>
-
-      {/* FOREARM */}
-      <rect x="76" y="342" width="88" height="110" rx="9" fill="url(#tMetal)" stroke="#10223e" strokeWidth="1.4"/>
-      {[356,376,396,416,436].map((y, i) => (
-        <rect key={i} x="83" y={y} width="74" height="12" rx="3" fill="#040d1c" stroke="#0a2850" strokeWidth="0.5"/>
-      ))}
-      <line x1="88"  y1="344" x2="88"  y2="452" stroke="#0a6aff" strokeWidth="1" opacity=".6" filter="url(#tGlow)"/>
-      <line x1="152" y1="344" x2="152" y2="452" stroke="#0a6aff" strokeWidth="1" opacity=".6" filter="url(#tGlow)"/>
-      {/* Elbow cap */}
-      <ellipse cx="120" cy="452" rx="44" ry="14" fill="#07152a" stroke="#18448a" strokeWidth="1.6"/>
-      <ellipse cx="120" cy="452" rx="30" ry="9"  fill="#040d1c" stroke="#0a2860" strokeWidth="0.9"/>
-      <circle  cx="120" cy="452" r="7"           fill="#07152a" stroke="#2060c0" strokeWidth="1.2"/>
+      {/* Orange ambient glow under bowl */}
+      <ellipse cx="75" cy="88" rx="22" ry="5" fill="rgba(255,100,0,0.12)"/>
     </svg>
   )
 }
@@ -696,7 +648,6 @@ function StepCard({ step, idx }) {
       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white font-black text-lg shadow-lg mb-4`}>
         {step.num}
       </div>
-      <div className="text-4xl mb-3">{step.icon}</div>
       <h3 className="font-bold text-base mb-2" style={{ color: '#0f172a' }}>{step.title}</h3>
       <p className="text-sm leading-relaxed max-w-[200px]" style={{ color: '#475569' }}>{step.desc}</p>
     </div>
@@ -751,7 +702,7 @@ export default function HomePage() {
   const examples = outputs.map(o => ({
     name: o.name,
     aiTool: o.aiTool,
-    emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || '🤖',
+    emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || getToolEmoji(o.aiTool) || '🤖',
     shortDesc: o.shortDesc || o.description || '',
     subject: o.subject,
     grade: o.grade,
@@ -777,15 +728,14 @@ export default function HomePage() {
 
       {/* ── CSS Animations ────────────────────────────────────────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap');
         .font-orbitron { font-family: 'Orbitron', 'Inter', monospace; }
+        .font-pixel { font-family: 'Press Start 2P', monospace; }
 
-        .tFlameOuter  { transform-origin:120px 132px; animation:tFlicker  .75s ease-in-out infinite; }
-        .tFlameLickL  { transform-origin:95px  132px; animation:tLickL    1.1s  ease-in-out .3s infinite; }
-        .tFlameLickR  { transform-origin:145px 132px; animation:tLickR    1.1s  ease-in-out .6s infinite; }
-        .tFlameMid    { transform-origin:120px 132px; animation:tFlicker  .55s ease-in-out .08s infinite; }
-        .tFlameInner  { transform-origin:120px 132px; animation:tInnerF   .45s ease-in-out .15s infinite; }
-        .tFlameCore   { transform-origin:120px 132px; animation:tInnerF   .35s ease-in-out infinite; }
+        .tFlameOuter  { transform-origin:75px 68px; animation:tFlicker  .75s ease-in-out infinite; }
+        .tFlameMid    { transform-origin:75px 68px; animation:tFlicker  .55s ease-in-out .08s infinite; }
+        .tFlameInner  { transform-origin:75px 68px; animation:tInnerF   .45s ease-in-out .15s infinite; }
+        .tFlameCore   { transform-origin:75px 68px; animation:tInnerF   .35s ease-in-out infinite; }
 
         @keyframes tFlicker {
           0%,100%{transform:scaleX(1) scaleY(1) rotate(-1deg);}
@@ -811,6 +761,12 @@ export default function HomePage() {
           50%{filter:drop-shadow(0 0 18px #ffaa00cc) drop-shadow(0 0 44px #ff660077);}
         }
         .torch-wrap{animation:torchGlow 1.8s ease-in-out infinite;}
+
+        @keyframes headingGlow {
+          0%,100%{text-shadow:0 0 8px rgba(176,85,49,0.6),0 0 20px rgba(176,85,49,0.3),0 0 40px rgba(176,85,49,0.15);}
+          50%{text-shadow:0 0 14px rgba(220,110,50,0.9),0 0 30px rgba(176,85,49,0.55),0 0 60px rgba(176,85,49,0.25),0 0 2px rgba(255,180,100,0.6);}
+        }
+        .heading-glow{animation:headingGlow 2.2s ease-in-out infinite;}
 
         @keyframes particleRise{
           0%{transform:translateY(0) translateX(0);opacity:0;}
@@ -904,17 +860,17 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ── Hero (dark, split layout) ────────────────────────────────────── */}
-      <section id="top" className="relative overflow-hidden"
-               style={{ minHeight: '100vh', background: `radial-gradient(ellipse 900px 700px at 50% 40%, #0e1840 0%, ${S1} 65%)` }}>
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section id="top" className="relative overflow-hidden flex flex-col items-center justify-center px-4 py-12"
+               style={{ minHeight: '100vh', background: S1 }}>
 
         {/* Grid */}
         <div className="hero-grid absolute inset-0 pointer-events-none"
              style={{ backgroundImage: 'linear-gradient(rgba(99,102,241,1) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,1) 1px,transparent 1px)', backgroundSize: '55px 55px', opacity: .08 }}/>
 
-        {/* Horizon glow */}
+        {/* Subtle horizon glow */}
         <div className="absolute inset-0 pointer-events-none"
-             style={{ background: 'radial-gradient(ellipse 700px 300px at 50% 100%,rgba(249,115,22,.06) 0%,transparent 70%)' }}/>
+             style={{ background: 'radial-gradient(ellipse 700px 300px at 50% 100%,rgba(176,85,49,.07) 0%,transparent 70%)' }}/>
 
         {/* Particles */}
         {PARTICLES.map(p => (
@@ -922,59 +878,83 @@ export default function HomePage() {
                style={{
                  left: p.left, bottom: '-5px',
                  width: `${p.size}px`, height: `${p.size}px`,
-                 background: p.id % 3 === 0 ? '#f97316' : p.id % 3 === 1 ? '#6366f1' : '#22aaff',
+                 background: p.id % 3 === 0 ? '#b05531' : p.id % 3 === 1 ? '#cc6633' : '#e07744',
                  '--pop': p.opacity, '--d': p.drift,
                  animation: `particleRise ${p.duration} linear ${p.delay} infinite`,
                }}/>
         ))}
 
-        {/* ── 3-column hero content ── */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-4 sm:px-8"
-             style={{ minHeight: '100vh' }}>
+        {/* ── Centered content ── */}
+        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-2xl" dir="rtl">
 
-          {/* Top row: texts flanking the torch */}
-          <div className="flex items-start justify-center w-full max-w-5xl"
-               style={{ gap: '1.5rem' }}>
-
-            {/* RIGHT side in RTL — "סוכני בינה שקמה" */}
-            <div className="flex-1 flex items-start justify-start pt-10 sm:pt-20">
-              <h2 className="font-black text-xl sm:text-3xl lg:text-4xl leading-tight text-white">
-                סוכני בינה שקמה
-              </h2>
-            </div>
-
-            {/* CENTER — Torch */}
-            <div className="flex-shrink-0 torch-wrap">
-              <TorchSVG />
-            </div>
-
-            {/* LEFT side in RTL — "PromPtheus.Ai" */}
-            <div className="flex-1 flex items-start justify-end pt-10 sm:pt-20">
-              <h2 className="font-orbitron font-black text-xl sm:text-3xl lg:text-4xl leading-tight text-white text-left">
-                PromPtheus.<span style={{ color: '#f97316' }}>Ai</span>
-              </h2>
-            </div>
+          {/* Row: torch | PROMPTHEUS.AI | torch */}
+          <div className="flex items-center justify-center gap-4 mb-3 flex-wrap">
+            <div className="torch-wrap flex-shrink-0"><TorchSVG /></div>
+            <p className="font-pixel text-white tracking-wide"
+               style={{ fontSize: '33px', letterSpacing: '0.08em' }}>
+              <span style={{ color: '#b05531' }}>P</span>ROM<span style={{ color: '#b05531' }}>P</span>THEUS
+              <sup style={{ fontSize: '16px', marginRight: '4px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
+            </p>
+            <div className="torch-wrap flex-shrink-0"><TorchSVG /></div>
           </div>
 
-          {/* Below torch: subtitle + CTAs */}
-          <div className="text-center mt-6 sm:mt-8 px-4">
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold max-w-2xl mx-auto leading-relaxed"
-               style={{ color: '#f97316' }}>
-              תלמידים מסייעים למורים להכניס AI לכיתה
-            </p>
+          {/* נבחרת AI שקמה — where torch used to be */}
+          <p className="text-white/50 text-xs tracking-[0.28em] uppercase mb-5">
+            נבחרת AI שקמה
+          </p>
 
-            <div className="flex items-center justify-center gap-4 flex-wrap mt-8">
-              <a href="#tools"
-                 className="cta-secondary px-8 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
-                 style={{ border: '1.5px solid rgba(249,115,22,.5)', color: '#fb923c', background: 'rgba(249,115,22,.08)' }}>
-                🛠️ גלה את הכלים
-              </a>
-              <Link to={ctaTo}
-                    className="cta-secondary px-8 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300"
-                    style={{ border: '1.5px solid rgba(99,102,241,.5)', color: '#a5b4fc', background: 'rgba(99,102,241,.08)' }}>
-                📝 שלח בקשה
-              </Link>
-            </div>
+          {/* Main heading — same orange, slightly smaller than PROMPTHEUS */}
+          <h1 className="heading-glow font-black leading-tight text-2xl sm:text-3xl mb-8"
+              style={{ color: '#b05531' }}>
+            מביאים את הבינה לכיתה
+          </h1>
+
+          {/* Mission statement — two columns with orange gradient divider */}
+          <div className="flex flex-col sm:flex-row items-stretch w-full max-w-lg text-sm leading-relaxed" dir="rtl">
+            <p className="flex-1 px-5 py-2 text-right" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              נבחרת תלמידים הפועלת כזרוע מבצעת של מורים, ומייצרת עבורם פתרונות AI בהתאמה אישית.
+            </p>
+            {/* vertical divider desktop */}
+            <div className="hidden sm:block flex-shrink-0 w-px mx-1 self-stretch"
+                 style={{ background: 'linear-gradient(to bottom,transparent,rgba(176,85,49,0.5) 20%,rgba(176,85,49,0.5) 80%,transparent)' }}/>
+            {/* horizontal divider mobile */}
+            <div className="sm:hidden h-px my-2 mx-10"
+                 style={{ background: 'linear-gradient(to right,transparent,rgba(176,85,49,0.4),transparent)' }}/>
+            <p className="flex-1 px-5 py-2 text-right" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              אנחנו מחברים בין פדגוגיה לטכנולוגיה, תוך שיתוף פעולה מלא עם המורים,
+              ויחד מביאים את הבינה לכיתה.
+            </p>
+          </div>
+
+          {/* Three circles */}
+          <div className="flex flex-row items-center gap-4 mt-10">
+            {[
+              { label: 'תוצרים',    El: Link, to: '/outputs' },
+              { label: 'מי אנחנו?', El: 'a',  href: '#agents' },
+              { label: 'הזמנות',   El: Link, to: ctaTo },
+            ].map(({ label, El, to, href }) => (
+              <motion.div
+                key={label}
+                whileHover={{ scale: 1.05, rotate: 6 }}
+                transition={{ type: 'spring', stiffness: 280, damping: 18 }}
+              >
+                <El
+                  {...(to ? { to } : { href })}
+                  className="flex items-center justify-center font-bold text-white select-none"
+                  style={{
+                    width: '3.6rem', height: '3.6rem',
+                    borderRadius: '50%',
+                    border: '2px dotted #b05531',
+                    fontSize: '0.55rem',
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    padding: '0.3rem',
+                  }}
+                >
+                  {label}
+                </El>
+              </motion.div>
+            ))}
           </div>
         </div>
 

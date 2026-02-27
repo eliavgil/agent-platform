@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getTools, getOutputs } from '../lib/googleSheets'
+import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
 import { Bot, ExternalLink, Search, Quote } from 'lucide-react'
 
 const DARK = { background: '#07080f' }
@@ -8,9 +8,35 @@ const CARD_BG = 'rgba(255,255,255,0.04)'
 const CARD_BORDER = 'rgba(255,255,255,0.08)'
 const CARD_HEIGHT = 260
 
+const TOOL_LOGOS = {
+  'Gemini':         'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg',
+  'NotebookLM':     'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',
+  'StudyWise':      'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',
+  'ChatGPT':        'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',
+  'Claude':         'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',
+  'DALL-E':         'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',
+  'Grammarly':      'https://upload.wikimedia.org/wikipedia/commons/d/d2/Grammarly_logo.svg',
+  'Wolfram Alpha':  'https://upload.wikimedia.org/wikipedia/commons/e/e3/Wolfram_Alpha_2022.svg',
+  'Khanmigo':       'https://upload.wikimedia.org/wikipedia/commons/f/f6/Khan_Academy_logo_%282018%29.svg',
+  'Khan Academy':   'https://upload.wikimedia.org/wikipedia/commons/f/f6/Khan_Academy_logo_%282018%29.svg',
+  'Canva':          'https://upload.wikimedia.org/wikipedia/en/b/bb/Canva_Logo.svg',
+  'MagicSchool AI': 'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
+  'MagicSchool':    'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
+}
+
+function getLogoUrl(name = '') {
+  if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
+  const key = Object.keys(TOOL_LOGOS).find(k =>
+    name.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(name.toLowerCase())
+  )
+  return key ? TOOL_LOGOS[key] : null
+}
+
 function OutputCard({ output, emoji }) {
   const [hovered, setHovered] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
   const hasExtra = output.fullDesc || output.review || output.link
+  const logoUrl = getLogoUrl(output.aiTool || '')
 
   return (
     <div
@@ -29,12 +55,21 @@ function OutputCard({ output, emoji }) {
           minHeight: CARD_HEIGHT,
         }}
       >
-        {/* Emoji banner */}
+        {/* Logo / emoji banner */}
         <div
           className="flex flex-col items-center justify-center gap-2 py-5"
           style={{ background: hovered ? 'rgba(249,115,22,0.1)' : 'rgba(249,115,22,0.06)' }}
         >
-          <span className="text-4xl select-none leading-none">{emoji}</span>
+          {logoUrl && !imgFailed ? (
+            <img
+              src={logoUrl}
+              alt={output.aiTool}
+              className="h-10 max-w-[80px] object-contain"
+              onError={() => setImgFailed(true)}
+            />
+          ) : (
+            <span className="text-4xl select-none leading-none">{emoji}</span>
+          )}
           {output.aiTool && (
             <span
               className="text-xs font-bold px-2.5 py-0.5 rounded-full"
@@ -146,7 +181,7 @@ export default function OutputsPage() {
   }, [])
 
   const getEmoji = (output) =>
-    output.logoEmoji || emojiMap[output.aiTool?.toLowerCase()] || '🤖'
+    output.logoEmoji || emojiMap[output.aiTool?.toLowerCase()] || getToolEmoji(output.aiTool) || '🤖'
 
   const categories = ['הכל', ...new Set(outputs.map(o => o.category).filter(Boolean))]
 

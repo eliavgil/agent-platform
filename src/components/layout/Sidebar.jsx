@@ -1,12 +1,37 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Avatar from '../ui/Avatar'
 import Button from '../ui/Button'
-import { LogOut, Bot, Shield, Globe, ExternalLink } from 'lucide-react'
+import { LogOut, Shield, Globe, ExternalLink, Bell, Home } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
 
 export default function Sidebar({ navItems, role }) {
   const { profile, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!profile?.id) return
+    const lastSeen = localStorage.getItem(`lastSeenMessages_${profile.id}`) || '2020-01-01T00:00:00Z'
+    supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .neq('sender_id', profile.id)
+      .gt('created_at', lastSeen)
+      .then(({ count }) => setUnreadCount(count || 0))
+  }, [profile?.id])
+
+  const handleBellClick = () => {
+    if (profile?.id) {
+      localStorage.setItem(`lastSeenMessages_${profile.id}`, new Date().toISOString())
+      setUnreadCount(0)
+    }
+    const requestsItem = navItems.find(item =>
+      item.label?.includes('בקשות') || item.label?.includes('הודעות')
+    )
+    navigate(requestsItem?.path || (role === 'admin' ? '/admin' : role === 'agent' ? '/agent' : '/teacher'))
+  }
 
   const roleLabels = {
     teacher: 'מורה',
@@ -24,14 +49,26 @@ export default function Sidebar({ navItems, role }) {
     <aside className="w-64 h-screen bg-dark-900 border-l border-dark-700/50 flex flex-col fixed right-0 top-0 z-30">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-dark-700/50">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-purple-600 flex items-center justify-center shadow-lg shadow-accent/20">
-            <Bot size={18} className="text-white" />
-          </div>
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold text-white">פלטפורמת AI</h1>
             <p className={`text-xs font-medium ${roleColors[role]}`}>{roleLabels[role]}</p>
           </div>
+          <button
+            onClick={handleBellClick}
+            className="relative p-2 rounded-lg hover:bg-dark-800 transition-colors"
+            title="הודעות"
+          >
+            <Bell size={18} className="text-dark-300" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white font-bold"
+                style={{ fontSize: '9px' }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -77,10 +114,21 @@ export default function Sidebar({ navItems, role }) {
           ))}
         </ul>
 
+        <div className="mt-3 pt-3 border-t border-dark-700/50">
+          <Link
+            to="/"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+              text-dark-300 hover:bg-dark-800 hover:text-gray-200 transition-all duration-150"
+          >
+            <Home size={16} className="flex-shrink-0" />
+            <span>חזרה לעמוד הבית</span>
+          </Link>
+        </div>
+
         {role === 'agent' && (
-          <div className="mt-3 pt-3 border-t border-dark-700/50">
+          <div className="mt-1">
             <a
-              href="https://promptheussite.netlify.app"
+              href="https://ai-leaderboard-tan.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium

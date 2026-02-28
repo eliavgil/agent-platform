@@ -584,9 +584,9 @@ function HomeExampleCard({ example }) {
 
       <div className="p-4">
         <h3 className="text-sm font-bold leading-snug mb-1" style={{ color: '#0f172a' }}>{example.name}</h3>
-        {(example.subject || example.grade) && (
+        {(example.subject || example.topic || example.grade) && (
           <p className="text-xs mb-1.5" style={{ color: '#64748b' }}>
-            {[example.subject, example.grade].filter(Boolean).join(' · ')}
+            {[example.subject, example.topic, example.grade].filter(Boolean).join(' · ')}
           </p>
         )}
         {example.shortDesc && (
@@ -710,6 +710,7 @@ export default function HomePage() {
     emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || getToolEmoji(o.aiTool) || '🤖',
     shortDesc: o.shortDesc || o.description || '',
     subject: o.subject,
+    topic: o.topic,
     grade: o.grade,
     link: o.link,
   }))

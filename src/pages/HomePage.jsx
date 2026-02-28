@@ -898,13 +898,13 @@ export default function HomePage() {
 >
           {/* Row: torch | PROMPTHEUS.AI | torch */}
           <div className="flex items-center justify-center gap-2 mb-0 flex-wrap">
-            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
-            <p className="font-pixel text-white tracking-wide"
-               style={{ fontSize: '32px', letterSpacing: '0.04em' }}>
+            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)' }}><TorchSVG /></div>
+            <p className="font-pixel text-white"
+               style={{ fontSize: '32px', letterSpacing: '0.2em' }}>
               <span style={{ color: '#b05531' }}>P</span>ROM<span style={{ color: '#b05531' }}>P</span>THEUS
               <sup style={{ fontSize: '15px', marginRight: '2px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
             </p>
-            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
+            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)' }}><TorchSVG /></div>
           </div>
 
           {/* נבחרת AI שקמה — צמוד ל-PROMPTHEUS */}

@@ -477,14 +477,15 @@ function HomeToolCard({ tool }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Logo */}
-      <div className="h-28 flex items-center justify-center p-5"
-           style={{ background: '#f8fafc' }}>
+      <div className="h-28 overflow-hidden" style={{ background: '#f8fafc' }}>
         {logoUrl && !imgFailed ? (
           <img src={logoUrl} alt={tool.name}
-               className="max-h-16 max-w-full object-contain"
+               className="w-full h-full object-cover"
                onError={() => setImgFailed(true)} />
         ) : (
-          <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
+          <div className="h-full flex items-center justify-center">
+            <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
+          </div>
         )}
       </div>
 

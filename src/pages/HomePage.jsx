@@ -918,9 +918,9 @@ export default function HomePage() {
           {/* Main heading — larger and pink */}
           <h1 
             className="heading-glow font-black leading-tight text-4xl sm:text-5xl mb-8"
-            style={{ 
-              color: '#e75480', // vivid pink
-              fontSize: '292%',
+            style={{
+              color: '#b05531',
+              fontSize: '204%',
             }}
           >
             מביאים את הבינה לכיתה

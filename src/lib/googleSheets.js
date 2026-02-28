@@ -1,3 +1,25 @@
+// Fallback emoji for known AI tools — used when the sheet's אמוגי column is empty
+export const TOOL_EMOJI = {
+  'gemini': '💎',
+  'notebooklm': '📔',
+  'studywise': '📊',
+  'canva': '🎨',
+  'chatgpt': '⚡',
+  'claude': '🌸',
+  'perplexity': '🔍',
+  'midjourney': '🖼️',
+  'gamma': '✨',
+  'kahoot': '🎮',
+  'quizlet': '🃏',
+  'genially': '🎡',
+  'padlet': '📌',
+  'google slides': '📊',
+  'google forms': '📋',
+}
+
+export const getToolEmoji = (toolName) =>
+  TOOL_EMOJI[toolName?.trim().toLowerCase()] || ''
+
 const SPREADSHEET_ID = '1jI9CkDIVyJOqmdcOdQpvq1n2wuMXNBJ6BjpLkIPWe2c'
 const SHEET_BASE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`
 const SHEET_URL = `${SHEET_BASE}&gid=0`
@@ -20,6 +42,9 @@ const FIELD_MAP = {
   // logoEmoji
   'אמוגי': 'logoEmoji', 'אמוג\'י': 'logoEmoji', 'לוגו אמוגי': 'logoEmoji',
   'logoemoji': 'logoEmoji', 'logo emoji': 'logoEmoji', 'emoji': 'logoEmoji',
+  // logoUrl
+  'logourl': 'logoUrl', 'logo url': 'logoUrl', 'לוגו': 'logoUrl',
+  'לוגו url': 'logoUrl', 'קישור לוגו': 'logoUrl', 'logo': 'logoUrl',
   // videoUrl
   'סרטון': 'videoUrl', 'קישור סרטון': 'videoUrl', 'video': 'videoUrl',
   'videourl': 'videoUrl', 'video url': 'videoUrl', 'link video': 'videoUrl', 'קישור וידאו': 'videoUrl',
@@ -54,7 +79,7 @@ const FIELD_MAP = {
   'קישור': 'link', 'לינק': 'link', 'קישור לתוצר': 'link', 'link': 'link',
 }
 
-const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url', 'link'])
+const URL_FIELDS = new Set(['videoUrl', 'presentationUrl', 'example1Url', 'example2Url', 'link', 'logoUrl'])
 
 function normalizeRow(raw) {
   const out = {}

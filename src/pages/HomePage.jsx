@@ -456,7 +456,7 @@ function AutoCarousel({ children, gap = 16, speed = 0.7 }) {
 function HomeToolCard({ tool }) {
   const [hovered, setHovered] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
-  const logoUrl = getLogoUrl(tool.name)
+  const logoUrl = tool.logoUrl || getLogoUrl(tool.name)
 
   const diffColor = tool.difficulty === 'קל'
     ? { bg: 'rgba(16,185,129,0.1)', text: '#059669' }
@@ -553,6 +553,8 @@ function HomeToolCard({ tool }) {
 
 function HomeExampleCard({ example }) {
   const [hovered, setHovered] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
+  const logoUrl = example.logoUrl || getLogoUrl(example.aiTool || '')
 
   return (
     <div
@@ -566,10 +568,16 @@ function HomeExampleCard({ example }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Emoji banner */}
+      {/* Logo / emoji banner */}
       <div className="h-28 flex flex-col items-center justify-center gap-2"
            style={{ background: hovered ? 'rgba(249,115,22,0.08)' : '#f8fafc' }}>
-        <span className="text-4xl select-none leading-none">{example.emoji}</span>
+        {logoUrl && !imgFailed ? (
+          <img src={logoUrl} alt={example.aiTool}
+               className="max-h-12 max-w-[100px] object-contain"
+               onError={() => setImgFailed(true)} />
+        ) : (
+          <span className="text-4xl select-none leading-none">{example.emoji}</span>
+        )}
         {example.aiTool && (
           <span className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(249,115,22,0.15)', color: '#ea580c' }}>
@@ -702,6 +710,7 @@ export default function HomePage() {
   const examples = outputs.map(o => ({
     name: o.name,
     aiTool: o.aiTool,
+    logoUrl: o.logoUrl || '',
     emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || getToolEmoji(o.aiTool) || '🤖',
     shortDesc: o.shortDesc || o.description || '',
     subject: o.subject,

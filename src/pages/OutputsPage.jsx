@@ -27,6 +27,7 @@ function OutputCard({ output }) {
       onMouseLeave={() => setHovered(false)}
     >
       <div
+        dir="rtl"
         className="absolute left-0 right-0 top-0 rounded-2xl overflow-hidden transition-all duration-300"
         style={{
           background: hovered ? '#fff7ed' : '#ffffff',

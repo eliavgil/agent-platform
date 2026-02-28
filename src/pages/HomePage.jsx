@@ -466,6 +466,7 @@ function HomeToolCard({ tool }) {
 
   return (
     <div
+      dir="rtl"
       className="flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-250 cursor-default"
       style={{
         width: 188,
@@ -477,15 +478,14 @@ function HomeToolCard({ tool }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Logo */}
-      <div className="h-28 overflow-hidden" style={{ background: '#f8fafc' }}>
+      <div className="h-28 flex items-center justify-center p-5"
+           style={{ background: '#f8fafc' }}>
         {logoUrl && !imgFailed ? (
           <img src={logoUrl} alt={tool.name}
-               className="w-full h-full object-cover"
+               className="max-h-16 max-w-full object-contain"
                onError={() => setImgFailed(true)} />
         ) : (
-          <div className="h-full flex items-center justify-center">
-            <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
-          </div>
+          <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
         )}
       </div>
 
@@ -559,6 +559,7 @@ function HomeExampleCard({ example }) {
 
   return (
     <div
+      dir="rtl"
       className="flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-250 cursor-default"
       style={{
         width: 220,

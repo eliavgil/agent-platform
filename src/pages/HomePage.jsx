@@ -891,32 +891,43 @@ export default function HomePage() {
         ))}
 
         {/* ── Centered content ── */}
-        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-2xl" dir="rtl">
-
-          {/* Row: torch | PROMPTHEUS.AI | torch */}
-          <div className="flex items-center justify-center gap-4 mb-3 flex-wrap">
-            <div className="torch-wrap flex-shrink-0"><TorchSVG /></div>
+        <div
+  className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
+  dir="rtl"
+>
+          {/* Row: torch | PROMPTHEUS.AI | torch -- reduced by 65% */}
+          <div className="flex items-center justify-center gap-2 mb-1.5 flex-wrap">
+            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
             <p className="font-pixel text-white tracking-wide"
-               style={{ fontSize: '33px', letterSpacing: '0.08em' }}>
+               style={{ fontSize: '21px', letterSpacing: '0.04em' }}>
               <span style={{ color: '#b05531' }}>P</span>ROM<span style={{ color: '#b05531' }}>P</span>THEUS
-              <sup style={{ fontSize: '16px', marginRight: '4px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
+              <sup style={{ fontSize: '10px', marginRight: '2px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
             </p>
-            <div className="torch-wrap flex-shrink-0"><TorchSVG /></div>
+            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
           </div>
 
+
           {/* נבחרת AI שקמה — where torch used to be */}
-          <p className="text-white/50 text-xs tracking-[0.28em] uppercase mb-5">
+          <p
+            className="text-xs tracking-[0.28em] uppercase mb-5"
+            style={{ color: '#fff', textShadow: '0 0 6px #fff, 0 0 14px #fff' }}
+          >
             נבחרת AI שקמה
           </p>
 
-          {/* Main heading — same orange, slightly smaller than PROMPTHEUS */}
-          <h1 className="heading-glow font-black leading-tight text-2xl sm:text-3xl mb-8"
-              style={{ color: '#b05531' }}>
+          {/* Main heading — larger and pink */}
+          <h1 
+            className="heading-glow font-black leading-tight text-4xl sm:text-5xl mb-8"
+            style={{ 
+              color: '#e75480', // vivid pink
+              fontSize: '292%',
+            }}
+          >
             מביאים את הבינה לכיתה
           </h1>
 
           {/* Mission statement — two columns with orange gradient divider */}
-          <div className="flex flex-col sm:flex-row items-stretch w-full max-w-lg text-sm leading-relaxed" dir="rtl">
+          <div className="flex flex-col sm:flex-row items-stretch w-full max-w-2xl text-sm leading-relaxed" dir="rtl">
             <p className="flex-1 px-5 py-2 text-right" style={{ color: 'rgba(255,255,255,0.6)' }}>
               נבחרת תלמידים הפועלת כזרוע מבצעת של מורים, ומייצרת עבורם פתרונות AI בהתאמה אישית.
             </p>

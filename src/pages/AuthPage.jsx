@@ -331,7 +331,7 @@ export default function AuthPage() {
                 {' '}
                 <button
                   onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
-                  className="text-accent-light hover:text-accent font-medium transition-colors"
+                  className="text-accent-light hover:text-accent font-medium transition-colors text-[1.235rem]"
                 >
                   {mode === 'login' ? 'הירשם' : 'התחבר'}
                 </button>

@@ -926,21 +926,38 @@ export default function HomePage() {
             מביאים את הבינה לכיתה
           </h1>
 
-          {/* Mission statement — two columns with orange gradient divider */}
-          <div className="flex flex-col sm:flex-row items-stretch w-full max-w-2xl text-sm leading-relaxed" dir="rtl">
-            <p className="flex-1 px-5 py-2 text-right" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              נבחרת תלמידים הפועלת כזרוע מבצעת של מורים, ומייצרת עבורם פתרונות AI בהתאמה אישית.
+          {/* Mission statement — framed block */}
+          <div
+            dir="rtl"
+            className="w-full max-w-sm text-right"
+            style={{
+              background: 'rgba(8,6,18,0.55)',
+              border: '1px solid rgba(176,85,49,0.3)',
+              borderRight: '3px solid #b05531',
+              borderRadius: '14px',
+              padding: '20px 22px 20px 18px',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 0 40px rgba(176,85,49,0.07)',
+            }}
+          >
+            {/* שורה 1 */}
+            <p className="text-sm font-bold mb-3" style={{ color: '#b05531', letterSpacing: '0.06em' }}>
+              מה העניין?
             </p>
-            {/* vertical divider desktop */}
-            <div className="hidden sm:block flex-shrink-0 w-px mx-1 self-stretch"
-                 style={{ background: 'linear-gradient(to bottom,transparent,rgba(176,85,49,0.5) 20%,rgba(176,85,49,0.5) 80%,transparent)' }}/>
-            {/* horizontal divider mobile */}
-            <div className="sm:hidden h-px my-2 mx-10"
-                 style={{ background: 'linear-gradient(to right,transparent,rgba(176,85,49,0.4),transparent)' }}/>
-            <p className="flex-1 px-5 py-2 text-right" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              אנחנו מחברים בין פדגוגיה לטכנולוגיה, תוך שיתוף פעולה מלא עם המורים,
-              ויחד מביאים את הבינה לכיתה.
+            {/* שורה 2 */}
+            <p className="text-sm leading-relaxed mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              קבוצת תלמידים מוכשרים מייצרים עבור מורים תוצרי AI בהזמנה אישית.
             </p>
+            {/* שורה 3 */}
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              תלמידים ומורים משתפים פעולה ומחברים טכנולוגיה לפדגוגיה.
+            </p>
+            {/* שורה 4 — חלוקה + סיכום */}
+            <div style={{ borderTop: '1px solid rgba(176,85,49,0.25)', marginTop: '12px', paddingTop: '10px' }}>
+              <p className="text-sm font-semibold" style={{ color: '#fff' }}>
+                ויחד, מביאים את הבינה לכיתה!
+              </p>
+            </div>
           </div>
 
           {/* Three circles */}

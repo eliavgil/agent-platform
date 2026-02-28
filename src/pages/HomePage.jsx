@@ -554,7 +554,7 @@ function HomeToolCard({ tool }) {
 function HomeExampleCard({ example }) {
   const [hovered, setHovered] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
-  const logoUrl = example.logoUrl || getLogoUrl(example.aiTool || '')
+  const logoUrl = example.logoUrl || ''
 
   return (
     <div
@@ -577,12 +577,6 @@ function HomeExampleCard({ example }) {
                onError={() => setImgFailed(true)} />
         ) : (
           <span className="text-4xl select-none leading-none">{example.emoji}</span>
-        )}
-        {example.aiTool && (
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(249,115,22,0.15)', color: '#ea580c' }}>
-            {example.aiTool}
-          </span>
         )}
       </div>
 

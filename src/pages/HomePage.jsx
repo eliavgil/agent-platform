@@ -569,11 +569,11 @@ function HomeExampleCard({ example }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Logo / emoji banner */}
-      <div className="h-28 flex flex-col items-center justify-center gap-2"
+      <div className="h-28 flex items-center justify-center p-5"
            style={{ background: hovered ? 'rgba(249,115,22,0.08)' : '#f8fafc' }}>
         {logoUrl && !imgFailed ? (
           <img src={logoUrl} alt={example.aiTool}
-               className="max-h-12 max-w-[100px] object-contain"
+               className="max-h-16 max-w-full object-contain"
                onError={() => setImgFailed(true)} />
         ) : (
           <span className="text-4xl select-none leading-none">{example.emoji}</span>

@@ -40,18 +40,17 @@ function OutputCard({ output }) {
       >
         {/* Logo / emoji banner */}
         <div
-          className="flex flex-col items-center justify-center gap-2 py-5"
+          className="h-28 flex items-center justify-center p-5"
           style={{
             background: hovered ? 'rgba(249,115,22,0.07)' : '#f8fafc',
             borderBottom: `1px solid ${hovered ? 'rgba(249,115,22,0.15)' : '#f1f5f9'}`,
-            minHeight: 96,
           }}
         >
           {logoUrl && !imgFailed ? (
             <img
               src={logoUrl}
               alt={output.aiTool || 'logo'}
-              className="max-h-12 max-w-[100px] object-contain"
+              className="max-h-16 max-w-full object-contain"
               onError={() => setImgFailed(true)}
             />
           ) : (

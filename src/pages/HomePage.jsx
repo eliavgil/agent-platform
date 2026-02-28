@@ -894,23 +894,23 @@ export default function HomePage() {
         <div
   className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
   dir="rtl"
+  style={{ marginTop: '-14vh' }}
 >
-          {/* Row: torch | PROMPTHEUS.AI | torch -- reduced by 65% */}
-          <div className="flex items-center justify-center gap-2 mb-1.5 flex-wrap">
+          {/* Row: torch | PROMPTHEUS.AI | torch */}
+          <div className="flex items-center justify-center gap-2 mb-0 flex-wrap">
             <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
             <p className="font-pixel text-white tracking-wide"
-               style={{ fontSize: '21px', letterSpacing: '0.04em' }}>
+               style={{ fontSize: '32px', letterSpacing: '0.04em' }}>
               <span style={{ color: '#b05531' }}>P</span>ROM<span style={{ color: '#b05531' }}>P</span>THEUS
-              <sup style={{ fontSize: '10px', marginRight: '2px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
+              <sup style={{ fontSize: '15px', marginRight: '2px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
             </p>
             <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.245)' }}><TorchSVG /></div>
           </div>
 
-
-          {/* נבחרת AI שקמה — where torch used to be */}
+          {/* נבחרת AI שקמה — צמוד ל-PROMPTHEUS */}
           <p
             className="text-xs tracking-[0.28em] uppercase mb-5"
-            style={{ color: '#fff', textShadow: '0 0 6px #fff, 0 0 14px #fff' }}
+            style={{ color: '#fff', textShadow: '0 0 6px #fff, 0 0 14px #fff', marginTop: '2px' }}
           >
             נבחרת AI שקמה
           </p>

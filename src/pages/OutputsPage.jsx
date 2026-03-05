@@ -189,7 +189,7 @@ export default function OutputsPage() {
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src="/Logo_promptheus.png" alt="Prometheus" className="h-9 w-9 object-contain" />
+            <img src="/logo3.png" alt="Prometheus" className="h-9 w-9 object-contain" />
             <span className="font-bold text-sm hidden sm:block" style={{ color: '#0f172a' }}>
               פרומפתאוס AI
             </span>

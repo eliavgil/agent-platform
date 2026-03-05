@@ -18,6 +18,7 @@ import AdminRequests from './pages/admin/AdminRequests'
 import AdminChat from './pages/admin/AdminChat'
 
 import OutputsPage from './pages/OutputsPage'
+import AboutPage from './pages/AboutPage'
 import LoadingScreen from './components/ui/LoadingScreen'
 
 function AppRoutes() {
@@ -35,6 +36,7 @@ function AppRoutes() {
       {/* Public landing page — always visible, navbar handles logged-in state */}
       <Route path="/" element={<HomePage />} />
       <Route path="/outputs" element={<OutputsPage />} />
+      <Route path="/about" element={<AboutPage />} />
 
       {/* Auth */}
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />

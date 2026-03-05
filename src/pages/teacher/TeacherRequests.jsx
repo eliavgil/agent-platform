@@ -54,6 +54,7 @@ export default function TeacherRequests() {
   return (
     <>
       <Header
+        variant="light"
         title="הבקשות שלי"
         subtitle={`${requests.length} בקשות סה"כ`}
         actions={
@@ -80,13 +81,13 @@ export default function TeacherRequests() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${
                 statusFilter === status
                   ? 'bg-accent text-white'
-                  : 'bg-dark-800 border border-dark-600 text-dark-300 hover:border-dark-500'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 shadow-sm'
               }`}
             >
               {STATUS_LABELS[status]}
               {count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  statusFilter === status ? 'bg-white/20' : 'bg-dark-700'
+                  statusFilter === status ? 'bg-white/20' : 'bg-gray-100'
                 }`}>
                   {count}
                 </span>
@@ -99,19 +100,20 @@ export default function TeacherRequests() {
       {loading ? (
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-dark-800 rounded-xl p-5 animate-pulse">
+            <div key={i} className="bg-white rounded-xl p-5 animate-pulse border border-gray-200">
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <div className="h-4 bg-dark-700 rounded w-1/3 mb-2" />
-                  <div className="h-3 bg-dark-700 rounded w-2/3" />
+                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
                 </div>
-                <div className="h-6 bg-dark-700 rounded-full w-16" />
+                <div className="h-6 bg-gray-200 rounded-full w-16" />
               </div>
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
+          variant="light"
           icon={<MessageSquare size={28} />}
           title={statusFilter === 'הכל' ? 'אין בקשות עדיין' : 'אין בקשות בסטטוס זה'}
           description="צור בקשה חדשה ותחובר עם סוכן AI מתאים"
@@ -128,6 +130,7 @@ export default function TeacherRequests() {
           {filtered.map(request => (
             <Card
               key={request.id}
+              variant="light"
               hover
               glow
               onClick={() => navigate(`/teacher/requests/${request.id}`)}
@@ -136,14 +139,14 @@ export default function TeacherRequests() {
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h3 className="font-semibold text-white text-base">
+                      <h3 className="font-semibold text-gray-900 text-base">
                         {request.subject} — {request.grade_level}
                       </h3>
                       <StatusBadge status={request.status} />
                       <PriorityBadge priority={request.priority} />
                     </div>
-                    <p className="text-sm text-dark-400 line-clamp-2 mb-2">{request.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-dark-500">
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{request.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Clock size={12} />
                         {formatDate(request.created_at)}
@@ -159,10 +162,10 @@ export default function TeacherRequests() {
                     {request.profiles ? (
                       <div className="flex items-center gap-2">
                         <Avatar name={request.profiles.full_name} size="sm" />
-                        <span className="text-xs text-dark-400">{request.profiles.full_name}</span>
+                        <span className="text-xs text-gray-600">{request.profiles.full_name}</span>
                       </div>
                     ) : (
-                      <span className="text-xs text-dark-500 bg-dark-700 px-2 py-1 rounded-lg">
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
                         ממתין לסוכן
                       </span>
                     )}

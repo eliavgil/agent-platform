@@ -105,6 +105,7 @@ export default function AdminRequests() {
   return (
     <>
       <Header
+        variant="light"
         title="ניהול בקשות"
         subtitle="כל הבקשות במערכת"
       />
@@ -112,17 +113,17 @@ export default function AdminRequests() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'סה"כ', value: stats.total, icon: <Users size={18} />, color: 'text-dark-300' },
+          { label: 'סה"כ', value: stats.total, icon: <Users size={18} />, color: 'text-gray-600' },
           { label: 'ממתינות', value: stats.pending, icon: <Hourglass size={18} />, color: 'text-warning' },
           { label: 'פעילות', value: stats.active, icon: <AlertTriangle size={18} />, color: 'text-accent-light' },
           { label: 'הושלמו', value: stats.completed, icon: <CheckSquare size={18} />, color: 'text-success' },
         ].map(stat => (
-          <Card key={stat.label}>
+          <Card key={stat.label} variant="light">
             <CardBody className="flex items-center gap-3 py-3">
               <div className={`${stat.color} flex-shrink-0`}>{stat.icon}</div>
               <div>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-                <p className="text-xs text-dark-400">{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xs text-gray-500">{stat.label}</p>
               </div>
             </CardBody>
           </Card>
@@ -132,13 +133,13 @@ export default function AdminRequests() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
-          <Search size={16} className="absolute top-1/2 right-3 -translate-y-1/2 text-dark-400" />
+          <Search size={16} className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="חיפוש לפי מורה, מקצוע, תיאור..."
-            className="w-full bg-dark-800 border border-dark-600 text-gray-100 rounded-xl px-3 py-2.5 pr-9 text-sm
-              placeholder:text-dark-400 focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10"
+            className="w-full bg-white border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 pr-9 text-sm
+              placeholder:text-gray-400 focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10 shadow-sm"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -149,7 +150,7 @@ export default function AdminRequests() {
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                 statusFilter === status
                   ? 'bg-accent text-white'
-                  : 'bg-dark-800 border border-dark-600 text-dark-300 hover:border-dark-500'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 shadow-sm'
               }`}
             >
               {STATUS_LABELS_MAP[status]}
@@ -162,11 +163,12 @@ export default function AdminRequests() {
       {loading ? (
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="bg-dark-800 rounded-xl p-4 animate-pulse h-16" />
+            <div key={i} className="bg-white rounded-xl p-4 animate-pulse h-16 border border-gray-200" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
+          variant="light"
           icon={<MessageSquare size={28} />}
           title="לא נמצאו בקשות"
           description="נסה לשנות את הסינון"
@@ -176,6 +178,7 @@ export default function AdminRequests() {
           {filtered.map(request => (
             <Card
               key={request.id}
+              variant="light"
               hover
               onClick={() => navigate(`/admin/requests/${request.id}`)}
             >
@@ -184,19 +187,19 @@ export default function AdminRequests() {
                   {/* Teacher */}
                   <div className="flex items-center gap-2 w-36 flex-shrink-0">
                     <Avatar name={request.teacher?.full_name || '?'} size="xs" />
-                    <span className="text-xs text-dark-300 truncate">{request.teacher?.full_name}</span>
+                    <span className="text-xs text-gray-600 truncate">{request.teacher?.full_name}</span>
                   </div>
 
                   {/* Subject & Grade */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-gray-900">
                         {request.subject} — {request.grade_level}
                       </span>
                       <StatusBadge status={request.status} />
                       <PriorityBadge priority={request.priority} />
                     </div>
-                    <p className="text-xs text-dark-400 truncate mt-0.5">{request.description}</p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{request.description}</p>
                   </div>
 
                   {/* Agent */}
@@ -204,7 +207,7 @@ export default function AdminRequests() {
                     {request.agent ? (
                       <div className="flex items-center gap-2">
                         <Avatar name={request.agent.full_name} size="xs" />
-                        <span className="text-xs text-dark-300 truncate">{request.agent.full_name}</span>
+                        <span className="text-xs text-gray-600 truncate">{request.agent.full_name}</span>
                       </div>
                     ) : (
                       <button
@@ -222,7 +225,7 @@ export default function AdminRequests() {
                   </div>
 
                   {/* Date */}
-                  <div className="text-xs text-dark-500 flex-shrink-0 w-28 text-left">
+                  <div className="text-xs text-gray-500 flex-shrink-0 w-28 text-left">
                     {formatDate(request.created_at)}
                   </div>
 
@@ -250,12 +253,13 @@ export default function AdminRequests() {
         onClose={() => { setAssignModal(null); setSelectedAgent(''); setAssignError('') }}
         title={`הקצה סוכן לבקשה`}
         size="sm"
+        variant="light"
       >
         {assignModal && (
           <div className="space-y-4">
-            <div className="p-3 bg-dark-700 rounded-xl">
-              <p className="text-sm font-medium text-white">{assignModal.subject} — {assignModal.grade_level}</p>
-              <p className="text-xs text-dark-400 mt-0.5 line-clamp-2">{assignModal.description}</p>
+            <div className="p-3 bg-gray-100 rounded-xl">
+              <p className="text-sm font-medium text-gray-900">{assignModal.subject} — {assignModal.grade_level}</p>
+              <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">{assignModal.description}</p>
             </div>
             <Select
               label="בחר סוכן"

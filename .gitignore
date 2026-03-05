@@ -10,3 +10,4 @@ dist
 # OS & editor
 .DS_Store
 .claude/
+.vercel

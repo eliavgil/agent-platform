@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText } from 'lucide
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const LEADERBOARD_URL =
-  'https://docs.google.com/spreadsheets/d/1TTuD5vvmE9BhNMDqwsNDXsLEgjUVm54nkqMiFaw_8zY/export?format=csv'
+  'https://docs.google.com/spreadsheets/d/17WWVtK7hKwt2-LW8AA4Gw7ouiHkXoFThyB8bdi9te8s/export?format=csv&gid=0'
 
 const STEPS = [
   {
@@ -70,6 +70,18 @@ function hashStr(str) {
   return Math.abs(h)
 }
 
+function parseCsvLine(line) {
+  const cells = []
+  let cur = '', inQ = false
+  for (const ch of line) {
+    if (ch === '"') { inQ = !inQ }
+    else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = '' }
+    else { cur += ch }
+  }
+  cells.push(cur.trim())
+  return cells
+}
+
 async function fetchStudentNames() {
   try {
     const res = await fetch(LEADERBOARD_URL)
@@ -77,15 +89,26 @@ async function fetchStudentNames() {
     const csv = await res.text()
     const lines = csv.trim().split('\n')
     if (lines.length < 2) return []
-    const headers = lines[0].split(',').map(h => h.trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E]/g, ''))
+    const headers = parseCsvLine(lines[0]).map(h =>
+      h.trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E]/g, '')
+    )
     const nameIdx = headers.findIndex(h => h.includes('שם'))
+    const logoIdx = headers.findIndex(h => h.toLowerCase().replace(/\s/g, '') === 'logourl')
+    const emojiIdx = headers.findIndex(h => h.toLowerCase() === 'emoji' || h === 'אמוגי')
     if (nameIdx === -1) return []
     return lines.slice(1)
       .map(l => {
-        const cells = l.split(',')
-        return (cells[nameIdx] || '').trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E"]/g, '')
+        const cells = parseCsvLine(l)
+        const name = (cells[nameIdx] || '').trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E"]/g, '')
+        const rawLogo = logoIdx !== -1 ? (cells[logoIdx] || '').trim() : ''
+        const rawEmoji = emojiIdx !== -1 ? (cells[emojiIdx] || '').trim() : ''
+        return {
+          name,
+          logoUrl: rawLogo.startsWith('http') ? rawLogo : '',
+          emoji: rawEmoji,
+        }
       })
-      .filter(n => n.length > 1)
+      .filter(s => s.name.length > 1)
   } catch { return [] }
 }
 
@@ -617,12 +640,17 @@ function HomeExampleCard({ example }) {
   )
 }
 
-// ── AgentCard (FBI/Bond style, light theme) ────────────────────────────────────
+// ── AgentCard ─────────────────────────────────────────────────────────────────
 
-function HomeAgentCard({ name }) {
+function HomeAgentCard({ student }) {
+  const { name, logoUrl, emoji } = student
+  const [imgFailed, setImgFailed] = useState(false)
   const h = hashStr(name)
   const palette = ROBOT_PALETTES[h % ROBOT_PALETTES.length]
   const variant = h % 8
+  const showImg = logoUrl && !imgFailed
+  const showEmoji = !showImg && emoji
+  const showRobot = !showImg && !showEmoji
 
   return (
     <div className="flex-shrink-0 w-44 rounded-2xl p-5 text-center transition-all duration-200 hover:-translate-y-1"
@@ -632,9 +660,23 @@ function HomeAgentCard({ name }) {
            boxShadow: `0 2px 8px ${palette[0]}15`,
          }}>
       <div className="flex justify-center mb-3">
-        <div className="w-16 h-20 rounded-2xl flex items-center justify-center"
-             style={{ background: `${palette[0]}10`, border: `1px solid ${palette[0]}20` }}>
-          <RobotFigure c={palette} variant={variant} />
+        <div
+          className="flex items-center justify-center overflow-hidden"
+          style={{
+            width: showImg ? 64 : 64,
+            height: showImg ? 64 : 80,
+            borderRadius: showImg ? '50%' : '1rem',
+            background: `${palette[0]}10`,
+            border: `1px solid ${palette[0]}20`,
+          }}
+        >
+          {showImg && (
+            <img src={logoUrl} alt={name}
+                 className="w-full h-full object-cover"
+                 onError={() => setImgFailed(true)} />
+          )}
+          {showEmoji && <span className="text-3xl select-none">{emoji}</span>}
+          {showRobot && <RobotFigure c={palette} variant={variant} />}
         </div>
       </div>
       <h3 className="font-bold text-sm leading-snug" style={{ color: '#0f172a' }}>{name}</h3>
@@ -769,8 +811,8 @@ export default function HomePage() {
         .torch-wrap{animation:torchGlow 1.8s ease-in-out infinite;}
 
         @keyframes headingGlow {
-          0%,100%{text-shadow:0 0 8px rgba(176,85,49,0.6),0 0 20px rgba(176,85,49,0.3),0 0 40px rgba(176,85,49,0.15);}
-          50%{text-shadow:0 0 14px rgba(220,110,50,0.9),0 0 30px rgba(176,85,49,0.55),0 0 60px rgba(176,85,49,0.25),0 0 2px rgba(255,180,100,0.6);}
+          0%,100%{text-shadow:0 0 8px rgba(204,102,51,0.6),0 0 20px rgba(204,102,51,0.3),0 0 40px rgba(204,102,51,0.15);}
+          50%{text-shadow:0 0 14px rgba(235,122,58,0.9),0 0 30px rgba(204,102,51,0.55),0 0 60px rgba(204,102,51,0.25),0 0 2px rgba(255,180,100,0.6);}
         }
         .heading-glow{animation:headingGlow 2.2s ease-in-out infinite;}
 
@@ -792,7 +834,7 @@ export default function HomePage() {
            style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2.5">
-            <img src="/Logo_promptheus.png" alt="Prometheus" className="h-9 w-9 object-contain" />
+            <img src="/logo3.png" alt="Prometheus" className="h-9 w-9 object-contain" />
             <span className="font-bold text-sm hidden sm:block tracking-wide" style={{ color: '#0f172a' }}>
               פרומפתאוס AI
             </span>
@@ -867,7 +909,7 @@ export default function HomePage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section id="top" className="relative overflow-hidden flex flex-col items-center justify-center px-4 py-12"
+      <section id="top" className="relative overflow-hidden flex flex-col items-center px-4"
                style={{ minHeight: '100vh', background: S1 }}>
 
         {/* Grid */}
@@ -876,7 +918,7 @@ export default function HomePage() {
 
         {/* Subtle horizon glow */}
         <div className="absolute inset-0 pointer-events-none"
-             style={{ background: 'radial-gradient(ellipse 700px 300px at 50% 100%,rgba(176,85,49,.07) 0%,transparent 70%)' }}/>
+             style={{ background: 'radial-gradient(ellipse 700px 300px at 50% 100%,rgba(204,102,51,.07) 0%,transparent 70%)' }}/>
 
         {/* Particles */}
         {PARTICLES.map(p => (
@@ -884,87 +926,90 @@ export default function HomePage() {
                style={{
                  left: p.left, bottom: '-5px',
                  width: `${p.size}px`, height: `${p.size}px`,
-                 background: p.id % 3 === 0 ? '#b05531' : p.id % 3 === 1 ? '#cc6633' : '#e07744',
+                 background: p.id % 3 === 0 ? '#cc6633' : p.id % 3 === 1 ? '#cc6633' : '#e07744',
                  '--pop': p.opacity, '--d': p.drift,
                  animation: `particleRise ${p.duration} linear ${p.delay} infinite`,
                }}/>
         ))}
 
-        {/* ── Centered content ── */}
+        {/* ── Top content: PROMPTHEUS + subtitle + heading ── */}
         <div
-  className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
-  dir="rtl"
-  style={{ marginTop: '-14vh' }}
->
-          {/* Row: torch | PROMPTHEUS.AI | torch */}
+          className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
+          dir="rtl"
+          style={{ marginTop: '7vh' }}
+        >
+          {/* Row: PROMPTHEUS.AI */}
           <div className="flex items-center justify-center gap-2 mb-0 flex-wrap">
-            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)' }}><TorchSVG /></div>
-            <p className="font-pixel text-white"
-               style={{ fontSize: '32px', letterSpacing: '0.2em' }}>
-              <span style={{ color: '#b05531' }}>P</span>ROM<span style={{ color: '#b05531' }}>P</span>THEUS
-              <sup style={{ fontSize: '15px', marginRight: '2px', color: '#b05531', verticalAlign: 'super' }}>AI</sup>
+            <p className="font-pixel text-white" style={{ fontSize: '41.6px', letterSpacing: '0.28em', marginLeft: '0.5cm' }}>
+              {Array.from('PROMPTHEUS').map((ch, i) => (
+                <span key={i} style={{
+                  ...(i === 0 || i === 4 ? { color: '#cc6633' } : {}),
+                  ...(i === 4 ? { letterSpacing: '0.14em' } : {}),
+                }}>{ch}</span>
+              ))}
+              <span style={{ fontSize: '12px', marginRight: '4px', letterSpacing: '-0.08em', color: '#cc6633', verticalAlign: '2.4em' }}>AI</span>
             </p>
-            <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)' }}><TorchSVG /></div>
           </div>
 
           {/* נבחרת AI שקמה — צמוד ל-PROMPTHEUS */}
           <p
-            className="text-xs tracking-[0.28em] uppercase mb-5"
-            style={{ color: '#fff', textShadow: '0 0 6px #fff, 0 0 14px #fff', marginTop: '2px' }}
+            className="text-xs tracking-[0.28em] uppercase mb-0"
+            style={{ color: '#cc6633', textShadow: '0 0 6px rgba(204,102,51,0.7), 0 0 14px rgba(204,102,51,0.4)', marginTop: '2px' }}
           >
-            נבחרת AI שקמה
+            סוכני AI שקמה
           </p>
+        </div>
 
-          {/* Main heading — larger and pink */}
-          <h1 
-            className="heading-glow font-black leading-tight text-4xl sm:text-5xl mb-8"
-            style={{
-              color: '#b05531',
-              fontSize: '204%',
-            }}
+        {/* ── Middle: torch | heading | torch ── */}
+        <div style={{ flex: 1 }} />
+        <div className="flex items-center justify-center gap-4 flex-wrap relative z-10">
+          <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294) translateX(12px)', marginLeft: '-10px' }}><TorchSVG /></div>
+          <h1
+            className="heading-glow font-black leading-tight text-center"
+            style={{ color: '#ffffff', fontSize: '204%', marginRight: '12px' }}
           >
             מביאים את הבינה לכיתה
           </h1>
+          <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)', marginLeft: '18px' }}><TorchSVG /></div>
+        </div>
+        <div style={{ flex: 1 }} />
 
+        {/* ── Bottom content: mission box + circles ── */}
+        <div
+          className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
+          dir="rtl"
+          style={{ marginBottom: '90px' }}
+        >
           {/* Mission statement — framed block */}
           <div
-            dir="rtl"
-            className="w-full max-w-sm text-right"
+            className="w-full max-w-lg text-center mb-6"
             style={{
               background: 'rgba(8,6,18,0.55)',
-              border: '1px solid rgba(176,85,49,0.3)',
-              borderRight: '3px solid #b05531',
+              border: '1px solid rgba(204,102,51,0.3)',
+              borderRight: '3px solid #cc6633',
+              borderLeft: '3px solid #cc6633',
               borderRadius: '14px',
-              padding: '20px 22px 20px 18px',
+              padding: '20px 24px',
               backdropFilter: 'blur(10px)',
-              boxShadow: '0 0 40px rgba(176,85,49,0.07)',
+              boxShadow: '0 0 40px rgba(204,102,51,0.07)',
             }}
           >
-            {/* שורה 1 */}
-            <p className="text-sm font-bold mb-3" style={{ color: '#b05531', letterSpacing: '0.06em' }}>
-              מה העניין?
+            <p className="text-sm font-semibold leading-relaxed mb-2" style={{ color: '#fff' }}>
+              קבוצת תלמידים מוכשרים מייצרים עבור מורים תוצרי AI בהזמנה אישית
             </p>
-            {/* שורה 2 */}
-            <p className="text-sm leading-relaxed mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              קבוצת תלמידים מוכשרים מייצרים עבור מורים תוצרי AI בהזמנה אישית.
+            <p className="text-sm font-semibold leading-relaxed mb-2" style={{ color: '#fff' }}>
+              המורים על הפדגוגיה, התלמידים על הטכנולוגיה
             </p>
-            {/* שורה 3 */}
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              תלמידים ומורים משתפים פעולה ומחברים טכנולוגיה לפדגוגיה.
+            <p className="text-sm font-semibold leading-relaxed" style={{ color: '#fff' }}>
+              ויחד, מביאים את הבינה לכיתה!
             </p>
-            {/* שורה 4 — חלוקה + סיכום */}
-            <div style={{ borderTop: '1px solid rgba(176,85,49,0.25)', marginTop: '12px', paddingTop: '10px' }}>
-              <p className="text-sm font-semibold" style={{ color: '#fff' }}>
-                ויחד, מביאים את הבינה לכיתה!
-              </p>
-            </div>
           </div>
 
           {/* Three circles */}
-          <div className="flex flex-row items-center gap-4 mt-10">
+          <div className="flex flex-row items-center gap-4">
             {[
               { label: 'תוצרים',    El: Link, to: '/outputs' },
-              { label: 'מי אנחנו?', El: 'a',  href: '#agents' },
+              { label: 'מי אנחנו?', El: Link, to: '/about' },
               { label: 'הזמנות',   El: Link, to: ctaTo },
             ].map(({ label, El, to, href }) => (
               <motion.div
@@ -978,7 +1023,7 @@ export default function HomePage() {
                   style={{
                     width: '3.6rem', height: '3.6rem',
                     borderRadius: '50%',
-                    border: '2px dotted #b05531',
+                    border: '2px dotted #cc6633',
                     fontSize: '0.55rem',
                     textAlign: 'center',
                     lineHeight: 1.2,
@@ -1090,7 +1135,7 @@ export default function HomePage() {
             </div>
           ) : (
             <AutoCarousel>
-              {students.map(name => <HomeAgentCard key={name} name={name} />)}
+              {students.map(s => <HomeAgentCard key={s.name} student={s} />)}
             </AutoCarousel>
           )}
 
@@ -1157,7 +1202,7 @@ export default function HomePage() {
               className="py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/Logo_promptheus.png" alt="Prometheus" className="h-8 w-8 object-contain opacity-70" />
+            <img src="/logo3.png" alt="Prometheus" className="h-8 w-8 object-contain opacity-70" />
             <div>
               <p className="text-white font-bold text-sm">פרומפתאוס AI</p>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>

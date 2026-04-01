@@ -5,10 +5,39 @@ import { Bot, ExternalLink, Search, Quote } from 'lucide-react'
 
 const CARD_HEIGHT = 280
 
-// Priority: output.logoUrl (sheets) → output.logoEmoji (sheets) → getToolEmoji → '🤖'
+// ── Logo map (same as TeacherToolLibrary) ─────────────────────────────────────
+const TOOL_LOGOS = {
+  'Gemini':        'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg',
+  'NotebookLM':    'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',
+  'StudyWise':     'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',
+  'ChatGPT':       'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',
+  'Claude':        'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',
+  'DALL-E':        'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',
+  'Grammarly':     'https://upload.wikimedia.org/wikipedia/commons/d/d2/Grammarly_logo.svg',
+  'Wolfram Alpha': 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Wolfram_Alpha_2022.svg',
+  'Khanmigo':      'https://upload.wikimedia.org/wikipedia/commons/f/f6/Khan_Academy_logo_%282018%29.svg',
+  'Khan Academy':  'https://upload.wikimedia.org/wikipedia/commons/f/f6/Khan_Academy_logo_%282018%29.svg',
+  'Canva':         'https://upload.wikimedia.org/wikipedia/en/b/bb/Canva_Logo.svg',
+  'Slidesgo':      'https://slidesgo.com/images/logos/slidesgo.svg',
+  'MagicSchool AI':'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
+  'MagicSchool':   'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
+  'Diffit':        'https://images.squarespace-cdn.com/content/v1/6417f1e0a6e26c5d06b65171/661b2619-2192-4128-94ee-7f2f59bd6c62/Diffit+Logo.png',
+  'Curipod':       'https://curipod.com/og_preview.png',
+}
+
+function getLogoUrl(name = '') {
+  if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
+  const key = Object.keys(TOOL_LOGOS).find(k =>
+    name.toLowerCase().includes(k.toLowerCase()) ||
+    k.toLowerCase().includes(name.toLowerCase())
+  )
+  return key ? TOOL_LOGOS[key] : null
+}
+
+// Priority: clean logo map → output.logoUrl (sheets) → emoji fallback
 function resolveDisplay(output) {
   return {
-    logoUrl: output.logoUrl || '',
+    logoUrl: getLogoUrl(output.aiTool || '') || output.logoUrl || '',
     emoji: output.logoEmoji || getToolEmoji(output.aiTool) || '🤖',
   }
 }
@@ -41,19 +70,28 @@ function OutputCard({ output }) {
       >
         {/* Logo / emoji banner */}
         <div
-          className="h-28 flex items-center justify-center p-5"
+          className="relative h-20 flex items-center justify-center overflow-hidden"
           style={{
             background: hovered ? 'rgba(249,115,22,0.07)' : '#f8fafc',
             borderBottom: `1px solid ${hovered ? 'rgba(249,115,22,0.15)' : '#f1f5f9'}`,
           }}
         >
           {logoUrl && !imgFailed ? (
-            <img
-              src={logoUrl}
-              alt={output.aiTool || 'logo'}
-              className="max-h-16 max-w-full object-contain"
-              onError={() => setImgFailed(true)}
-            />
+            <>
+              {/* Blurred background — fills the space with the logo's colours */}
+              <img
+                src={logoUrl}
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover scale-150 blur-2xl opacity-30 pointer-events-none"
+              />
+              {/* Sharp logo on top */}
+              <img
+                src={logoUrl}
+                alt={output.aiTool || 'logo'}
+                className="relative max-h-12 max-w-[75%] object-contain drop-shadow-sm"
+                onError={() => setImgFailed(true)}
+              />
+            </>
           ) : (
             <span className="text-4xl select-none leading-none">{emoji}</span>
           )}
@@ -69,7 +107,7 @@ function OutputCard({ output }) {
               {output.category}
             </span>
           )}
-          <h3 className="text-sm font-bold leading-snug mb-1" style={{ color: '#0f172a' }}>
+          <h3 className="text-base font-bold leading-snug mb-1" style={{ color: '#0f172a' }}>
             {output.name}
           </h3>
           <p className="text-xs mb-2" style={{ color: '#94a3b8' }}>

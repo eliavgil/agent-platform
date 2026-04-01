@@ -40,26 +40,26 @@ export default function Sidebar({ navItems, role }) {
   }
 
   const roleColors = {
-    teacher: 'text-blue-400',
-    agent: 'text-purple-400',
-    admin: 'text-amber-400',
+    teacher: 'text-blue-500',
+    agent: 'text-purple-500',
+    admin: 'text-amber-500',
   }
 
   return (
-    <aside className="w-64 h-screen bg-dark-900 border-l border-dark-700/50 flex flex-col fixed right-0 top-0 z-30">
+    <aside className="w-64 h-screen bg-white border-l border-gray-200 flex flex-col fixed right-0 top-0 z-30">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-dark-700/50">
+      <div className="px-5 py-5 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-sm font-bold text-white">פלטפורמת AI</h1>
+            <h1 className="text-sm font-bold text-gray-900">פלטפורמת AI</h1>
             <p className={`text-xs font-medium ${roleColors[role]}`}>{roleLabels[role]}</p>
           </div>
           <button
             onClick={handleBellClick}
-            className="relative p-2 rounded-lg hover:bg-dark-800 transition-colors"
+            className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
             title="הודעות"
           >
-            <Bell size={18} className="text-dark-300" />
+            <Bell size={18} className="text-gray-500" />
             {unreadCount > 0 && (
               <span
                 className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white font-bold"
@@ -79,8 +79,8 @@ export default function Sidebar({ navItems, role }) {
             <button
               onClick={() => navigate('/admin')}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold
-                bg-amber-500/15 border border-amber-500/30 text-amber-400
-                hover:bg-amber-500/25 hover:border-amber-500/50 transition-all duration-150"
+                bg-amber-50 border border-amber-200 text-amber-600
+                hover:bg-amber-100 hover:border-amber-300 transition-all duration-150"
             >
               <Shield size={16} className="flex-shrink-0" />
               <span>ניהול</span>
@@ -97,8 +97,8 @@ export default function Sidebar({ navItems, role }) {
                   flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
                   transition-all duration-150
                   ${isActive
-                    ? 'bg-accent/15 text-accent-light border border-accent/20'
-                    : 'text-dark-300 hover:bg-dark-800 hover:text-gray-200'
+                    ? 'bg-accent/10 text-accent border border-accent/20'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }
                 `}
               >
@@ -114,11 +114,11 @@ export default function Sidebar({ navItems, role }) {
           ))}
         </ul>
 
-        <div className="mt-3 pt-3 border-t border-dark-700/50">
+        <div className="mt-3 pt-3 border-t border-gray-200">
           <Link
             to="/"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-              text-dark-300 hover:bg-dark-800 hover:text-gray-200 transition-all duration-150"
+              text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150"
           >
             <Home size={16} className="flex-shrink-0" />
             <span>חזרה לעמוד הבית</span>
@@ -132,31 +132,31 @@ export default function Sidebar({ navItems, role }) {
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                text-dark-300 hover:bg-dark-800 hover:text-gray-200 transition-all duration-150"
+                text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150"
             >
               <Globe size={16} className="flex-shrink-0" />
               <span>אתר הנבחרת</span>
-              <ExternalLink size={12} className="mr-auto text-dark-500" />
+              <ExternalLink size={12} className="mr-auto text-gray-400" />
             </a>
           </div>
         )}
       </nav>
 
       {/* User Profile */}
-      <div className="px-4 py-4 border-t border-dark-700/50">
+      <div className="px-4 py-4 border-t border-gray-200">
         <div className="flex items-center gap-3 mb-3">
           <Avatar name={profile?.full_name || ''} avatarUrl={profile?.avatar_url} size="sm" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-200 truncate">
+            <p className="text-sm font-medium text-gray-900 truncate">
               {profile?.full_name || 'משתמש'}
             </p>
-            <p className="text-xs text-dark-400 truncate">{profile?.email}</p>
+            <p className="text-xs text-gray-500 truncate">{profile?.email}</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-dark-400 hover:text-danger"
+          className="w-full justify-start text-gray-500 hover:text-danger"
           icon={<LogOut size={15} />}
           onClick={signOut}
         >

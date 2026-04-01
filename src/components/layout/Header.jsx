@@ -1,4 +1,4 @@
-export default function Header({ title, subtitle, actions, variant = 'dark' }) {
+export default function Header({ title, subtitle, actions, variant = 'light' }) {
   const isLight = variant === 'light'
   return (
     <div className="flex items-center justify-between mb-6">

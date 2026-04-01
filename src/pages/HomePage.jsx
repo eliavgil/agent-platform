@@ -701,15 +701,15 @@ export default function HomePage() {
       {/* ── Navbar (light) ──────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40 border-b"
            style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2.5">
-            <img src="/logo3.png" alt="Prometheus" className="h-9 w-9 object-contain" />
+        <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between">
+          <a href="#top" className="flex items-center gap-2">
+            <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
             <span className="font-bold text-sm hidden sm:block tracking-wide" style={{ color: '#0f172a' }}>
               פרומפתאוס AI
             </span>
           </a>
           <div className="flex items-center gap-1">
-            {[['#tools','ארגז הכלים'],['#agents','הסוכנים'],['#how','איך זה עובד']].map(([href, label]) => (
+            {[['#agents','הסוכנים'],['#how','איך זה עובד']].map(([href, label]) => (
               <a key={href} href={href}
                  className="px-3 py-2 text-sm rounded-lg transition-colors hidden md:block"
                  style={{ color: '#475569' }}
@@ -806,7 +806,7 @@ export default function HomePage() {
                   color: '#ea580c',
                   border: '1px solid rgba(249,115,22,0.22)',
                 }}>
-            🔥 סוכני AI שקמה
+            סוכני AI שקמה
           </span>
 
           {/* Brand */}
@@ -851,8 +851,8 @@ export default function HomePage() {
           </div>
 
           {/* Tool logo strip */}
-          <div className="flex items-center gap-3 flex-wrap justify-center">
-            <span className="text-xs ml-2" style={{ color: '#94a3b8' }}>בעזרת כלי AI מובילים:</span>
+          <div className="flex items-center gap-5 flex-wrap justify-center">
+            <span className="text-xs" style={{ color: '#94a3b8' }}>בעזרת כלי AI מובילים:</span>
             {[
               ['Gemini',     TOOL_LOGOS['Gemini']],
               ['ChatGPT',    TOOL_LOGOS['ChatGPT']],
@@ -861,12 +861,8 @@ export default function HomePage() {
               ['NotebookLM', TOOL_LOGOS['NotebookLM']],
               ['Grammarly',  TOOL_LOGOS['Grammarly']],
             ].map(([name, url]) => (
-              <div key={name}
-                   className="w-9 h-9 rounded-xl flex items-center justify-center"
-                   title={name}
-                   style={{ background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                <img src={url} alt={name} className="w-5 h-5 object-contain" />
-              </div>
+              <img key={name} src={url} alt={name} title={name}
+                   className="h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity" />
             ))}
           </div>
         </div>

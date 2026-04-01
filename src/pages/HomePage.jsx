@@ -28,16 +28,6 @@ const STEPS = [
   },
 ]
 
-const PARTICLES = Array.from({ length: 55 }, (_, i) => ({
-  id: i,
-  left: `${(i * 13 + 3) % 100}%`,
-  delay: `${((i * 37) % 60) / 10}s`,
-  duration: `${4 + ((i * 23) % 50) / 10}s`,
-  size: 0.8 + (i % 3) * 0.7,
-  drift: `${((i * 17) % 120) - 60}px`,
-  opacity: 0.15 + (i % 5) * 0.07,
-}))
-
 // Tool logos
 const TOOL_LOGOS = {
   'Gemini':         'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg',
@@ -318,90 +308,6 @@ function RobotFigure({ c, variant = 0 }) {
       <path d="M78,62 Q90,55 92,68 Q94,80 86,84" stroke={c[0]} strokeWidth="10" fill="none" strokeLinecap="round"/>
       <ellipse cx="38" cy="100" rx="10" ry="7" fill={c[0]}/>
       <ellipse cx="62" cy="100" rx="10" ry="7" fill={c[0]}/>
-    </svg>
-  )
-}
-
-// ── TorchSVG — robotic arm from the right holding a torch ─────────────────────
-function TorchSVG() {
-  return (
-    <svg viewBox="45 0 60 200" width="30" height="100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="tMetal" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#07152a"/>
-          <stop offset="30%"  stopColor="#0f2a55"/>
-          <stop offset="55%"  stopColor="#1a4888" stopOpacity="0.9"/>
-          <stop offset="75%"  stopColor="#0f2a55"/>
-          <stop offset="100%" stopColor="#07152a"/>
-        </linearGradient>
-        <linearGradient id="tBronze" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#2e1a06"/>
-          <stop offset="40%"  stopColor="#7a5218"/>
-          <stop offset="60%"  stopColor="#b88028"/>
-          <stop offset="100%" stopColor="#2e1a06"/>
-        </linearGradient>
-        <radialGradient id="tOuterFlame" cx="50%" cy="85%" r="65%">
-          <stop offset="0%"   stopColor="#cc1800"/>
-          <stop offset="50%"  stopColor="#ee4400" stopOpacity="0.9"/>
-          <stop offset="100%" stopColor="#ff5500" stopOpacity="0"/>
-        </radialGradient>
-        <radialGradient id="tMidFlame" cx="50%" cy="80%" r="60%">
-          <stop offset="0%"   stopColor="#ff7700"/>
-          <stop offset="55%"  stopColor="#ff9900"/>
-          <stop offset="100%" stopColor="#ffbb00" stopOpacity="0"/>
-        </radialGradient>
-        <radialGradient id="tInnerFlame" cx="50%" cy="75%" r="55%">
-          <stop offset="0%"   stopColor="#ffdd00"/>
-          <stop offset="100%" stopColor="#ff8800" stopOpacity="0.3"/>
-        </radialGradient>
-        <radialGradient id="tCore" cx="50%" cy="70%" r="50%">
-          <stop offset="0%"   stopColor="#ffffff"/>
-          <stop offset="40%"  stopColor="#ffffcc"/>
-          <stop offset="100%" stopColor="#ffee44" stopOpacity="0"/>
-        </radialGradient>
-        <filter id="tGlow">
-          <feGaussianBlur stdDeviation="2.5" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <filter id="tFlameBlur">
-          <feGaussianBlur stdDeviation="6" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-
-      {/* ── FLAME (centered at x=75) ── */}
-      <g filter="url(#tFlameBlur)">
-        <path className="tFlameOuter"
-          d="M75,68 C97,64 108,42 101,20 C96,4 85,0 75,0 C65,0 54,4 49,20 C42,42 53,64 75,68Z"
-          fill="url(#tOuterFlame)" opacity="0.9"/>
-        <path className="tFlameMid"
-          d="M75,68 C90,65 98,46 93,28 C89,14 83,4 75,1 C67,4 61,14 57,28 C52,46 60,65 75,68Z"
-          fill="url(#tMidFlame)"/>
-        <path className="tFlameInner"
-          d="M75,68 C84,66 90,52 86,37 C83,24 80,14 75,10 C70,14 67,24 64,37 C60,52 66,66 75,68Z"
-          fill="url(#tInnerFlame)"/>
-        <path className="tFlameCore"
-          d="M75,68 C79,67 82,56 80,45 C78,35 77,26 75,22 C73,26 72,35 70,45 C68,56 71,67 75,68Z"
-          fill="url(#tCore)"/>
-        <circle cx="60" cy="28" r="1.5" fill="#ffee00" style={{animation:'tSpark1 1.5s ease-out 0.2s infinite'}}/>
-        <circle cx="91" cy="22" r="1.2" fill="#ff8800" style={{animation:'tSpark2 1.8s ease-out 0.7s infinite'}}/>
-        <circle cx="83" cy="12" r="0.9" fill="#fffaaa" style={{animation:'tSpark3 1.3s ease-out 1.1s infinite'}}/>
-        <circle cx="63" cy="10" r="1.1" fill="#ffcc00" style={{animation:'tSpark4 1.6s ease-out 0.4s infinite'}}/>
-      </g>
-
-      {/* ── TORCH BOWL ── */}
-      <ellipse cx="75" cy="69" rx="22" ry="8"  fill="#3a2008" stroke="#9a7022" strokeWidth="0.9"/>
-      <rect    x="53"  y="69" width="44" height="18" rx="2.5" fill="url(#tBronze)"/>
-      <ellipse cx="75" cy="87" rx="24" ry="7.5" fill="#2a1806" stroke="#7a5518" strokeWidth="0.7"/>
-
-      {/* ── TORCH HANDLE ── */}
-      <rect x="65" y="86" width="20" height="110" rx="3" fill="url(#tBronze)"/>
-      {[100,115,130,145,160,174,185].map((y,i) => (
-        <rect key={i} x="63" y={y} width="24" height="4" rx="1.5" fill="#2a1806" stroke="#8a6018" strokeWidth="0.4"/>
-      ))}
-
-      {/* Orange ambient glow under bowl */}
-      <ellipse cx="75" cy="88" rx="22" ry="5" fill="rgba(255,100,0,0.12)"/>
     </svg>
   )
 }
@@ -785,59 +691,11 @@ export default function HomePage() {
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: LIGHT_BG }}>
 
-      {/* ── CSS Animations ────────────────────────────────────────────── */}
+      {/* ── CSS ───────────────────────────────────────────────────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
         .font-orbitron { font-family: 'Orbitron', 'Inter', monospace; }
-        .font-pixel { font-family: 'Press Start 2P', monospace; }
-
-        .tFlameOuter  { transform-origin:75px 68px; animation:tFlicker  .75s ease-in-out infinite; }
-        .tFlameMid    { transform-origin:75px 68px; animation:tFlicker  .55s ease-in-out .08s infinite; }
-        .tFlameInner  { transform-origin:75px 68px; animation:tInnerF   .45s ease-in-out .15s infinite; }
-        .tFlameCore   { transform-origin:75px 68px; animation:tInnerF   .35s ease-in-out infinite; }
-
-        @keyframes tFlicker {
-          0%,100%{transform:scaleX(1) scaleY(1) rotate(-1deg);}
-          20%{transform:scaleX(.94) scaleY(1.07) rotate(1.5deg);}
-          40%{transform:scaleX(1.05) scaleY(.95) rotate(-.5deg);}
-          60%{transform:scaleX(.97) scaleY(1.05) rotate(1deg);}
-          80%{transform:scaleX(1.03) scaleY(.97) rotate(-1.5deg);}
-        }
-        @keyframes tInnerF {
-          0%,100%{transform:scaleY(1) translateY(0);}
-          33%{transform:scaleY(1.11) translateY(-4px);}
-          66%{transform:scaleY(.91) translateY(2px);}
-        }
-        @keyframes tLickL{0%,100%{transform:rotate(-3deg) scaleX(1);}50%{transform:rotate(4deg) scaleX(1.12);}}
-        @keyframes tLickR{0%,100%{transform:rotate(3deg) scaleX(1);}50%{transform:rotate(-4deg) scaleX(1.12);}}
-        @keyframes tSpark1{0%{transform:translate(0,0);opacity:1;}100%{transform:translate(-22px,-52px);opacity:0;}}
-        @keyframes tSpark2{0%{transform:translate(0,0);opacity:1;}100%{transform:translate(18px,-45px);opacity:0;}}
-        @keyframes tSpark3{0%{transform:translate(0,0);opacity:1;}100%{transform:translate(14px,-38px);opacity:0;}}
-        @keyframes tSpark4{0%{transform:translate(0,0);opacity:1;}100%{transform:translate(-12px,-32px);opacity:0;}}
-
-        @keyframes torchGlow {
-          0%,100%{filter:drop-shadow(0 0 8px #ff6600aa) drop-shadow(0 0 22px #ff440044);}
-          50%{filter:drop-shadow(0 0 18px #ffaa00cc) drop-shadow(0 0 44px #ff660077);}
-        }
-        .torch-wrap{animation:torchGlow 1.8s ease-in-out infinite;}
-
-        @keyframes headingGlow {
-          0%,100%{text-shadow:0 0 8px rgba(204,102,51,0.6),0 0 20px rgba(204,102,51,0.3),0 0 40px rgba(204,102,51,0.15);}
-          50%{text-shadow:0 0 14px rgba(235,122,58,0.9),0 0 30px rgba(204,102,51,0.55),0 0 60px rgba(204,102,51,0.25),0 0 2px rgba(255,180,100,0.6);}
-        }
-        .heading-glow{animation:headingGlow 2.2s ease-in-out infinite;}
-
-        @keyframes particleRise{
-          0%{transform:translateY(0) translateX(0);opacity:0;}
-          10%{opacity:var(--pop);}
-          90%{opacity:calc(var(--pop)*.4);}
-          100%{transform:translateY(-110vh) translateX(var(--d));opacity:0;}
-        }
-        @keyframes gridShimmer{0%,100%{opacity:.08;}50%{opacity:.16;}}
-        .hero-grid{animation:gridShimmer 5s ease-in-out infinite;}
-
-        .cta-primary:hover{box-shadow:0 0 28px #f97316aa,0 8px 30px #f9731655;}
-        .cta-secondary:hover{box-shadow:0 0 20px #6366f188;}
+        .cta-primary:hover { box-shadow: 0 6px 28px rgba(249,115,22,0.45), 0 2px 8px rgba(249,115,22,0.2); }
       `}</style>
 
       {/* ── Navbar (light) ──────────────────────────────────────────────── */}
@@ -920,140 +778,97 @@ export default function HomePage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section id="top" className="relative overflow-hidden flex flex-col items-center px-4"
-               style={{ minHeight: '100vh', background: S1 }}>
+      <section id="top" className="relative overflow-hidden flex items-center justify-center px-4"
+               style={{ minHeight: '92vh', background: '#ffffff' }}>
 
-        {/* Grid */}
-        <div className="hero-grid absolute inset-0 pointer-events-none"
-             style={{ backgroundImage: 'linear-gradient(rgba(99,102,241,1) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,1) 1px,transparent 1px)', backgroundSize: '55px 55px', opacity: .08 }}/>
+        {/* Soft gradient blobs */}
+        <div className="absolute pointer-events-none" style={{
+          top: '-8%', left: '-6%', width: '560px', height: '560px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%)',
+        }}/>
+        <div className="absolute pointer-events-none" style={{
+          bottom: '-10%', right: '-6%', width: '520px', height: '520px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(249,115,22,0.09) 0%, transparent 65%)',
+        }}/>
+        <div className="absolute pointer-events-none" style={{
+          top: '55%', left: '55%', width: '320px', height: '320px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 65%)',
+          transform: 'translate(-50%, -50%)',
+        }}/>
 
-        {/* Subtle horizon glow */}
-        <div className="absolute inset-0 pointer-events-none"
-             style={{ background: 'radial-gradient(ellipse 700px 300px at 50% 100%,rgba(204,102,51,.07) 0%,transparent 70%)' }}/>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-2xl w-full mx-auto" dir="rtl">
 
-        {/* Particles */}
-        {PARTICLES.map(p => (
-          <div key={p.id} className="absolute rounded-full pointer-events-none"
-               style={{
-                 left: p.left, bottom: '-5px',
-                 width: `${p.size}px`, height: `${p.size}px`,
-                 background: p.id % 3 === 0 ? '#cc6633' : p.id % 3 === 1 ? '#cc6633' : '#e07744',
-                 '--pop': p.opacity, '--d': p.drift,
-                 animation: `particleRise ${p.duration} linear ${p.delay} infinite`,
-               }}/>
-        ))}
+          {/* Badge */}
+          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-5"
+                style={{
+                  background: 'rgba(249,115,22,0.08)',
+                  color: '#ea580c',
+                  border: '1px solid rgba(249,115,22,0.22)',
+                }}>
+            🔥 סוכני AI שקמה
+          </span>
 
-        {/* ── Top content: PROMPTHEUS + subtitle + heading ── */}
-        <div
-          className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
-          dir="rtl"
-          style={{ marginTop: '7vh' }}
-        >
-          {/* Row: PROMPTHEUS.AI */}
-          <div className="flex items-center justify-center gap-2 mb-0 flex-wrap">
-            <p className="font-pixel text-white" style={{ fontSize: '41.6px', letterSpacing: '0.28em', marginLeft: '0.5cm' }}>
-              {Array.from('PROMPTHEUS').map((ch, i) => (
-                <span key={i} style={{
-                  ...(i === 0 || i === 4 ? { color: '#cc6633' } : {}),
-                  ...(i === 4 ? { letterSpacing: '0.14em' } : {}),
-                }}>{ch}</span>
-              ))}
-              <span style={{ fontSize: '12px', marginRight: '4px', letterSpacing: '-0.08em', color: '#cc6633', verticalAlign: '2.4em' }}>AI</span>
-            </p>
-          </div>
-
-          {/* נבחרת AI שקמה — צמוד ל-PROMPTHEUS */}
-          <p
-            className="text-xs tracking-[0.28em] uppercase mb-0"
-            style={{ color: '#cc6633', textShadow: '0 0 6px rgba(204,102,51,0.7), 0 0 14px rgba(204,102,51,0.4)', marginTop: '2px' }}
-          >
-            סוכני AI שקמה
+          {/* Brand */}
+          <p className="font-orbitron tracking-[0.28em] mb-5"
+             style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+            {Array.from('PROMPTHEUS').map((ch, i) => (
+              <span key={i} style={i === 0 || i === 4 ? { color: '#f97316' } : {}}>{ch}</span>
+            ))}
+            <span style={{ fontSize: '0.6em', color: '#f97316', marginRight: '3px' }}> AI</span>
           </p>
-        </div>
 
-        {/* ── Middle: torch | heading | torch ── */}
-        <div style={{ flex: 1 }} />
-        <div className="flex items-center justify-center gap-4 flex-wrap relative z-10">
-          <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294) translateX(12px)', marginLeft: '-10px' }}><TorchSVG /></div>
-          <h1
-            className="heading-glow font-black leading-tight text-center"
-            style={{ color: '#ffffff', fontSize: '204%', marginRight: '12px' }}
-          >
+          {/* Headline */}
+          <h1 className="font-black leading-tight mb-5"
+              style={{ fontSize: 'clamp(2.6rem, 6vw, 4rem)', color: '#0f172a', letterSpacing: '-0.02em' }}>
             מביאים את הבינה לכיתה
           </h1>
-          <div className="torch-wrap flex-shrink-0" style={{ transform: 'scale(0.294)', marginLeft: '18px' }}><TorchSVG /></div>
-        </div>
-        <div style={{ flex: 1 }} />
 
-        {/* ── Bottom content: mission box + circles ── */}
-        <div
-          className="relative z-10 flex flex-col items-center text-center w-full max-w-[1200px] px-4"
-          dir="rtl"
-          style={{ marginBottom: '90px' }}
-        >
-          {/* Mission statement — framed block */}
-          <div
-            className="w-full max-w-lg text-center mb-6"
-            style={{
-              background: 'rgba(8,6,18,0.55)',
-              border: '1px solid rgba(204,102,51,0.3)',
-              borderRight: '3px solid #cc6633',
-              borderLeft: '3px solid #cc6633',
-              borderRadius: '14px',
-              padding: '20px 24px',
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 0 40px rgba(204,102,51,0.07)',
-            }}
-          >
-            <p className="text-sm font-semibold leading-relaxed mb-2" style={{ color: '#fff' }}>
-              קבוצת תלמידים מוכשרים מייצרים עבור מורים תוצרי AI בהזמנה אישית
-            </p>
-            <p className="text-sm font-semibold leading-relaxed mb-2" style={{ color: '#fff' }}>
-              המורים על הפדגוגיה, התלמידים על הטכנולוגיה
-            </p>
-            <p className="text-sm font-semibold leading-relaxed" style={{ color: '#fff' }}>
-              ויחד, מביאים את הבינה לכיתה!
-            </p>
+          {/* Description */}
+          <p className="text-base leading-relaxed mb-9 max-w-lg" style={{ color: '#64748b' }}>
+            קבוצת תלמידים מוכשרים מייצרים עבור מורים תוצרי AI בהזמנה אישית —
+            המורים על הפדגוגיה, התלמידים על הטכנולוגיה.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex items-center gap-3 flex-wrap justify-center mb-12">
+            <Link to={ctaTo}
+                  className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all cta-primary"
+                  style={{
+                    background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                    color: '#fff',
+                    boxShadow: '0 4px 20px rgba(249,115,22,0.28)',
+                  }}>
+              הזמן תוצר AI ←
+            </Link>
+            <Link to="/outputs"
+                  className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all"
+                  style={{ background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#0f172a' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
+              תוצרים לדוגמה
+            </Link>
           </div>
 
-          {/* Three circles */}
-          <div className="flex flex-row items-center gap-4">
+          {/* Tool logo strip */}
+          <div className="flex items-center gap-3 flex-wrap justify-center">
+            <span className="text-xs ml-2" style={{ color: '#94a3b8' }}>בעזרת כלי AI מובילים:</span>
             {[
-              { label: 'תוצרים',    El: Link, to: '/outputs' },
-              { label: 'מי אנחנו?', El: Link, to: '/about' },
-              { label: 'הזמנות',   El: Link, to: ctaTo },
-            ].map(({ label, El, to, href }) => (
-              <motion.div
-                key={label}
-                whileHover={{ scale: 1.05, rotate: 6 }}
-                transition={{ type: 'spring', stiffness: 280, damping: 18 }}
-              >
-                <El
-                  {...(to ? { to } : { href })}
-                  className="flex items-center justify-center font-bold text-white select-none"
-                  style={{
-                    width: '3.6rem', height: '3.6rem',
-                    borderRadius: '50%',
-                    border: '2px dotted #cc6633',
-                    fontSize: '0.55rem',
-                    textAlign: 'center',
-                    lineHeight: 1.2,
-                    padding: '0.3rem',
-                  }}
-                >
-                  {label}
-                </El>
-              </motion.div>
+              ['Gemini',     TOOL_LOGOS['Gemini']],
+              ['ChatGPT',    TOOL_LOGOS['ChatGPT']],
+              ['Claude',     TOOL_LOGOS['Claude']],
+              ['Canva',      TOOL_LOGOS['Canva']],
+              ['NotebookLM', TOOL_LOGOS['NotebookLM']],
+              ['Grammarly',  TOOL_LOGOS['Grammarly']],
+            ].map(([name, url]) => (
+              <div key={name}
+                   className="w-9 h-9 rounded-xl flex items-center justify-center"
+                   title={name}
+                   style={{ background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                <img src={url} alt={name} className="w-5 h-5 object-contain" />
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* Wave — dark to light */}
-        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-          <svg viewBox="0 0 1440 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 50L60 40C120 30 240 12 360 8C480 4 600 12 720 18C840 24 960 28 1080 24C1200 20 1320 10 1380 6L1440 2V50H0Z"
-                  fill={LIGHT_BG}/>
-          </svg>
         </div>
       </section>
 

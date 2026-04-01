@@ -23,11 +23,15 @@ function formatDate(dateString) {
   return date.toLocaleDateString('he-IL')
 }
 
-function MessageBubble({ message, isOwn }) {
+function MessageBubble({ message, isOwn, light }) {
   if (message.is_system) {
     return (
       <div className="flex justify-center my-2">
-        <span className="px-3 py-1 text-xs text-dark-400 bg-dark-800 rounded-full border border-dark-600">
+        <span className={`px-3 py-1 text-xs rounded-full border ${
+          light
+            ? 'text-gray-400 bg-gray-100 border-gray-200'
+            : 'text-dark-400 bg-dark-800 border-dark-600'
+        }`}>
           {message.content}
         </span>
       </div>
@@ -46,7 +50,7 @@ function MessageBubble({ message, isOwn }) {
       )}
       <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
         {!isOwn && (
-          <span className="text-xs text-dark-400 mb-1 px-1">
+          <span className={`text-xs mb-1 px-1 ${light ? 'text-gray-400' : 'text-dark-400'}`}>
             {message.profiles?.full_name}
           </span>
         )}
@@ -54,7 +58,9 @@ function MessageBubble({ message, isOwn }) {
           rounded-2xl px-4 py-2.5 text-sm
           ${isOwn
             ? 'bg-accent text-white rounded-bl-md'
-            : 'bg-dark-700 text-gray-200 rounded-br-md'
+            : light
+              ? 'bg-gray-100 text-gray-800 rounded-br-md'
+              : 'bg-dark-700 text-gray-200 rounded-br-md'
           }
         `}>
           {message.content && <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>}
@@ -64,7 +70,11 @@ function MessageBubble({ message, isOwn }) {
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center gap-2 mt-1 p-2 rounded-lg ${
-                isOwn ? 'bg-white/10 hover:bg-white/20' : 'bg-dark-600 hover:bg-dark-500'
+                isOwn
+                  ? 'bg-white/10 hover:bg-white/20'
+                  : light
+                    ? 'bg-gray-200 hover:bg-gray-300'
+                    : 'bg-dark-600 hover:bg-dark-500'
               } transition-colors`}
             >
               <File size={14} className="flex-shrink-0" />
@@ -73,7 +83,7 @@ function MessageBubble({ message, isOwn }) {
             </a>
           )}
         </div>
-        <span className={`text-xs text-dark-500 mt-1 px-1 ${isOwn ? 'text-left' : 'text-right'}`}>
+        <span className={`text-xs mt-1 px-1 ${isOwn ? 'text-left' : 'text-right'} ${light ? 'text-gray-400' : 'text-dark-500'}`}>
           {formatTime(message.created_at)}
         </span>
       </div>
@@ -81,7 +91,7 @@ function MessageBubble({ message, isOwn }) {
   )
 }
 
-export default function ChatWindow({ requestId, disabled = false, placeholder = 'כתוב הודעה...' }) {
+export default function ChatWindow({ requestId, disabled = false, placeholder = 'כתוב הודעה...', light = false }) {
   const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
@@ -98,7 +108,6 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
 
     const channel = subscribeToMessages(requestId, (payload) => {
       if (payload.eventType === 'INSERT') {
-        // Fetch the full message with profile
         loadMessages()
       }
     })
@@ -176,20 +185,24 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
   return (
     <div className="flex flex-col h-full">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className={`flex-1 overflow-y-auto px-4 py-4 ${light ? 'bg-gray-50' : ''}`}>
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-12 h-12 rounded-2xl bg-dark-700 flex items-center justify-center mb-3">
-              <Send size={20} className="text-dark-400" />
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 ${light ? 'bg-gray-100' : 'bg-dark-700'}`}>
+              <Send size={20} className={light ? 'text-gray-400' : 'text-dark-400'} />
             </div>
-            <p className="text-sm text-dark-400">אין הודעות עדיין</p>
-            <p className="text-xs text-dark-500 mt-1">התחל שיחה עם {profile?.role === 'teacher' ? 'הסוכן' : 'המורה'}</p>
+            <p className={`text-sm ${light ? 'text-gray-400' : 'text-dark-400'}`}>אין הודעות עדיין</p>
+            <p className={`text-xs mt-1 ${light ? 'text-gray-400' : 'text-dark-500'}`}>התחל שיחה עם {profile?.role === 'teacher' ? 'הסוכן' : 'המורה'}</p>
           </div>
         ) : (
           Object.entries(groupedMessages).map(([date, dateMessages]) => (
             <div key={date}>
               <div className="flex justify-center my-3">
-                <span className="px-3 py-0.5 text-xs text-dark-400 bg-dark-800 rounded-full border border-dark-600">
+                <span className={`px-3 py-0.5 text-xs rounded-full border ${
+                  light
+                    ? 'text-gray-400 bg-gray-100 border-gray-200'
+                    : 'text-dark-400 bg-dark-800 border-dark-600'
+                }`}>
                   {date}
                 </span>
               </div>
@@ -198,6 +211,7 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
                   key={msg.id}
                   message={msg}
                   isOwn={msg.sender_id === user?.id}
+                  light={light}
                 />
               ))}
             </div>
@@ -208,15 +222,15 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
 
       {/* Input */}
       {!disabled && (
-        <div className="border-t border-dark-700 px-4 py-3">
+        <div className={`border-t px-4 py-3 ${light ? 'border-gray-200 bg-white' : 'border-dark-700'}`}>
           {uploadError && (
             <p className="text-xs text-danger mb-2 px-1">{uploadError}</p>
           )}
           {selectedFile && (
-            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-dark-700 rounded-lg text-sm">
+            <div className={`flex items-center gap-2 mb-2 px-3 py-2 rounded-lg text-sm ${light ? 'bg-gray-100' : 'bg-dark-700'}`}>
               <File size={14} className="text-accent flex-shrink-0" />
-              <span className="text-dark-200 truncate flex-1">{selectedFile.name}</span>
-              <button onClick={() => setSelectedFile(null)} className="text-dark-400 hover:text-danger flex-shrink-0">
+              <span className={`truncate flex-1 ${light ? 'text-gray-700' : 'text-dark-200'}`}>{selectedFile.name}</span>
+              <button onClick={() => setSelectedFile(null)} className={`flex-shrink-0 ${light ? 'text-gray-400 hover:text-danger' : 'text-dark-400 hover:text-danger'}`}>
                 <X size={14} />
               </button>
             </div>
@@ -231,7 +245,11 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-xl bg-dark-700 hover:bg-dark-600 text-dark-400 hover:text-gray-200 transition-colors flex-shrink-0"
+              className={`p-2.5 rounded-xl transition-colors flex-shrink-0 ${
+                light
+                  ? 'bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700'
+                  : 'bg-dark-700 hover:bg-dark-600 text-dark-400 hover:text-gray-200'
+              }`}
             >
               <Paperclip size={18} />
             </button>
@@ -246,9 +264,13 @@ export default function ChatWindow({ requestId, disabled = false, placeholder = 
               }}
               placeholder={placeholder}
               rows={1}
-              className="flex-1 bg-dark-700 border border-dark-600 text-gray-100 rounded-xl px-4 py-2.5 text-sm
-                placeholder:text-dark-500 focus:outline-none focus:border-accent/50 resize-none
-                min-h-[44px] max-h-[120px]"
+              className={`flex-1 border rounded-xl px-4 py-2.5 text-sm
+                focus:outline-none focus:border-accent/50 resize-none
+                min-h-[44px] max-h-[120px] ${
+                light
+                  ? 'bg-white border-gray-200 text-gray-800 placeholder:text-gray-400'
+                  : 'bg-dark-700 border-dark-600 text-gray-100 placeholder:text-dark-500'
+              }`}
               style={{ overflowY: 'auto' }}
             />
             <Button

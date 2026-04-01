@@ -130,9 +130,9 @@ export default function TeacherNewRequest() {
         <div className="w-20 h-20 rounded-full bg-success/10 border-2 border-success/30 flex items-center justify-center mb-4">
           <CheckCircle size={40} className="text-success" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">הבקשה נשלחה!</h2>
-        <p className="text-dark-400">הבקשה שלך התקבלה ותועבר לסוכן בהקדם</p>
-        <p className="text-dark-500 text-sm mt-1">מעביר אותך לרשימת הבקשות...</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">הבקשה נשלחה!</h2>
+        <p className="text-gray-500">הבקשה שלך התקבלה ותועבר לסוכן בהקדם</p>
+        <p className="text-gray-400 text-sm mt-1">מעביר אותך לרשימת הבקשות...</p>
       </div>
     )
   }
@@ -148,9 +148,9 @@ export default function TeacherNewRequest() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-5">
-            <Card>
+            <Card variant="light">
               <CardBody className="space-y-4">
-                <h3 className="text-sm font-semibold text-dark-300 uppercase tracking-wider mb-1">פרטי הבקשה</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">פרטי הבקשה</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Select
@@ -159,6 +159,7 @@ export default function TeacherNewRequest() {
                     value={form.subject}
                     onChange={handleChange}
                     error={errors.subject}
+                    variant="light"
                     required
                   >
                     <option value="">בחר מקצוע...</option>
@@ -171,6 +172,7 @@ export default function TeacherNewRequest() {
                     value={form.grade_level}
                     onChange={handleChange}
                     error={errors.grade_level}
+                    variant="light"
                     required
                   >
                     <option value="">בחר כיתה...</option>
@@ -186,6 +188,7 @@ export default function TeacherNewRequest() {
                   error={errors.description}
                   placeholder="תאר בפירוט מה אתה צריך עזרה בו, מה מטרת השיעור, מה הקשיים שנתקלת בהם..."
                   rows={5}
+                  variant="light"
                   required
                 />
 
@@ -194,6 +197,7 @@ export default function TeacherNewRequest() {
                   name="priority"
                   value={form.priority}
                   onChange={handleChange}
+                  variant="light"
                 >
                   <option value="low">נמוכה - אין דחיפות</option>
                   <option value="medium">בינונית - תוך שבוע</option>
@@ -203,31 +207,31 @@ export default function TeacherNewRequest() {
             </Card>
 
             {/* File Upload */}
-            <Card>
+            <Card variant="light">
               <CardBody>
-                <h3 className="text-sm font-semibold text-dark-300 uppercase tracking-wider mb-3">קובץ מצורף (אופציונלי)</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">קובץ מצורף (אופציונלי)</h3>
                 {file ? (
-                  <div className="flex items-center gap-3 p-3 bg-dark-700 rounded-xl border border-dark-600">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
                     <File size={20} className="text-accent flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-200 truncate">{file.name}</p>
-                      <p className="text-xs text-dark-400">{(file.size / 1024).toFixed(1)} KB</p>
+                      <p className="text-sm text-gray-800 truncate">{file.name}</p>
+                      <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setFile(null)}
-                      className="p-1.5 rounded-lg hover:bg-dark-600 text-dark-400 hover:text-danger transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-danger transition-colors"
                     >
                       <X size={16} />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-dark-600 rounded-xl cursor-pointer hover:border-accent/40 hover:bg-accent/5 transition-all group">
-                    <Upload size={24} className="text-dark-500 group-hover:text-accent mb-2 transition-colors" />
-                    <p className="text-sm text-dark-400 group-hover:text-dark-300">
+                  <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-accent/40 hover:bg-accent/5 transition-all group">
+                    <Upload size={24} className="text-gray-400 group-hover:text-accent mb-2 transition-colors" />
+                    <p className="text-sm text-gray-500 group-hover:text-gray-700">
                       לחץ להעלאת קובץ
                     </p>
-                    <p className="text-xs text-dark-500 mt-1">PDF, Word, תמונות עד 10MB</p>
+                    <p className="text-xs text-gray-400 mt-1">PDF, Word, תמונות עד 10MB</p>
                     <input
                       type="file"
                       className="hidden"
@@ -246,9 +250,9 @@ export default function TeacherNewRequest() {
           {/* Sidebar Options */}
           <div className="space-y-5">
             {/* Tool Selection */}
-            <Card>
+            <Card variant="light">
               <CardBody>
-                <h3 className="text-sm font-semibold text-dark-300 uppercase tracking-wider mb-3">כלי AI מועדף</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">כלי AI מועדף</h3>
                 <div className="space-y-2">
                   <button
                     type="button"
@@ -256,7 +260,7 @@ export default function TeacherNewRequest() {
                     className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                       !form.desired_tool_name
                         ? 'bg-accent/15 border border-accent/30 text-accent-light'
-                        : 'hover:bg-dark-700 text-dark-300'
+                        : 'hover:bg-gray-100 text-gray-500'
                     }`}
                   >
                     <Bot size={16} />
@@ -270,7 +274,7 @@ export default function TeacherNewRequest() {
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                         form.desired_tool_name === tool.name
                           ? 'bg-accent/15 border border-accent/30 text-accent-light'
-                          : 'hover:bg-dark-700 text-dark-300'
+                          : 'hover:bg-gray-100 text-gray-500'
                       }`}
                     >
                       <span className="flex-shrink-0 text-base leading-none">
@@ -284,11 +288,11 @@ export default function TeacherNewRequest() {
             </Card>
 
             {/* Agent Preference */}
-            <Card>
+            <Card variant="light">
               <CardBody>
-                <h3 className="text-sm font-semibold text-dark-300 uppercase tracking-wider mb-3">סוכן מועדף</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">סוכן מועדף</h3>
                 {agents.length === 0 ? (
-                  <p className="text-sm text-dark-500">אין סוכנים זמינים כרגע</p>
+                  <p className="text-sm text-gray-400">אין סוכנים זמינים כרגע</p>
                 ) : (
                   <div className="space-y-2">
                     <button
@@ -297,7 +301,7 @@ export default function TeacherNewRequest() {
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                         !form.preferred_agent_id
                           ? 'bg-accent/15 border border-accent/30 text-accent-light'
-                          : 'hover:bg-dark-700 text-dark-300'
+                          : 'hover:bg-gray-100 text-gray-500'
                       }`}
                     >
                       ללא העדפה
@@ -310,7 +314,7 @@ export default function TeacherNewRequest() {
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                           form.preferred_agent_id === agent.id
                             ? 'bg-accent/15 border border-accent/30 text-accent-light'
-                            : 'hover:bg-dark-700 text-dark-300'
+                            : 'hover:bg-gray-100 text-gray-500'
                         }`}
                       >
                         <Avatar name={agent.full_name} size="xs" />
@@ -337,7 +341,7 @@ export default function TeacherNewRequest() {
               >
                 שלח בקשה
               </Button>
-              <p className="text-xs text-dark-500 text-center mt-2">
+              <p className="text-xs text-gray-400 text-center mt-2">
                 הבקשה תטופל בהקדם על ידי סוכן AI מתאים
               </p>
             </div>

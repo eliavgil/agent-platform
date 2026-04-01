@@ -34,7 +34,7 @@ export default function TeacherChat() {
   if (!request) {
     return (
       <div className="text-center py-20">
-        <p className="text-dark-400">הבקשה לא נמצאה</p>
+        <p className="text-gray-400">הבקשה לא נמצאה</p>
         <Button variant="ghost" size="sm" className="mt-3" onClick={() => navigate('/teacher/requests')}>
           חזור לרשימה
         </Button>
@@ -47,24 +47,24 @@ export default function TeacherChat() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] -mt-8 -mx-6">
       {/* Top Bar */}
-      <div className="flex-shrink-0 px-6 py-4 bg-dark-800 border-b border-blue-500/20">
+      <div className="flex-shrink-0 px-6 py-4 bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate('/teacher/requests')}
-            className="p-2 rounded-xl hover:bg-dark-700 text-dark-400 hover:text-gray-200 transition-colors"
+            className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
           >
             <ArrowRight size={18} />
           </button>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-bold text-white text-base">
+              <h1 className="font-bold text-gray-900 text-base">
                 {request.subject} — {request.grade_level}
               </h1>
               <StatusBadge status={request.status} />
               <PriorityBadge priority={request.priority} />
             </div>
-            <p className="text-xs text-dark-400 mt-0.5 truncate">{request.description}</p>
+            <p className="text-xs text-gray-400 mt-0.5 truncate">{request.description}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -73,26 +73,26 @@ export default function TeacherChat() {
                 href={request.file_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-dark-700 hover:bg-dark-600 border border-dark-500 text-dark-300 hover:text-gray-200 rounded-lg text-xs transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 hover:text-gray-800 rounded-lg text-xs transition-colors"
               >
                 <Download size={13} />
                 קובץ מצורף
               </a>
             )}
             {request.agent ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
                 <Avatar name={request.agent.full_name} size="xs" />
                 <div>
-                  <p className="text-xs font-medium text-gray-200">{request.agent.full_name}</p>
-                  <p className="text-xs text-blue-400">סוכן AI</p>
+                  <p className="text-xs font-medium text-gray-800">{request.agent.full_name}</p>
+                  <p className="text-xs text-blue-500">סוכן AI</p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <div className="w-6 h-6 rounded-full bg-dark-600 flex items-center justify-center">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
                   <Bot size={12} className="text-blue-400" />
                 </div>
-                <p className="text-xs text-blue-300/70">ממתין לסוכן</p>
+                <p className="text-xs text-blue-400">ממתין לסוכן</p>
               </div>
             )}
           </div>
@@ -101,12 +101,12 @@ export default function TeacherChat() {
 
       {/* Chat */}
       <div className="flex-1 overflow-hidden max-w-6xl mx-auto w-full px-6">
-        <div className="h-full bg-dark-800 border-x border-dark-600/50">
+        <div className="h-full bg-white border-x border-gray-200">
           {isClosed ? (
             <div className="h-full flex flex-col">
-              <ChatWindow requestId={id} disabled={true} />
-              <div className="p-4 border-t border-dark-700 text-center">
-                <span className="text-sm text-dark-400">
+              <ChatWindow requestId={id} disabled={true} light={true} />
+              <div className="p-4 border-t border-gray-200 text-center">
+                <span className="text-sm text-gray-400">
                   {request.status === 'completed' ? 'הבקשה הושלמה — השיחה נעולה' : 'הבקשה בוטלה'}
                 </span>
               </div>
@@ -116,6 +116,7 @@ export default function TeacherChat() {
               requestId={id}
               placeholder={request.agent ? `שלח הודעה ל-${request.agent.full_name}...` : 'שלח הודעה...'}
               disabled={false}
+              light={true}
             />
           )}
         </div>

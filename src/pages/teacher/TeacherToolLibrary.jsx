@@ -42,6 +42,7 @@ function ToolCard({ tool, onClick }) {
   const logoUrl = getLogoUrl(tool.name)
   const [imgFailed, setImgFailed] = useState(false)
   const diff = DIFFICULTY_STYLE[tool.difficulty]
+  const showImg = logoUrl && !imgFailed
 
   return (
     <div
@@ -49,14 +50,23 @@ function ToolCard({ tool, onClick }) {
       className="bg-white rounded-2xl overflow-hidden cursor-pointer border border-gray-100
                  hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
     >
-      <div className="bg-gray-50 h-40 flex items-center justify-center p-6">
-        {logoUrl && !imgFailed ? (
-          <img
-            src={logoUrl}
-            alt={tool.name}
-            className="max-h-20 max-w-full object-contain"
-            onError={() => setImgFailed(true)}
-          />
+      <div className="relative h-40 flex items-center justify-center overflow-hidden bg-gray-50">
+        {showImg ? (
+          <>
+            {/* Blurred background — fills the space with the logo's colors */}
+            <img
+              src={logoUrl}
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover scale-150 blur-2xl opacity-30 pointer-events-none"
+            />
+            {/* Sharp logo on top */}
+            <img
+              src={logoUrl}
+              alt={tool.name}
+              className="relative max-h-24 max-w-[80%] object-contain drop-shadow-sm"
+              onError={() => setImgFailed(true)}
+            />
+          </>
         ) : (
           <span className="text-5xl select-none">{tool.logoEmoji || '🤖'}</span>
         )}
@@ -110,13 +120,21 @@ function ToolModal({ tool, onClose }) {
         >
           <X size={15} className="text-gray-500" />
         </button>
-        <div className="bg-gray-50 rounded-t-3xl flex flex-col items-center pt-10 pb-6 px-6">
+        <div className="relative rounded-t-3xl overflow-hidden flex flex-col items-center pt-10 pb-6 px-6 bg-gray-50">
           {logoUrl && !imgFailed ? (
-            <img
-              src={logoUrl} alt={tool.name}
-              className="h-20 max-w-[180px] object-contain mb-4"
-              onError={() => setImgFailed(true)}
-            />
+            <>
+              {/* Blurred background */}
+              <img
+                src={logoUrl}
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover scale-150 blur-2xl opacity-25 pointer-events-none"
+              />
+              <img
+                src={logoUrl} alt={tool.name}
+                className="relative h-24 max-w-[200px] object-contain mb-4 drop-shadow-sm"
+                onError={() => setImgFailed(true)}
+              />
+            </>
           ) : (
             <span className="text-6xl mb-4 select-none">{tool.logoEmoji || '🤖'}</span>
           )}

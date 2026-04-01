@@ -501,12 +501,17 @@ function HomeToolCard({ tool }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Logo */}
-      <div className="h-28 flex items-center justify-center p-5"
+      <div className="relative h-28 flex items-center justify-center overflow-hidden"
            style={{ background: '#f8fafc' }}>
         {logoUrl && !imgFailed ? (
-          <img src={logoUrl} alt={tool.name}
-               className="max-h-16 max-w-full object-contain"
-               onError={() => setImgFailed(true)} />
+          <>
+            <img src={logoUrl} aria-hidden="true"
+                 className="absolute inset-0 w-full h-full object-cover scale-150 opacity-25 pointer-events-none"
+                 style={{ filter: 'blur(16px)' }} />
+            <img src={logoUrl} alt={tool.name}
+                 className="relative max-h-20 max-w-[80%] object-contain drop-shadow-sm"
+                 onError={() => setImgFailed(true)} />
+          </>
         ) : (
           <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
         )}
@@ -594,12 +599,17 @@ function HomeExampleCard({ example }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Logo / emoji banner */}
-      <div className="h-28 flex items-center justify-center p-5"
+      <div className="relative h-28 flex items-center justify-center overflow-hidden"
            style={{ background: hovered ? 'rgba(249,115,22,0.08)' : '#f8fafc' }}>
         {logoUrl && !imgFailed ? (
-          <img src={logoUrl} alt={example.aiTool}
-               className="max-h-16 max-w-full object-contain"
-               onError={() => setImgFailed(true)} />
+          <>
+            <img src={logoUrl} aria-hidden="true"
+                 className="absolute inset-0 w-full h-full object-cover scale-150 opacity-25 pointer-events-none"
+                 style={{ filter: 'blur(16px)' }} />
+            <img src={logoUrl} alt={example.aiTool}
+                 className="relative max-h-20 max-w-[80%] object-contain drop-shadow-sm"
+                 onError={() => setImgFailed(true)} />
+          </>
         ) : (
           <span className="text-4xl select-none leading-none">{example.emoji}</span>
         )}

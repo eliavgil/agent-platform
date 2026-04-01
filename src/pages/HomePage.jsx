@@ -509,7 +509,7 @@ function HomeToolCard({ tool }) {
                  className="absolute inset-0 w-full h-full object-cover scale-150 opacity-25 pointer-events-none"
                  style={{ filter: 'blur(16px)' }} />
             <img src={logoUrl} alt={tool.name}
-                 className="relative max-h-20 max-w-[80%] object-contain drop-shadow-sm"
+                 className="relative max-h-24 max-w-[85%] object-contain drop-shadow-sm"
                  onError={() => setImgFailed(true)} />
           </>
         ) : (
@@ -583,7 +583,8 @@ function HomeToolCard({ tool }) {
 function HomeExampleCard({ example }) {
   const [hovered, setHovered] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
-  const logoUrl = example.logoUrl || ''
+  // Prefer the clean logo map (Wikipedia SVGs), fall back to sheet URL
+  const logoUrl = getLogoUrl(example.aiTool) || example.logoUrl || ''
 
   return (
     <div
@@ -607,7 +608,7 @@ function HomeExampleCard({ example }) {
                  className="absolute inset-0 w-full h-full object-cover scale-150 opacity-25 pointer-events-none"
                  style={{ filter: 'blur(16px)' }} />
             <img src={logoUrl} alt={example.aiTool}
-                 className="relative max-h-20 max-w-[80%] object-contain drop-shadow-sm"
+                 className="relative max-h-24 max-w-[85%] object-contain drop-shadow-sm"
                  onError={() => setImgFailed(true)} />
           </>
         ) : (

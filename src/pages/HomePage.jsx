@@ -47,16 +47,22 @@ const TOOL_LOGOS = {
   'Base44':         'https://base44.com/apple-touch-icon.png',
 }
 
-// Logos scattered decoratively around the hero
+// Logos scattered decoratively around the hero — icon-only, no wordmarks
 const SCATTERED_LOGOS = [
-  { name: 'Gemini',     url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg', pos: { top: '9%',    left: '4%'   }, size: 52, rotate: '-6deg' },
-  { name: 'Suno',       url: 'https://suno.com/apple-touch-icon.png',                                           pos: { top: '38%',   left: '3%'   }, size: 44, rotate: '4deg'  },
-  { name: 'ChatGPT',    url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',        pos: { bottom: '22%',left: '5%'   }, size: 44, rotate: '-3deg' },
-  { name: 'StudyWise',  url: 'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',             pos: { bottom: '8%', left: '8%'   }, size: 42, rotate: '7deg'  },
-  { name: 'Canva',      url: 'https://upload.wikimedia.org/wikipedia/en/b/bb/Canva_Logo.svg',                   pos: { top: '11%',   right: '5%'  }, size: 50, rotate: '5deg'  },
-  { name: 'NotebookLM', url: 'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',         pos: { top: '40%',   right: '4%'  }, size: 44, rotate: '-4deg' },
-  { name: 'Claude',     url: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',          pos: { bottom: '20%',right: '5%'  }, size: 42, rotate: '3deg'  },
-  { name: 'Base44',     url: 'https://base44.com/apple-touch-icon.png',                                         pos: { bottom: '7%', right: '8%'  }, size: 40, rotate: '-6deg' },
+  // Left column
+  { name: 'Gemini',     url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg',    pos: { top: '8%',    left: '4%'   }, size: 60, rotate: '-6deg' },
+  { name: 'Suno',       url: 'https://suno.com/apple-touch-icon.png',                                               pos: { top: '33%',   left: '3%'   }, size: 52, rotate: '4deg'  },
+  { name: 'ChatGPT',    url: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg',                pos: { top: '58%',   left: '4%'   }, size: 52, rotate: '-3deg' },
+  { name: 'StudyWise',  url: 'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',                 pos: { bottom: '8%', left: '7%'   }, size: 50, rotate: '7deg'  },
+  // Right column
+  { name: 'Claude',     url: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',              pos: { top: '9%',    right: '4%'  }, size: 58, rotate: '5deg'  },
+  { name: 'NotebookLM', url: 'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',             pos: { top: '35%',   right: '3%'  }, size: 52, rotate: '-4deg' },
+  { name: 'Canva',      url: 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Canva_icon_2021.svg',             pos: { top: '60%',   right: '4%'  }, size: 52, rotate: '3deg'  },
+  { name: 'Base44',     url: 'https://base44.com/favicon.ico',                                                      pos: { bottom: '7%', right: '7%'  }, size: 48, rotate: '-6deg' },
+  // Inner top / bottom (above and below the text block)
+  { name: 'Gamma',      url: 'https://gamma.app/apple-touch-icon.png',                                              pos: { top: '5%',    left: '24%'  }, size: 48, rotate: '-3deg' },
+  { name: 'Midjourney', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Midjourney_Emblem.png',           pos: { top: '5%',    right: '24%' }, size: 48, rotate: '4deg'  },
+  { name: 'Runway',     url: 'https://runway.com/apple-touch-icon.png',                                             pos: { bottom: '5%', left: '28%'  }, size: 46, rotate: '-5deg' },
 ]
 function getLogoUrl(name = '') {
   if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
@@ -799,7 +805,7 @@ export default function HomePage() {
         {SCATTERED_LOGOS.map(({ name, url, pos, size, rotate }) => (
           <img key={name} src={url} alt="" aria-hidden="true"
                className="absolute object-contain pointer-events-none hidden lg:block"
-               style={{ ...pos, width: size, height: size, opacity: 0.18, transform: `rotate(${rotate})` }} />
+               style={{ ...pos, width: size, height: size, opacity: 0.30, transform: `rotate(${rotate})` }} />
         ))}
 
         {/* Soft gradient blobs */}

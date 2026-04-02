@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
-import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText, Menu, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -657,6 +657,7 @@ function SectionHeading({ badge, title, sub, badgeColor = '#6366f1' }) {
 
 export default function HomePage() {
   const { user, profile, loading, signOut, isAdmin } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [tools, setTools] = useState([])
   const [students, setStudents] = useState([])
   const [toolsLoading, setToolsLoading] = useState(true)
@@ -715,83 +716,106 @@ export default function HomePage() {
         .cta-primary:hover { box-shadow: 0 6px 28px rgba(249,115,22,0.45), 0 2px 8px rgba(249,115,22,0.2); }
       `}</style>
 
-      {/* ── Navbar (light) ──────────────────────────────────────────────── */}
+      {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40 border-b"
-           style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
+           style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
+
+        {/* Main bar */}
         <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between">
+
+          {/* Right: logo */}
           <a href="#top" className="flex items-center gap-2">
             <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
-            <span className="font-bold text-sm hidden sm:block tracking-wide" style={{ color: '#0f172a' }}>
+            <span className="font-bold text-sm tracking-wide" style={{ color: '#0f172a' }}>
               פרומפתאוס AI
             </span>
           </a>
-          <div className="flex items-center gap-1">
-            {[['#agents','הסוכנים'],['#how','איך זה עובד']].map(([href, label]) => (
-              <a key={href} href={href}
-                 className="px-3 py-2 text-sm rounded-lg transition-colors hidden md:block"
-                 style={{ color: '#475569' }}
-                 onMouseEnter={e => e.target.style.color='#0f172a'}
-                 onMouseLeave={e => e.target.style.color='#475569'}>
-                {label}
-              </a>
-            ))}
-            <Link to="/outputs"
-                  className="px-3 py-2 text-sm rounded-lg transition-colors hidden md:block"
-                  style={{ color: '#475569' }}
-                  onMouseEnter={e => e.target.style.color='#0f172a'}
-                  onMouseLeave={e => e.target.style.color='#475569'}>
-              תוצרים
-            </Link>
+
+          {/* Left: CTA (always visible) + hamburger */}
+          <div className="flex items-center gap-2">
             {!loading && (
               user ? (
-                <div className="flex items-center gap-2 mr-2">
+                <div className="flex items-center gap-2">
                   <span className="px-3 py-1.5 text-sm font-semibold rounded-xl"
-                        style={{ background: 'rgba(99,102,241,0.10)', color: '#4338ca',
-                                 border: '1px solid rgba(99,102,241,0.20)' }}>
+                        style={{ background: 'rgba(99,102,241,0.10)', color: '#4338ca', border: '1px solid rgba(99,102,241,0.20)' }}>
                     {profile?.full_name?.split(' ')[0] || 'שלום'}
                   </span>
                   {profile?.role !== 'admin' && (
-                    <Link
-                      to={dashRoute}
-                      className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
-                      style={{
-                        background: profile?.role === 'agent'
-                          ? 'rgba(168,85,247,0.12)' : 'rgba(99,102,241,0.10)',
-                        color: profile?.role === 'agent' ? '#a855f7' : '#4338ca',
-                        border: `1px solid ${profile?.role === 'agent'
-                          ? 'rgba(168,85,247,0.30)' : 'rgba(99,102,241,0.20)'}`,
-                      }}>
+                    <Link to={dashRoute}
+                          className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
+                          style={{
+                            background: profile?.role === 'agent' ? 'rgba(168,85,247,0.12)' : 'rgba(99,102,241,0.10)',
+                            color: profile?.role === 'agent' ? '#a855f7' : '#4338ca',
+                            border: `1px solid ${profile?.role === 'agent' ? 'rgba(168,85,247,0.30)' : 'rgba(99,102,241,0.20)'}`,
+                          }}>
                       {profile?.role === 'agent' ? 'לאיזור הסוכן' : 'לאיזור המורה'}
                     </Link>
                   )}
                   {isAdmin && (
                     <Link to="/admin"
-                          className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
-                          style={{ background: 'rgba(245,158,11,0.12)', color: '#d97706',
-                                   border: '1px solid rgba(245,158,11,0.30)' }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(245,158,11,0.22)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(245,158,11,0.12)'}>
+                          className="px-3 py-1.5 text-sm font-semibold rounded-xl"
+                          style={{ background: 'rgba(245,158,11,0.12)', color: '#d97706', border: '1px solid rgba(245,158,11,0.30)' }}>
                       ניהול
                     </Link>
                   )}
-                  <button onClick={signOut}
-                          className="px-3 py-1.5 text-sm rounded-xl transition-colors"
-                          style={{ color: '#64748b', border: '1px solid #e2e8f0' }}
-                          onMouseEnter={e => e.currentTarget.style.color = '#0f172a'}
-                          onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
-                    יציאה
-                  </button>
                 </div>
               ) : (
                 <Link to="/login"
-                      className="mr-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all cta-primary"
+                      className="px-4 py-1.5 text-sm font-semibold rounded-xl transition-all cta-primary"
                       style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}>
                   כניסה
                 </Link>
               )
             )}
+
+            {/* Hamburger button */}
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors"
+              style={{ color: '#475569' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
         </div>
+
+        {/* Dropdown menu */}
+        {menuOpen && (
+          <div className="border-t" style={{ borderColor: '#e2e8f0', background: '#ffffff' }}>
+            <div className="max-w-6xl mx-auto px-6 py-3 flex flex-col gap-1" dir="rtl">
+              {[['#agents','הסוכנים'], ['#how','איך זה עובד']].map(([href, label]) => (
+                <a key={href} href={href}
+                   onClick={() => setMenuOpen(false)}
+                   className="px-3 py-2 text-sm rounded-lg transition-colors"
+                   style={{ color: '#475569' }}
+                   onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a' }}
+                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569' }}>
+                  {label}
+                </a>
+              ))}
+              <Link to="/outputs"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-3 py-2 text-sm rounded-lg transition-colors"
+                    style={{ color: '#475569' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569' }}>
+                תוצרים
+              </Link>
+              {user && (
+                <button
+                  onClick={() => { signOut(); setMenuOpen(false) }}
+                  className="px-3 py-2 text-sm rounded-lg text-right transition-colors"
+                  style={{ color: '#94a3b8' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}>
+                  יציאה
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}

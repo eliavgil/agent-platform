@@ -860,10 +860,10 @@ export default function HomePage() {
           {/* Brand */}
           <p className="font-orbitron tracking-[0.28em] mb-5"
              style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+            <span style={{ fontSize: '0.6em', color: '#f97316', marginLeft: '3px' }}>AI </span>
             {Array.from('PROMPTHEUS').map((ch, i) => (
               <span key={i} style={i === 0 || i === 4 ? { color: '#f97316' } : {}}>{ch}</span>
             ))}
-            <span style={{ fontSize: '0.6em', color: '#f97316', marginRight: '3px' }}> AI</span>
           </p>
 
           {/* Headline */}

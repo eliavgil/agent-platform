@@ -43,7 +43,21 @@ const TOOL_LOGOS = {
   'Canva':          'https://upload.wikimedia.org/wikipedia/en/b/bb/Canva_Logo.svg',
   'MagicSchool AI': 'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
   'MagicSchool':    'https://cdn.prod.website-files.com/645187265d5e5e386be40629/6960237ddf1dfc1de13a396f_logo.png',
+  'Suno':           'https://suno.com/apple-touch-icon.png',
+  'Base44':         'https://base44.com/apple-touch-icon.png',
 }
+
+// Logos scattered decoratively around the hero
+const SCATTERED_LOGOS = [
+  { name: 'Gemini',     url: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg', pos: { top: '9%',    left: '4%'   }, size: 52, rotate: '-6deg' },
+  { name: 'Suno',       url: 'https://suno.com/apple-touch-icon.png',                                           pos: { top: '38%',   left: '3%'   }, size: 44, rotate: '4deg'  },
+  { name: 'ChatGPT',    url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/OpenAI_logo_2025.svg',        pos: { bottom: '22%',left: '5%'   }, size: 44, rotate: '-3deg' },
+  { name: 'StudyWise',  url: 'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',             pos: { bottom: '8%', left: '8%'   }, size: 42, rotate: '7deg'  },
+  { name: 'Canva',      url: 'https://upload.wikimedia.org/wikipedia/en/b/bb/Canva_Logo.svg',                   pos: { top: '11%',   right: '5%'  }, size: 50, rotate: '5deg'  },
+  { name: 'NotebookLM', url: 'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',         pos: { top: '40%',   right: '4%'  }, size: 44, rotate: '-4deg' },
+  { name: 'Claude',     url: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',          pos: { bottom: '20%',right: '5%'  }, size: 42, rotate: '3deg'  },
+  { name: 'Base44',     url: 'https://base44.com/apple-touch-icon.png',                                         pos: { bottom: '7%', right: '8%'  }, size: 40, rotate: '-6deg' },
+]
 function getLogoUrl(name = '') {
   if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
   const key = Object.keys(TOOL_LOGOS).find(k =>
@@ -781,6 +795,13 @@ export default function HomePage() {
       <section id="top" className="relative overflow-hidden flex items-center justify-center px-4"
                style={{ minHeight: '92vh', background: '#ffffff' }}>
 
+        {/* Scattered tool logos — decorative, desktop only */}
+        {SCATTERED_LOGOS.map(({ name, url, pos, size, rotate }) => (
+          <img key={name} src={url} alt="" aria-hidden="true"
+               className="absolute object-contain pointer-events-none hidden lg:block"
+               style={{ ...pos, width: size, height: size, opacity: 0.18, transform: `rotate(${rotate})` }} />
+        ))}
+
         {/* Soft gradient blobs */}
         <div className="absolute pointer-events-none" style={{
           top: '-8%', left: '-6%', width: '560px', height: '560px', borderRadius: '50%',
@@ -850,21 +871,6 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Tool logo strip */}
-          <div className="flex items-center gap-5 flex-wrap justify-center">
-            <span className="text-xs" style={{ color: '#94a3b8' }}>בעזרת כלי AI מובילים:</span>
-            {[
-              ['Gemini',     TOOL_LOGOS['Gemini']],
-              ['ChatGPT',    TOOL_LOGOS['ChatGPT']],
-              ['Claude',     TOOL_LOGOS['Claude']],
-              ['Canva',      TOOL_LOGOS['Canva']],
-              ['NotebookLM', TOOL_LOGOS['NotebookLM']],
-              ['Grammarly',  TOOL_LOGOS['Grammarly']],
-            ].map(([name, url]) => (
-              <img key={name} src={url} alt={name} title={name}
-                   className="h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity" />
-            ))}
-          </div>
         </div>
       </section>
 

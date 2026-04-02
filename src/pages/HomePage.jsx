@@ -721,9 +721,9 @@ export default function HomePage() {
            style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
 
         {/* Main bar */}
-        <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between" dir="ltr">
 
-          {/* Right: logo */}
+          {/* Left: logo */}
           <a href="#top" className="flex items-center gap-2">
             <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
             <span className="font-bold text-sm tracking-wide" style={{ color: '#0f172a' }}>

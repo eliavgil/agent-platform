@@ -47,6 +47,20 @@ const TOOL_LOGOS = {
   'Base44':         'https://base44.com/apple-touch-icon.png',
 }
 
+// Logos scattered decoratively around the hero
+const SCATTERED_LOGOS = [
+  // Left column (top → bottom)
+  { file: 'black-gemini-logo_svgstack_com_37151775116405.png',        pos: { top: '8%',    left: '4%'  }, size: 48, rotate: '-6deg' },
+  { file: 'chatgpt-monocolor-logo-icon_svgstack_com_4611775116925.png', pos: { top: '34%',  left: '3%'  }, size: 44, rotate: '4deg'  },
+  { file: 'midjourney-logo-icon_svgstack_com_4581775116879.png',       pos: { top: '60%',   left: '4%'  }, size: 46, rotate: '-3deg' },
+  { file: 'github-logo-svg_svgstack_com_28391775117020.png',           pos: { bottom: '8%', left: '7%'  }, size: 42, rotate: '6deg'  },
+  // Right column (top → bottom)
+  { file: 'black-claude-logo_svgstack_com_36981775116477.png',         pos: { top: '9%',    right: '4%' }, size: 46, rotate: '5deg'  },
+  { file: 'grok-ai-app-logo_svgstack_com_37211775116703.png',          pos: { top: '36%',   right: '3%' }, size: 44, rotate: '-4deg' },
+  { file: 'notebooklm-icon.png',                                       pos: { top: '62%',   right: '4%' }, size: 46, rotate: '3deg'  },
+  { file: 'black-qwenlm-logo_svgstack_com_37521775116587.png',         pos: { bottom: '7%', right: '7%' }, size: 42, rotate: '-5deg' },
+]
+
 function getLogoUrl(name = '') {
   if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
   const key = Object.keys(TOOL_LOGOS).find(k =>
@@ -783,6 +797,13 @@ export default function HomePage() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section id="top" className="relative overflow-hidden flex items-center justify-center px-4"
                style={{ minHeight: '92vh', background: '#ffffff' }}>
+
+        {/* Scattered tool logos — decorative, desktop only */}
+        {SCATTERED_LOGOS.map(({ file, pos, size, rotate }) => (
+          <img key={file} src={`/logos/${file}`} alt="" aria-hidden="true"
+               className="absolute object-contain pointer-events-none hidden lg:block"
+               style={{ ...pos, width: size, height: size, transform: `rotate(${rotate})` }} />
+        ))}
 
         {/* Soft gradient blobs */}
         <div className="absolute pointer-events-none" style={{

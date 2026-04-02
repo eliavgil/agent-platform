@@ -852,7 +852,7 @@ export default function HomePage() {
           <p className="text-base leading-relaxed mb-9 max-w-lg" style={{ color: '#64748b' }}>
             קבוצת תלמידים מוכשרים יוצרים עבור מורים תוצרי AI בהזמנה אישית<br />
             המורים על הפדגוגיה — התלמידים על הטכנולוגיה<br />
-            ויחד, מביאים AI לכיתה!
+            יחד, מביאים את הבינה לכיתה!
           </p>
 
           {/* CTAs */}

@@ -55,10 +55,10 @@ const SCATTERED_LOGOS = [
   { name: 'StudyWise',  url: 'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',               pos: { top: '60%',   left: '4%'  }, size: 52, rotate: '-3deg' },
   { name: 'Base44',     url: 'https://base44.com/favicon.ico',                                                    pos: { bottom: '8%', left: '7%'  }, size: 50, rotate: '6deg'  },
   // Right column (top → bottom)
-  { name: 'Claude',     url: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg',            pos: { top: '9%',    right: '4%' }, size: 58, rotate: '5deg'  },
-  { name: 'Canva',      url: 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Canva_icon_2021.svg',           pos: { top: '36%',   right: '3%' }, size: 54, rotate: '-4deg' },
-  { name: 'Midjourney', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Midjourney_Emblem.png',         pos: { top: '62%',   right: '4%' }, size: 52, rotate: '3deg'  },
-  { name: 'NotebookLM', url: 'https://notebooklm.google.com/apple-touch-icon.png',                                pos: { bottom: '7%', right: '7%' }, size: 50, rotate: '-5deg' },
+  { name: 'Claude',     url: 'https://claude.ai/apple-touch-icon.png',                                            pos: { top: '9%',    right: '4%' }, size: 58, rotate: '5deg'  },
+  { name: 'Canva',      url: 'https://static.canva.com/web/images/favicon/apple-touch-icon.png',                  pos: { top: '36%',   right: '3%' }, size: 54, rotate: '-4deg' },
+  { name: 'Midjourney', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Midjourney_Emblem.png',         pos: { top: '62%',   right: '4%' }, size: 76, rotate: '3deg'  },
+  { name: 'NotebookLM', url: 'https://notebooklm.google.com/favicon.ico',                                         pos: { bottom: '7%', right: '7%' }, size: 52, rotate: '-5deg' },
 ]
 function getLogoUrl(name = '') {
   if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]

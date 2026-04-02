@@ -57,8 +57,8 @@ const SCATTERED_LOGOS = [
   // Right column (top → bottom)
   { file: 'black-claude-logo_svgstack_com_36981775116477.png',         pos: { top: '9%',    right: '4%' }, size: 46, rotate: '5deg'  },
   { file: 'grok-ai-app-logo_svgstack_com_37211775116703.png',          pos: { top: '36%',   right: '3%' }, size: 44, rotate: '-4deg' },
-  { file: 'notebooklm-icon.png',                                       pos: { top: '62%',   right: '4%' }, size: 46, rotate: '3deg'  },
-  { file: 'black-qwenlm-logo_svgstack_com_37521775116587.png',         pos: { bottom: '7%', right: '7%' }, size: 42, rotate: '-5deg' },
+  { file: 'black-cohere-logo_svgstack_com_37031775117384.png',          pos: { top: '62%',   right: '4%' }, size: 46, rotate: '3deg'  },
+  { file: 'black-fireworks-ai-logo_svgstack_com_37101775117469.png',   pos: { bottom: '7%', right: '7%' }, size: 42, rotate: '-5deg' },
 ]
 
 function getLogoUrl(name = '') {
@@ -802,7 +802,7 @@ export default function HomePage() {
         {SCATTERED_LOGOS.map(({ file, pos, size, rotate }) => (
           <img key={file} src={`/logos/${file}`} alt="" aria-hidden="true"
                className="absolute object-contain pointer-events-none hidden lg:block"
-               style={{ ...pos, width: size, height: size, transform: `rotate(${rotate})` }} />
+               style={{ ...pos, width: size, height: size, opacity: 0.35, transform: `rotate(${rotate})` }} />
         ))}
 
         {/* Soft gradient blobs */}

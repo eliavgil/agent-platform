@@ -1,13 +1,13 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { Wand2, Plus, List, BookOpen } from 'lucide-react'
+import { Wand2, Plus, List, GalleryHorizontalEnd } from 'lucide-react'
 
 const navItems = [
   {
-    path: '/teacher/tools',
-    label: 'ספריית כלי AI',
-    icon: <BookOpen size={18} />,
+    path: '/outputs',
+    label: 'ספריית תוצרים',
+    icon: <GalleryHorizontalEnd size={18} />,
     end: false,
   },
   {

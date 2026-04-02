@@ -46,8 +46,7 @@ function AppRoutes() {
         path="/teacher"
         element={user ? <RequireRole role="teacher"><TeacherLayout /></RequireRole> : <Navigate to="/login" replace />}
       >
-        <Route index element={<Navigate to="tools" replace />} />
-        <Route path="tools" element={<TeacherToolLibrary />} />
+        <Route index element={<Navigate to="new-request" replace />} />
         <Route path="new-request" element={<TeacherNewRequest />} />
         <Route path="requests" element={<TeacherRequests />} />
         <Route path="requests/:id" element={<TeacherChat />} />

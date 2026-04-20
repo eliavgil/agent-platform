@@ -96,6 +96,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const fetchProfile = async (supabaseUser) => {
+    const isAdminSession = localStorage.getItem(LOCAL_ADMIN_KEY) === '1'
     try {
       const { data, error } = await Promise.race([
         getProfile(supabaseUser.id),
@@ -111,7 +112,7 @@ export function AuthProvider({ children }) {
             supabaseUser.user_metadata?.name ||
             supabaseUser.email?.split('@')[0] ||
             'משתמש',
-          role: 'teacher',
+          role: isAdminSession ? 'admin' : 'teacher',
           avatar_url: supabaseUser.user_metadata?.avatar_url || null,
         }
         const { data: created } = await supabase
@@ -121,11 +122,10 @@ export function AuthProvider({ children }) {
           .single()
         setProfile(created || newProfile)
       } else {
-        setProfile(data)
+        setProfile(isAdminSession ? { ...data, role: 'admin' } : data)
       }
     } catch (err) {
       console.error('Error fetching profile:', err)
-      // Ensure profile is always set so the app never gets stuck on loading
       setProfile({
         id: supabaseUser.id,
         email: supabaseUser.email,
@@ -134,7 +134,7 @@ export function AuthProvider({ children }) {
           supabaseUser.user_metadata?.name ||
           supabaseUser.email?.split('@')[0] ||
           'משתמש',
-        role: 'teacher',
+        role: isAdminSession ? 'admin' : 'teacher',
         avatar_url: supabaseUser.user_metadata?.avatar_url || null,
       })
     } finally {

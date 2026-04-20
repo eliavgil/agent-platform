@@ -16,6 +16,7 @@ import AgentChat from './pages/agent/AgentChat'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminRequests from './pages/admin/AdminRequests'
 import AdminChat from './pages/admin/AdminChat'
+import AdminOutputs from './pages/admin/AdminOutputs'
 
 import OutputsPage from './pages/OutputsPage'
 import AboutPage from './pages/AboutPage'
@@ -70,6 +71,7 @@ function AppRoutes() {
         <Route index element={<Navigate to="requests" replace />} />
         <Route path="requests" element={<AdminRequests />} />
         <Route path="requests/:id" element={<AdminChat />} />
+        <Route path="outputs" element={<AdminOutputs />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
+import { getOutputs as getOutputsFromSheets, getToolEmoji } from '../lib/googleSheets'
+import { getOutputs as getOutputsFromSupabase } from '../lib/supabase'
 import { Bot, ExternalLink, Search, Quote } from 'lucide-react'
 
 const CARD_HEIGHT = 280
 
 // ── Logo map (same as TeacherToolLibrary) ─────────────────────────────────────
-const TOOL_LOGOS = {
+export const TOOL_LOGOS = {
   'Gemini':        'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg',
   'NotebookLM':    'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg',
   'StudyWise':     'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png',
@@ -34,7 +35,20 @@ function getLogoUrl(name = '') {
   return key ? TOOL_LOGOS[key] : null
 }
 
-// Priority: clean logo map → output.logoUrl (sheets) → emoji fallback
+// Normalize Supabase snake_case row → camelCase shape the card expects
+function normalizeOutput(row) {
+  return {
+    ...row,
+    aiTool: row.ai_tool ?? row.aiTool,
+    shortDesc: row.short_desc ?? row.shortDesc,
+    fullDesc: row.full_desc ?? row.fullDesc,
+    reviewerName: row.reviewer_name ?? row.reviewerName,
+    logoUrl: row.logo_url ?? row.logoUrl,
+    logoEmoji: row.logo_emoji ?? row.logoEmoji,
+  }
+}
+
+// Priority: clean logo map → output.logoUrl → emoji fallback
 function resolveDisplay(output) {
   return {
     logoUrl: getLogoUrl(output.aiTool || '') || output.logoUrl || '',
@@ -190,8 +204,13 @@ export default function OutputsPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    getOutputs().then(({ data }) => {
-      setOutputs(data || [])
+    Promise.all([
+      getOutputsFromSupabase(),
+      getOutputsFromSheets(),
+    ]).then(([{ data: supabaseData }, { data: sheetsData }]) => {
+      const fromSupabase = (supabaseData || []).map(normalizeOutput)
+      const fromSheets = sheetsData || []
+      setOutputs([...fromSupabase, ...fromSheets])
       setLoading(false)
     })
   }, [])

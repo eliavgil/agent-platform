@@ -115,6 +115,19 @@ export const subscribeToRequests = (callback) =>
     }, callback)
     .subscribe()
 
+// ---- OUTPUTS ----
+export const getOutputs = () =>
+  supabase.from('outputs').select('*').order('created_at', { ascending: false })
+
+export const createOutput = (data) =>
+  supabase.from('outputs').insert(data).select().single()
+
+export const updateOutput = (id, data) =>
+  supabase.from('outputs').update(data).eq('id', id).select().single()
+
+export const deleteOutput = (id) =>
+  supabase.from('outputs').delete().eq('id', id)
+
 // ---- FILE UPLOAD ----
 export const uploadFile = async (bucket, file, path) => {
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, {

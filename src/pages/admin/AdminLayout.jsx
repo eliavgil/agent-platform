@@ -1,13 +1,19 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { List, LayoutDashboard } from 'lucide-react'
+import { List, GalleryHorizontal } from 'lucide-react'
 
 const navItems = [
   {
     path: '/admin/requests',
     label: 'כל הבקשות',
     icon: <List size={18} />,
+    end: false,
+  },
+  {
+    path: '/admin/outputs',
+    label: 'תוצרים',
+    icon: <GalleryHorizontal size={18} />,
     end: false,
   },
 ]

@@ -288,13 +288,58 @@ insert into public.ai_tools (name, description, category, icon_name, color, capa
 );
 
 -- =============================================
+-- OUTPUTS TABLE
+-- =============================================
+create table public.outputs (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  subject text,
+  topic text,
+  grade text,
+  ai_tool text,
+  agent text,
+  short_desc text,
+  full_desc text,
+  review text,
+  reviewer_name text,
+  link text,
+  category text,
+  logo_url text,
+  logo_emoji text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- RLS
+alter table public.outputs enable row level security;
+
+-- Anyone (even unauthenticated) can view outputs — it's a public gallery
+create policy "Outputs are publicly viewable" on public.outputs
+  for select using (true);
+
+-- Only admins can insert/update/delete
+create policy "Admins can manage outputs" on public.outputs
+  for all using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+create trigger outputs_updated_at
+  before update on public.outputs
+  for each row execute procedure public.handle_updated_at();
+
+-- =============================================
 -- STORAGE BUCKETS (run in Supabase dashboard)
 -- =============================================
 -- insert into storage.buckets (id, name, public) values ('request-files', 'request-files', false);
 -- insert into storage.buckets (id, name, public) values ('message-files', 'message-files', false);
+-- insert into storage.buckets (id, name, public) values ('output-logos', 'output-logos', true);
 
 -- Storage policies:
 -- create policy "Authenticated users can upload" on storage.objects for insert
 --   with check (auth.role() = 'authenticated' and bucket_id in ('request-files', 'message-files'));
 -- create policy "Authenticated users can read" on storage.objects for select
 --   using (auth.role() = 'authenticated' and bucket_id in ('request-files', 'message-files'));
+-- create policy "Anyone can view output logos" on storage.objects for select
+--   using (bucket_id = 'output-logos');
+-- create policy "Admins can upload output logos" on storage.objects for insert
+--   with check (bucket_id = 'output-logos' and auth.role() = 'authenticated');

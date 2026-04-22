@@ -76,6 +76,7 @@ const SCATTERED_LOGOS = [
 ]
 
 function getLogoUrl(name = '') {
+  if (!name) return null   // guard: empty string matches every key via .includes('')
   if (TOOL_LOGOS[name]) return TOOL_LOGOS[name]
   const key = Object.keys(TOOL_LOGOS).find(k =>
     name.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(name.toLowerCase())
@@ -338,13 +339,17 @@ function AutoCarousel({ children, gap = 16 }) {
     return () => { cancelled = true; cancelAnimationFrame(r1) }
   }, [items.length]) // re-run only when item count changes (async data load)
 
-  // `animation` lives entirely in the style prop — React owns it, `infinite` is always present
+  // Use individual sub-properties so React sets each one explicitly.
+  // Shorthand parsing can silently drop iteration-count; explicit props cannot.
   const animStyle = dur
     ? {
-        animation: `carousel-ticker ${dur}s linear infinite`,
+        animationName: 'carousel-ticker',
+        animationDuration: `${dur}s`,
+        animationTimingFunction: 'linear',
+        animationIterationCount: 'infinite',
         animationPlayState: paused ? 'paused' : 'running',
       }
-    : { animation: 'none' }
+    : { animationName: 'none' }
 
   return (
     <div
@@ -372,7 +377,7 @@ function HomeExampleCard({ example }) {
   const [hovered, setHovered] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
   // Prefer the clean logo map (Wikipedia SVGs), fall back to sheet URL
-  const logoUrl = getLogoUrl(example.aiTool) || example.logoUrl || ''
+  const logoUrl = example.logoUrl || getLogoUrl(example.aiTool) || ''
 
   return (
     <div

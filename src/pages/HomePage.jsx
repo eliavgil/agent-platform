@@ -14,17 +14,17 @@ const STEPS = [
   {
     num: '01', icon: '📝', color: 'from-indigo-500 to-purple-500',
     title: 'מלאו טופס בקשה',
-    desc: 'תארו את הצורך שלכם — מקצוע, כיתה, ומה תרצו לעשות עם AI בשיעור',
+    desc: 'בטופס הבקשה המורה מעביר הוראות לגבי התוצר המבוקש ואת החומר הלימודי שיופיע בו.\nלדוגמא — מורה מעביר קובץ Word של מבחן ומבקש לקבל חזרה גרסה של אותו מבחן, רק כזה שנבדק אוטומטית על ידי AI, מעביר ציון ומשוב לתלמיד ונתונים ופילוחים למורים.',
   },
   {
     num: '02', icon: '🤝', color: 'from-purple-500 to-pink-500',
     title: 'סוכן AI יצור קשר',
-    desc: 'תלמיד מומחה יקרא את הבקשה ויפנה אליכם ישירות, בדרך כלל תוך 24 שעות',
+    desc: 'במידת הצורך הסוכן ידייק את הבקשה על מנת לבנות תוצר מיטבי.\nלדוגמא — הסוכן יבקש לקבל תשובות כלליות או מפורטות כך שהמבחן יבדק על ידי ה-AI בדיוק כפי שהמורה רוצה.',
   },
   {
     num: '03', icon: '🚀', color: 'from-pink-500 to-orange-400',
     title: 'עובדים יחד',
-    desc: 'שלחו קבצים, שוחחו בצ׳אט, והסוכן ייצור פתרון AI מותאם בדיוק לכם',
+    desc: 'שיתוף הפעולה בין המורה לסוכן מבטיח תוצרים אמינים ומדויקים, מבוססים על חומר הלימוד שהמורה רוצה, ללא הפתעות או המצאות מצד ה-AI.',
   },
 ]
 
@@ -695,7 +695,7 @@ function StepCard({ step, idx }) {
         {step.num}
       </div>
       <h3 className="font-bold text-base mb-2" style={{ color: '#0f172a' }}>{step.title}</h3>
-      <p className="text-sm leading-relaxed max-w-[200px]" style={{ color: '#475569' }}>{step.desc}</p>
+      <p className="text-sm leading-relaxed max-w-[220px] whitespace-pre-line" style={{ color: '#475569' }}>{step.desc}</p>
     </div>
   )
 }
@@ -963,6 +963,13 @@ export default function HomePage() {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
               תוצרים לדוגמה
             </Link>
+            <a href="#how"
+               className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all"
+               style={{ background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+               onMouseEnter={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#0f172a' }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
+              איך זה עובד?
+            </a>
           </div>
 
         </div>

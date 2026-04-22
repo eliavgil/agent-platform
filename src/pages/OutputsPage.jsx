@@ -27,14 +27,12 @@ export const TOOL_LOGOS = {
   'Google Slides':  'https://upload.wikimedia.org/wikipedia/commons/1/16/Google_Slides_2020_Logo.svg',
   'Google Docs':    'https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg',
   'Google Forms':   'https://upload.wikimedia.org/wikipedia/commons/5/5b/Google_Forms_2020_Logo.svg',
-  'Base44':         'https://logo.clearbit.com/base44.com',
   'Perplexity':     'https://upload.wikimedia.org/wikipedia/commons/1/1d/Perplexity_AI_logo.svg',
-  'Gamma':          'https://logo.clearbit.com/gamma.app',
-  'Tome':           'https://logo.clearbit.com/tome.app',
-  'Padlet':         'https://logo.clearbit.com/padlet.com',
-  'Kahoot':         'https://logo.clearbit.com/kahoot.com',
-  'Quizlet':        'https://logo.clearbit.com/quizlet.com',
-  'Mentimeter':     'https://logo.clearbit.com/mentimeter.com',
+  'Gamma':          'https://cdn.prod.website-files.com/6456c66fc6a0d27d7e0debfc/64d7a3b649ffb7abc28c0c7c_gamma-webclip.png',
+  'Padlet':         'https://padlet.com/favicon.ico',
+  'Kahoot':         'https://upload.wikimedia.org/wikipedia/commons/6/68/Kahoot_Logo.png',
+  'Quizlet':        'https://upload.wikimedia.org/wikipedia/commons/8/8a/Quizlet_logo_%282022%29.svg',
+  'Mentimeter':     'https://upload.wikimedia.org/wikipedia/commons/9/98/Mentimeter_Logo.svg',
 }
 
 function getLogoUrl(name = '') {

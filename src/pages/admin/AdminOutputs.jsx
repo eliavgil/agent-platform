@@ -259,6 +259,42 @@ function AddEditModal({ initial, onSave, onClose }) {
           <div className="rounded-xl border border-slate-200 p-4 space-y-3">
             <p className="text-xs font-bold text-slate-600">לוגו</p>
 
+            {/* Known logos picker */}
+            <div>
+              <p className="text-xs text-slate-400 mb-2">בחר מכלים מוכרים</p>
+              <div className="grid grid-cols-5 gap-1.5 max-h-52 overflow-y-auto pr-0.5">
+                {Object.entries(TOOL_LOGOS).map(([name, url]) => {
+                  const isSelected = form.logo_url === url
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      title={name}
+                      onClick={() => {
+                        set('logo_url', url)
+                        if (!form.ai_tool) set('ai_tool', name)
+                      }}
+                      className="flex flex-col items-center gap-1 p-2 rounded-xl border transition-all hover:border-orange-300"
+                      style={isSelected
+                        ? { borderColor: '#f97316', background: 'rgba(249,115,22,0.07)' }
+                        : { borderColor: '#e2e8f0', background: '#f8fafc' }
+                      }
+                    >
+                      <img
+                        src={url}
+                        alt={name}
+                        className="w-7 h-7 object-contain"
+                        onError={e => { e.target.style.display = 'none' }}
+                      />
+                      <span className="text-[10px] text-slate-500 leading-tight text-center line-clamp-2">{name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100" />
+
             {/* Mode tabs */}
             <div className="flex gap-2">
               {[

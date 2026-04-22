@@ -947,6 +947,13 @@ export default function HomePage() {
 
           {/* CTAs */}
           <div className="flex items-center gap-3 flex-wrap justify-center mb-12">
+            <a href="#how"
+               className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all"
+               style={{ background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+               onMouseEnter={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#0f172a' }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
+              איך זה עובד?
+            </a>
             <Link to={ctaTo}
                   className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all cta-primary"
                   style={{
@@ -963,13 +970,6 @@ export default function HomePage() {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
               תוצרים לדוגמה
             </Link>
-            <a href="#how"
-               className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all"
-               style={{ background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-               onMouseEnter={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#0f172a' }}
-               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
-              איך זה עובד?
-            </a>
           </div>
 
         </div>

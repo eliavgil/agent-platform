@@ -112,7 +112,6 @@ export default function TeacherNewRequest() {
 
   const handleSelectType = (type) => {
     setOutputType(type)
-    setHintText(type.hint || '')
     setErrors(prev => ({ ...prev, outputType: '', description: '' }))
   }
 
@@ -336,15 +335,17 @@ export default function TeacherNewRequest() {
                   })}
                 </div>
 
-                {/* Contextual hint — appears when a type is selected */}
+                {/* Fixed tip + description — appears when a type is selected */}
                 {outputType && (
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{outputType.icon}</span>
-                      <label className="text-sm font-semibold text-gray-700">
-                        {outputType.label} — פרטו את הבקשה
-                      </label>
+                  <div className="mt-2 space-y-3">
+                    {/* Tip box */}
+                    <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 space-y-1 text-sm text-orange-900" dir="rtl">
+                      <p className="font-bold">⚠️ חשוב!</p>
+                      <p>לתוצר מיטבי מומלץ להזין כמה שיותר פרטים ונתונים. לתאר עד כמה שניתן איזה תוצר הייתם רוצים לקבל.</p>
+                      <p>במקרה של ארוע הערכה מומלץ מאד להעלות קובץ עם החומר הלימודי + שאלות מוכנות או שאלות לדוגמא + תשובות מדויקות או כלליות.</p>
                     </div>
+
+                    {/* Free-text description */}
                     <textarea
                       value={hintText}
                       onChange={e => {
@@ -352,7 +353,7 @@ export default function TeacherNewRequest() {
                         setErrors(prev => ({ ...prev, description: '' }))
                       }}
                       rows={4}
-                      placeholder="הוסיפו כאן פרטים על מה שתרצו שהסוכן יכין..."
+                      placeholder="פרטו כאן את הבקשה שלכם..."
                       className="w-full px-3 py-2.5 rounded-xl border text-sm resize-y outline-none transition-colors"
                       style={{
                         borderColor: errors.description ? '#ef4444' : '#e5e7eb',

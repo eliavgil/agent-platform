@@ -7,6 +7,15 @@ import Avatar from '../../components/ui/Avatar'
 import Button from '../../components/ui/Button'
 import { ArrowRight, Download, PlayCircle, CheckCircle, Cpu } from 'lucide-react'
 
+function parseAttachments(fileUrl, fileName) {
+  if (!fileUrl) return []
+  try {
+    const parsed = JSON.parse(fileUrl)
+    if (Array.isArray(parsed)) return parsed
+  } catch {}
+  return [{ url: fileUrl, name: fileName || 'קובץ' }]
+}
+
 export default function AgentChat() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -81,18 +90,19 @@ export default function AgentChat() {
             <p className="text-xs text-gray-500 mt-0.5 truncate">{request.description}</p>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {request.file_url && (
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            {parseAttachments(request.file_url, request.file_name).map((f, i) => (
               <a
-                href={request.file_url}
+                key={i}
+                href={f.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 hover:text-gray-800 rounded-lg text-xs transition-colors"
               >
                 <Download size={13} />
-                קובץ
+                {f.name || 'קובץ'}
               </a>
-            )}
+            ))}
 
             {request.teacher && (
               <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-lg">

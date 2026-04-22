@@ -10,6 +10,15 @@ import Avatar from '../../components/ui/Avatar'
 import EmptyState from '../../components/ui/EmptyState'
 import { MessageSquare, Clock, CheckCircle, PlayCircle, Download } from 'lucide-react'
 
+function parseAttachments(fileUrl, fileName) {
+  if (!fileUrl) return []
+  try {
+    const parsed = JSON.parse(fileUrl)
+    if (Array.isArray(parsed)) return parsed
+  } catch {}
+  return [{ url: fileUrl, name: fileName || 'קובץ' }]
+}
+
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('he-IL', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -152,18 +161,19 @@ export default function AgentRequests() {
                       {request.ai_tools && (
                         <span>🤖 {request.ai_tools.name}</span>
                       )}
-                      {request.file_url && (
+                      {parseAttachments(request.file_url, request.file_name).map((f, i) => (
                         <a
-                          href={request.file_url}
+                          key={i}
+                          href={f.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="flex items-center gap-1 text-accent-light hover:text-accent"
                         >
                           <Download size={12} />
-                          קובץ מצורף
+                          {f.name || 'קובץ מצורף'}
                         </a>
-                      )}
+                      ))}
                     </div>
                   </div>
 

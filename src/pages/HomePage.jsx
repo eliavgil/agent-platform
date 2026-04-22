@@ -329,42 +329,105 @@ function RobotFigure({ c, variant = 0 }) {
   )
 }
 
-// ── AutoCarousel — slow auto-scroll + hover pause + manual buttons ─────────────
+// ── AutoCarousel — CSS-animation based (works in Safari) ──────────────────────
+// Uses @keyframes translateX instead of scrollLeft (Safari rounds fractional
+// scrollLeft to 0, so scrollLeft += 0.7 never moves anything in Safari).
 
-function AutoCarousel({ children, gap = 16, speed = 0.7 }) {
-  const ref = useRef(null)
-  const pausedRef = useRef(false)
+const CAROUSEL_SPEED = 45 // px per second
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    let rafId
-    const tick = () => {
-      if (!pausedRef.current && el) {
-        el.scrollLeft += speed
-        if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0
-      }
-      rafId = requestAnimationFrame(tick)
-    }
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [speed])
-
-  const scroll = (dir) => {
-    pausedRef.current = true
-    ref.current?.scrollBy({ left: dir * 400, behavior: 'smooth' })
-    setTimeout(() => { pausedRef.current = false }, 1600)
-  }
-
+function AutoCarousel({ children, gap = 16 }) {
+  const trackRef = useRef(null)
+  const hoveredRef = useRef(false)
+  const durRef = useRef(40)
   const items = React.Children.toArray(children)
 
+  // Calculate duration from actual content width so speed is consistent.
+  // Uses scrollWidth (not offsetWidth) — more reliable in Safari for max-content elements.
+  // Double-RAF + setTimeout fallback ensures layout has settled before we measure.
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || items.length === 0) return
+
+    let cancelled = false
+    const startAnim = () => {
+      if (cancelled) return
+      // scrollWidth = full rendered width including overflow; for a max-content flex row
+      // this is reliable across Chrome, Firefox, and Safari.
+      const totalW = el.scrollWidth
+      const halfW = totalW / 2
+      if (!halfW) return
+      const dur = Math.max(6, halfW / CAROUSEL_SPEED)
+      durRef.current = dur
+      // Reset then reapply so Safari registers the new animation
+      el.style.animation = 'none'
+      void el.getBoundingClientRect() // force reflow
+      el.style.animation = `carousel-ticker ${dur}s linear infinite`
+      el.style.animationPlayState = 'running'
+    }
+
+    // Two-pass: RAF to wait for paint, then measure
+    let raf1 = requestAnimationFrame(() => {
+      let raf2 = requestAnimationFrame(() => {
+        startAnim()
+        // Safari sometimes still returns 0 after two RAFs — retry once
+        if (!el.scrollWidth) setTimeout(startAnim, 100)
+      })
+      return () => cancelAnimationFrame(raf2)
+    })
+    return () => { cancelled = true; cancelAnimationFrame(raf1) }
+  }, [items.length]) // re-run when item count changes (async data loads)
+
+  const setPlayState = (running) => {
+    if (trackRef.current)
+      trackRef.current.style.animationPlayState = running ? 'running' : 'paused'
+  }
+
+  const onEnter = () => { hoveredRef.current = true;  setPlayState(false) }
+  const onLeave = () => { hoveredRef.current = false; setPlayState(true)  }
+
+  // Seek by adjusting animation-delay (negative delay = already elapsed time)
+  const seekBy = (dir) => {
+    const el = trackRef.current
+    if (!el) return
+    const dur = durRef.current
+
+    // Read current translateX from computed style
+    const cs = window.getComputedStyle(el)
+    const transformStr = cs.transform || cs.webkitTransform || 'none'
+    let curX = 0
+    if (transformStr !== 'none') {
+      try {
+        curX = new DOMMatrix(transformStr).m41
+      } catch {
+        const m = transformStr.match(/matrix\([^,]+,[^,]+,[^,]+,[^,]+,\s*([-\d.]+)/)
+        if (m) curX = parseFloat(m[1])
+      }
+    }
+
+    const halfW = el.scrollWidth / 2
+    if (!halfW) return
+
+    const fraction = Math.max(0, Math.min(1, -curX / halfW))
+    const currentSec = fraction * dur
+    const jump = dur / 8 // jump ~1/8 of the loop per click
+    const newSec = ((currentSec - dir * jump) % dur + dur) % dur
+
+    el.style.animationName = 'none'
+    void el.getBoundingClientRect() // force reflow so next line takes effect
+    el.style.animationName = 'carousel-ticker'
+    el.style.animationDelay = `${-newSec}s`
+    el.style.animationPlayState = hoveredRef.current ? 'paused' : 'running'
+  }
+
   return (
-    <div className="relative group"
-         onMouseEnter={() => { pausedRef.current = true }}
-         onMouseLeave={() => { pausedRef.current = false }}>
+    <div
+      className="relative group overflow-hidden"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
       {/* Left button */}
       <button
-        onClick={() => scroll(-1)}
+        onClick={() => seekBy(-1)}
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full
                    flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
         style={{ background: 'rgba(15,23,42,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(15,23,42,0.12)' }}
@@ -374,17 +437,20 @@ function AutoCarousel({ children, gap = 16, speed = 0.7 }) {
         <ChevronLeft size={20} className="text-gray-600" />
       </button>
 
-      {/* Scroll track — direction: ltr for consistent scrollLeft */}
-      <div ref={ref}
-           className="flex items-start px-12 py-3 scrollbar-hide"
-           style={{ gap, direction: 'ltr', overflowX: 'scroll' }}>
-        {items}
-        {items}
+      {/* Track — direction:ltr so items flow left-to-right inside RTL page */}
+      <div className="px-10 py-3">
+        <div
+          ref={trackRef}
+          style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content' }}
+        >
+          {items}
+          {items}
+        </div>
       </div>
 
       {/* Right button */}
       <button
-        onClick={() => scroll(1)}
+        onClick={() => seekBy(1)}
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full
                    flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
         style={{ background: 'rgba(15,23,42,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(15,23,42,0.12)' }}

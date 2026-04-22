@@ -12,6 +12,15 @@ import {
   CheckCircle, XCircle, PlayCircle
 } from 'lucide-react'
 
+function parseAttachments(fileUrl, fileName) {
+  if (!fileUrl) return []
+  try {
+    const parsed = JSON.parse(fileUrl)
+    if (Array.isArray(parsed)) return parsed
+  } catch {}
+  return [{ url: fileUrl, name: fileName || 'קובץ' }]
+}
+
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'ממתין' },
   { value: 'assigned', label: 'הוקצה' },
@@ -116,17 +125,18 @@ export default function AdminChat() {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-            {request.file_url && (
+            {parseAttachments(request.file_url, request.file_name).map((f, i) => (
               <a
-                href={request.file_url}
+                key={i}
+                href={f.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 hover:text-gray-800 rounded-lg text-xs transition-colors"
               >
                 <Download size={13} />
-                קובץ
+                {f.name || 'קובץ'}
               </a>
-            )}
+            ))}
 
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg">
               {request.teacher && (

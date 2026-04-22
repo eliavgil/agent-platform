@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
-import { ChevronLeft, ChevronRight, ExternalLink, Video, FileText, Menu, X } from 'lucide-react'
+import { ExternalLink, Video, FileText, Menu, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -330,135 +330,66 @@ function RobotFigure({ c, variant = 0 }) {
 }
 
 // ── AutoCarousel — CSS-animation based (works in Safari) ──────────────────────
-// Uses @keyframes translateX instead of scrollLeft (Safari rounds fractional
-// scrollLeft to 0, so scrollLeft += 0.7 never moves anything in Safari).
+// Uses @keyframes translateX. Animation properties live in React state so React
+// always owns the full shorthand (including `infinite`) — no raw DOM writes that
+// could silently drop animation-iteration-count back to 1.
 
 const CAROUSEL_SPEED = 45 // px per second
 
 function AutoCarousel({ children, gap = 16 }) {
   const trackRef = useRef(null)
-  const hoveredRef = useRef(false)
-  const durRef = useRef(40)
+  const [dur, setDur] = useState(null)   // null = not measured yet → animation: none
+  const [paused, setPaused] = useState(false)
   const items = React.Children.toArray(children)
 
-  // Calculate duration from actual content width so speed is consistent.
-  // Uses scrollWidth (not offsetWidth) — more reliable in Safari for max-content elements.
-  // Double-RAF + setTimeout fallback ensures layout has settled before we measure.
+  // Measure content width, derive duration, store in state.
+  // Double-RAF + setTimeout fallback so layout has settled before we read scrollWidth.
   useEffect(() => {
-    const el = trackRef.current
-    if (!el || items.length === 0) return
-
+    if (items.length === 0) return
     let cancelled = false
-    const startAnim = () => {
-      if (cancelled) return
-      // scrollWidth = full rendered width including overflow; for a max-content flex row
-      // this is reliable across Chrome, Firefox, and Safari.
-      const totalW = el.scrollWidth
-      const halfW = totalW / 2
+
+    const measure = () => {
+      if (cancelled || !trackRef.current) return
+      const halfW = trackRef.current.scrollWidth / 2
       if (!halfW) return
-      const dur = Math.max(6, halfW / CAROUSEL_SPEED)
-      durRef.current = dur
-      // Reset then reapply so Safari registers the new animation
-      el.style.animation = 'none'
-      void el.getBoundingClientRect() // force reflow
-      el.style.animation = `carousel-ticker ${dur}s linear infinite`
-      el.style.animationPlayState = 'running'
+      setDur(Math.max(6, halfW / CAROUSEL_SPEED))
     }
 
-    // Two-pass: RAF to wait for paint, then measure
-    let raf1 = requestAnimationFrame(() => {
-      let raf2 = requestAnimationFrame(() => {
-        startAnim()
-        // Safari sometimes still returns 0 after two RAFs — retry once
-        if (!el.scrollWidth) setTimeout(startAnim, 100)
+    // Two-pass: first RAF waits for commit, second for paint
+    const r1 = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        measure()
+        // Safari sometimes still returns 0 after two RAFs — one retry
+        if (trackRef.current && !trackRef.current.scrollWidth) setTimeout(measure, 100)
       })
-      return () => cancelAnimationFrame(raf2)
     })
-    return () => { cancelled = true; cancelAnimationFrame(raf1) }
-  }, [items.length]) // re-run when item count changes (async data loads)
+    return () => { cancelled = true; cancelAnimationFrame(r1) }
+  }, [items.length]) // re-run only when item count changes (async data load)
 
-  const setPlayState = (running) => {
-    if (trackRef.current)
-      trackRef.current.style.animationPlayState = running ? 'running' : 'paused'
-  }
-
-  const onEnter = () => { hoveredRef.current = true;  setPlayState(false) }
-  const onLeave = () => { hoveredRef.current = false; setPlayState(true)  }
-
-  // Seek by adjusting animation-delay (negative delay = already elapsed time)
-  const seekBy = (dir) => {
-    const el = trackRef.current
-    if (!el) return
-    const dur = durRef.current
-
-    // Read current translateX from computed style
-    const cs = window.getComputedStyle(el)
-    const transformStr = cs.transform || cs.webkitTransform || 'none'
-    let curX = 0
-    if (transformStr !== 'none') {
-      try {
-        curX = new DOMMatrix(transformStr).m41
-      } catch {
-        const m = transformStr.match(/matrix\([^,]+,[^,]+,[^,]+,[^,]+,\s*([-\d.]+)/)
-        if (m) curX = parseFloat(m[1])
+  // `animation` lives entirely in the style prop — React owns it, `infinite` is always present
+  const animStyle = dur
+    ? {
+        animation: `carousel-ticker ${dur}s linear infinite`,
+        animationPlayState: paused ? 'paused' : 'running',
       }
-    }
-
-    const halfW = el.scrollWidth / 2
-    if (!halfW) return
-
-    const fraction = Math.max(0, Math.min(1, -curX / halfW))
-    const currentSec = fraction * dur
-    const jump = dur / 8 // jump ~1/8 of the loop per click
-    const newSec = ((currentSec - dir * jump) % dur + dur) % dur
-
-    el.style.animationName = 'none'
-    void el.getBoundingClientRect() // force reflow so next line takes effect
-    el.style.animationName = 'carousel-ticker'
-    el.style.animationDelay = `${-newSec}s`
-    el.style.animationPlayState = hoveredRef.current ? 'paused' : 'running'
-  }
+    : { animation: 'none' }
 
   return (
     <div
-      className="relative group overflow-hidden"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
+      className="overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
-      {/* Left button */}
-      <button
-        onClick={() => seekBy(-1)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full
-                   flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-        style={{ background: 'rgba(15,23,42,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(15,23,42,0.12)' }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,23,42,0.2)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'rgba(15,23,42,0.1)'}
-      >
-        <ChevronLeft size={20} className="text-gray-600" />
-      </button>
-
       {/* Track — direction:ltr so items flow left-to-right inside RTL page */}
-      <div className="px-10 py-3">
+      <div className="py-3">
         <div
           ref={trackRef}
-          style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content' }}
+          style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content', ...animStyle }}
         >
           {items}
           {items}
         </div>
       </div>
-
-      {/* Right button */}
-      <button
-        onClick={() => seekBy(1)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full
-                   flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
-        style={{ background: 'rgba(15,23,42,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(15,23,42,0.12)' }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,23,42,0.2)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'rgba(15,23,42,0.1)'}
-      >
-        <ChevronRight size={20} className="text-gray-600" />
-      </button>
     </div>
   )
 }

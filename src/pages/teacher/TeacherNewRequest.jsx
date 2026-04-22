@@ -55,7 +55,6 @@ export default function TeacherNewRequest() {
     if (!form.subject) newErrors.subject = 'שדה חובה'
     if (!form.grade_level) newErrors.grade_level = 'שדה חובה'
     if (!form.description.trim()) newErrors.description = 'שדה חובה'
-    if (form.description.trim().length < 20) newErrors.description = 'תיאור חייב להיות לפחות 20 תווים'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }

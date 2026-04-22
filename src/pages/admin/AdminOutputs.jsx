@@ -29,6 +29,9 @@ async function fetchClearbitLogo(domain) {
   return ''
 }
 
+// ── grade options ─────────────────────────────────────────────────────────────
+const GRADES = ["ז׳", "ח׳", "ט׳", "י׳", "יא׳", "יב׳"]
+
 // ── category options ─────────────────────────────────────────────────────────
 const CATEGORIES = [
   'מבחנים / בחנים',
@@ -61,6 +64,17 @@ function AddEditModal({ initial, onSave, onClose }) {
     setCatSelect(val)
     if (val !== 'אחר') set('category', val)
     else set('category', '')   // reset until they type the custom value
+  }
+
+  // Grade multi-select helpers
+  const selectedGrades = form.grade
+    ? form.grade.split(',').map(s => s.trim()).filter(Boolean)
+    : []
+  const toggleGrade = (g) => {
+    const next = selectedGrades.includes(g)
+      ? selectedGrades.filter(x => x !== g)
+      : [...selectedGrades, g]
+    set('grade', next.join(', '))
   }
 
   const [logoMode, setLogoMode] = useState('auto') // 'auto' | 'clearbit' | 'upload'
@@ -142,8 +156,8 @@ function AddEditModal({ initial, onSave, onClose }) {
             <input className={inputCls} value={form.name} onChange={e => set('name', e.target.value)} placeholder="למשל: מחולל שאלות היסטוריה" />
           </div>
 
-          {/* Row: subject / topic / grade */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Row: subject / topic */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>מקצוע</label>
               <input className={inputCls} value={form.subject} onChange={e => set('subject', e.target.value)} placeholder="היסטוריה" />
@@ -152,9 +166,29 @@ function AddEditModal({ initial, onSave, onClose }) {
               <label className={labelCls}>נושא</label>
               <input className={inputCls} value={form.topic} onChange={e => set('topic', e.target.value)} placeholder="מלחמת העולם" />
             </div>
-            <div>
-              <label className={labelCls}>כיתה</label>
-              <input className={inputCls} value={form.grade} onChange={e => set('grade', e.target.value)} placeholder="ט׳" />
+          </div>
+
+          {/* Grade multi-select */}
+          <div>
+            <label className={labelCls}>כיתה (אפשר לסמן יותר מאחת)</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {GRADES.map(g => {
+                const active = selectedGrades.includes(g)
+                return (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => toggleGrade(g)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all"
+                    style={active
+                      ? { background: '#f97316', color: '#fff', borderColor: '#f97316' }
+                      : { background: '#f8fafc', color: '#475569', borderColor: '#e2e8f0' }
+                    }
+                  >
+                    {g}
+                  </button>
+                )
+              })}
             </div>
           </div>
 

@@ -29,6 +29,17 @@ async function fetchClearbitLogo(domain) {
   return ''
 }
 
+// ── category options ─────────────────────────────────────────────────────────
+const CATEGORIES = [
+  'מבחנים / בחנים',
+  'מבדקים / משימות',
+  'למידה עצמאית',
+  'מצגות',
+  'שירים',
+  'מערכי שיעור',
+  'אחר',
+]
+
 // ── empty form state ─────────────────────────────────────────────────────────
 const EMPTY = {
   name: '', subject: '', topic: '', grade: '', ai_tool: '', agent: '',
@@ -39,6 +50,19 @@ const EMPTY = {
 // ── AddEditModal ─────────────────────────────────────────────────────────────
 function AddEditModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial ?? EMPTY)
+
+  // Category select: detect if the initial value is a known option or custom
+  const initCatKnown = CATEGORIES.slice(0, -1).includes(initial?.category || '')
+  const [catSelect, setCatSelect] = useState(
+    !initial?.category ? '' : initCatKnown ? initial.category : 'אחר'
+  )
+
+  const handleCatSelect = (val) => {
+    setCatSelect(val)
+    if (val !== 'אחר') set('category', val)
+    else set('category', '')   // reset until they type the custom value
+  }
+
   const [logoMode, setLogoMode] = useState('auto') // 'auto' | 'clearbit' | 'upload'
   const [clearbitDomain, setClearbitDomain] = useState('')
   const [clearbitLoading, setClearbitLoading] = useState(false)
@@ -146,7 +170,24 @@ function AddEditModal({ initial, onSave, onClose }) {
             </div>
             <div>
               <label className={labelCls}>קטגוריה</label>
-              <input className={inputCls} value={form.category} onChange={e => set('category', e.target.value)} placeholder="מבחנים" />
+              <select
+                className={inputCls}
+                value={catSelect}
+                onChange={e => handleCatSelect(e.target.value)}
+              >
+                <option value="">-- בחר --</option>
+                {CATEGORIES.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              {catSelect === 'אחר' && (
+                <input
+                  className={inputCls + ' mt-2'}
+                  value={form.category}
+                  onChange={e => set('category', e.target.value)}
+                  placeholder="פרט את הקטגוריה..."
+                />
+              )}
             </div>
           </div>
 

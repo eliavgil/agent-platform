@@ -2,13 +2,19 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { List } from 'lucide-react'
+import { List, GalleryHorizontal } from 'lucide-react'
 
 const navItems = [
   {
     path: '/agent/requests',
     label: 'הבקשות שלי',
     icon: <List size={18} />,
+    end: false,
+  },
+  {
+    path: '/agent/outputs',
+    label: 'התוצרים שלי',
+    icon: <GalleryHorizontal size={18} />,
     end: false,
   },
 ]

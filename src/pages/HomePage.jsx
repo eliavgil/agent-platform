@@ -2,13 +2,27 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { getTools, getOutputs, getToolEmoji } from '../lib/googleSheets'
-import { ExternalLink, Video, FileText, Menu, X } from 'lucide-react'
+import { getToolEmoji } from '../lib/googleSheets'
+import { getOutputs } from '../lib/supabase'
+import { ExternalLink, Menu, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const LEADERBOARD_URL =
-  'https://docs.google.com/spreadsheets/d/17WWVtK7hKwt2-LW8AA4Gw7ouiHkXoFThyB8bdi9te8s/export?format=csv&gid=0'
+// ── Hardcoded agents (placeholders — replace with real names when ready) ───────
+const AGENTS = [
+  { name: 'אביעד כהן',    emoji: '' },
+  { name: 'מעין לוי',     emoji: '' },
+  { name: 'נועה גולן',    emoji: '' },
+  { name: 'יונתן בן-דוד', emoji: '' },
+  { name: 'תמר פרידמן',   emoji: '' },
+  { name: 'אורי שפירא',   emoji: '' },
+  { name: 'רוני אברהם',   emoji: '' },
+  { name: 'יעל מזרחי',    emoji: '' },
+  { name: 'דניאל כץ',     emoji: '' },
+  { name: 'שרה ביטון',    emoji: '' },
+  { name: 'עמית ברקאי',   emoji: '' },
+  { name: 'ליאל סגל',     emoji: '' },
+]
 
 const STEPS = [
   {
@@ -69,54 +83,12 @@ function getLogoUrl(name = '') {
   return key ? TOOL_LOGOS[key] : null
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function hashStr(str) {
   let h = 5381
   for (const c of str) h = ((h << 5) + h + c.charCodeAt(0)) | 0
   return Math.abs(h)
-}
-
-function parseCsvLine(line) {
-  const cells = []
-  let cur = '', inQ = false
-  for (const ch of line) {
-    if (ch === '"') { inQ = !inQ }
-    else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = '' }
-    else { cur += ch }
-  }
-  cells.push(cur.trim())
-  return cells
-}
-
-async function fetchStudentNames() {
-  try {
-    const res = await fetch(LEADERBOARD_URL)
-    if (!res.ok) return []
-    const csv = await res.text()
-    const lines = csv.trim().split('\n')
-    if (lines.length < 2) return []
-    const headers = parseCsvLine(lines[0]).map(h =>
-      h.trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E]/g, '')
-    )
-    const nameIdx = headers.findIndex(h => h.includes('שם'))
-    const logoIdx = headers.findIndex(h => h.toLowerCase().replace(/\s/g, '') === 'logourl')
-    const emojiIdx = headers.findIndex(h => h.toLowerCase() === 'emoji' || h === 'אמוגי')
-    if (nameIdx === -1) return []
-    return lines.slice(1)
-      .map(l => {
-        const cells = parseCsvLine(l)
-        const name = (cells[nameIdx] || '').trim().replace(/[\u200B-\u200D\uFEFF\u202A-\u202E"]/g, '')
-        const rawLogo = logoIdx !== -1 ? (cells[logoIdx] || '').trim() : ''
-        const rawEmoji = emojiIdx !== -1 ? (cells[emojiIdx] || '').trim() : ''
-        return {
-          name,
-          logoUrl: rawLogo.startsWith('http') ? rawLogo : '',
-          emoji: rawEmoji,
-        }
-      })
-      .filter(s => s.name.length > 1)
-  } catch { return [] }
 }
 
 // ── Agent SVGs — Unique Robot designs ────────────────────────────────────────
@@ -394,110 +366,6 @@ function AutoCarousel({ children, gap = 16 }) {
   )
 }
 
-// ── ToolCard (light theme) ─────────────────────────────────────────────────────
-
-function HomeToolCard({ tool }) {
-  const [hovered, setHovered] = useState(false)
-  const [imgFailed, setImgFailed] = useState(false)
-  const logoUrl = tool.logoUrl || getLogoUrl(tool.name)
-
-  const diffColor = tool.difficulty === 'קל'
-    ? { bg: 'rgba(16,185,129,0.1)', text: '#059669' }
-    : tool.difficulty === 'בינוני'
-    ? { bg: 'rgba(245,158,11,0.1)', text: '#d97706' }
-    : { bg: 'rgba(239,68,68,0.1)', text: '#dc2626' }
-
-  return (
-    <div
-      dir="rtl"
-      className="flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-250 cursor-default"
-      style={{
-        width: 188,
-        background: hovered ? '#f0f4ff' : '#ffffff',
-        border: `1px solid ${hovered ? 'rgba(99,102,241,0.3)' : '#e2e8f0'}`,
-        boxShadow: hovered ? '0 4px 20px rgba(99,102,241,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Logo */}
-      <div className="relative h-28 flex items-center justify-center overflow-hidden"
-           style={{ background: '#f8fafc' }}>
-        {logoUrl && !imgFailed ? (
-          <>
-            <img src={logoUrl} aria-hidden="true"
-                 className="absolute inset-0 w-full h-full object-cover scale-150 opacity-25 pointer-events-none"
-                 style={{ filter: 'blur(16px)' }} />
-            <img src={logoUrl} alt={tool.name}
-                 className="relative max-h-24 max-w-[85%] object-contain drop-shadow-sm"
-                 onError={() => setImgFailed(true)} />
-          </>
-        ) : (
-          <span className="text-4xl select-none">{tool.logoEmoji || '🤖'}</span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        {tool.category && (
-          <span className="text-xs font-semibold text-indigo-500 block mb-1">{tool.category}</span>
-        )}
-        <h3 className="font-bold text-sm leading-snug" style={{ color: '#0f172a' }}>{tool.name}</h3>
-        {tool.tagline && (
-          <p className="text-xs mt-1 line-clamp-2" style={{ color: '#64748b' }}>
-            {tool.tagline}
-          </p>
-        )}
-
-        {/* Expanded on hover */}
-        {hovered && (
-          <div className="mt-3 pt-3 space-y-2 animate-fade-in"
-               style={{ borderTop: '1px solid #e2e8f0' }}>
-            {tool.description && (
-              <p className="text-xs leading-relaxed line-clamp-4" style={{ color: '#374151' }}>
-                {tool.description}
-              </p>
-            )}
-            {tool.howToUse && (
-              <p className="text-xs leading-relaxed line-clamp-3" style={{ color: '#6b7280' }}>
-                {tool.howToUse}
-              </p>
-            )}
-            <div className="flex gap-2 flex-wrap pt-1">
-              {tool.videoUrl && (
-                <a href={tool.videoUrl} target="_blank" rel="noopener noreferrer"
-                   onClick={e => e.stopPropagation()}
-                   className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-colors"
-                   style={{ background: '#f1f5f9', color: '#374151' }}
-                   onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
-                   onMouseLeave={e => e.currentTarget.style.background = '#f1f5f9'}>
-                  <Video size={12} /> סרטון
-                </a>
-              )}
-              {tool.presentationUrl && (
-                <a href={tool.presentationUrl} target="_blank" rel="noopener noreferrer"
-                   onClick={e => e.stopPropagation()}
-                   className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition-colors"
-                   style={{ background: '#f1f5f9', color: '#374151' }}
-                   onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
-                   onMouseLeave={e => e.currentTarget.style.background = '#f1f5f9'}>
-                  <FileText size={12} /> מצגת
-                </a>
-              )}
-            </div>
-            {tool.difficulty && (
-              <span className="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium"
-                    style={{ background: diffColor.bg, color: diffColor.text }}>
-                {tool.difficulty}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ── ExampleCard (light theme) ──────────────────────────────────────────────────
 
 function HomeExampleCard({ example }) {
@@ -655,33 +523,17 @@ function SectionHeading({ badge, title, sub, badgeColor = '#6366f1' }) {
 export default function HomePage() {
   const { user, profile, loading, signOut, isAdmin } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [tools, setTools] = useState([])
-  const [students, setStudents] = useState([])
-  const [toolsLoading, setToolsLoading] = useState(true)
-  const [agentsLoading, setAgentsLoading] = useState(true)
-
   const [outputs, setOutputs] = useState([])
-  const [emojiMap, setEmojiMap] = useState({})
 
   useEffect(() => {
-    getTools().then(({ data }) => {
-      setTools(data || [])
-      setToolsLoading(false)
-      const map = {}
-      for (const t of (data || [])) {
-        if (t.name && t.logoEmoji) map[t.name.toLowerCase()] = t.logoEmoji
-      }
-      setEmojiMap(map)
-    })
     getOutputs().then(({ data }) => setOutputs(data || []))
-    fetchStudentNames().then(names => { setStudents(names); setAgentsLoading(false) })
   }, [])
 
   const examples = outputs.map(o => ({
     name: o.name,
     aiTool: o.aiTool,
     logoUrl: o.logoUrl || '',
-    emoji: o.logoEmoji || emojiMap[o.aiTool?.toLowerCase()] || getToolEmoji(o.aiTool) || '🤖',
+    emoji: o.logoEmoji || getToolEmoji(o.aiTool) || '🤖',
     shortDesc: o.shortDesc || o.description || '',
     subject: o.subject,
     topic: o.topic,
@@ -932,49 +784,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── Tools Section ──────────────────────────────────────────────── */}
-      <section id="tools" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionHeading
-            badge="למורים"
-            title="ארגז הכלים"
-            sub="כלי AI שנבחרו בקפידה לסיוע בהוראה — עמדו על כלי לפרטים נוספים"
-            badgeColor="#6366f1"
-          />
-
-          {toolsLoading ? (
-            <div className="flex gap-4 px-12 overflow-hidden">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-44 rounded-2xl overflow-hidden animate-pulse bg-white"
-                     style={{ border: '1px solid #e2e8f0' }}>
-                  <div className="h-28 bg-gray-100" />
-                  <div className="p-4 space-y-2">
-                    <div className="h-3 rounded w-12 bg-gray-100" />
-                    <div className="h-4 rounded w-20 bg-gray-100" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <AutoCarousel>
-              {tools.map(tool => <HomeToolCard key={tool.name} tool={tool} />)}
-            </AutoCarousel>
-          )}
-
-          <div className="text-center mt-8">
-            <Link to={ctaTo}
-                  className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
-                  style={{ background: 'rgba(99,102,241,0.08)', color: '#4338ca', border: '1px solid rgba(99,102,241,0.2)' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.15)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}>
-              שלח בקשה עם הכלי שבחרת ←
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── Agents Section ─────────────────────────────────────────────── */}
-      <section id="agents" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>
+      <section id="agents" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeading
             badge="הצוות שלנו"
@@ -983,21 +794,9 @@ export default function HomePage() {
             badgeColor="#8b5cf6"
           />
 
-          {agentsLoading ? (
-            <div className="flex gap-4 px-12 overflow-hidden">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-44 rounded-2xl p-5 animate-pulse bg-white"
-                     style={{ border: '1px solid #e2e8f0' }}>
-                  <div className="w-16 h-20 rounded-2xl mx-auto mb-3 bg-gray-100" />
-                  <div className="h-4 rounded w-24 mx-auto bg-gray-100" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <AutoCarousel>
-              {students.map(s => <HomeAgentCard key={s.name} student={s} />)}
-            </AutoCarousel>
-          )}
+          <AutoCarousel>
+            {AGENTS.map(s => <HomeAgentCard key={s.name} student={s} />)}
+          </AutoCarousel>
 
           <div className="text-center mt-8">
             <Link to={ctaTo}

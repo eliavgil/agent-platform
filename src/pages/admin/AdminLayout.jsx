@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { List, GalleryHorizontal } from 'lucide-react'
+import { List, GalleryHorizontal, Users } from 'lucide-react'
 
 const navItems = [
   {
@@ -15,6 +15,12 @@ const navItems = [
     path: '/admin/outputs',
     label: 'תוצרים',
     icon: <GalleryHorizontal size={18} />,
+    end: false,
+  },
+  {
+    path: '/admin/users',
+    label: 'משתמשים',
+    icon: <Users size={18} />,
     end: false,
   },
 ]

@@ -302,66 +302,54 @@ function RobotFigure({ c, variant = 0 }) {
   )
 }
 
-// ── AutoCarousel — CSS-animation based (works in Safari) ──────────────────────
-// Uses @keyframes translateX. Animation properties live in React state so React
-// always owns the full shorthand (including `infinite`) — no raw DOM writes that
-// could silently drop animation-iteration-count back to 1.
+// ── AutoCarousel ──────────────────────────────────────────────────────────────
+// animation-name / timing-function / iteration-count live in the CSS class
+// `.carousel-track` — React's style reconciler never touches them.
+// JS only imperatively sets --carousel-dur and animation-play-state.
 
 const CAROUSEL_SPEED = 45 // px per second
 
 function AutoCarousel({ children, gap = 16 }) {
   const trackRef = useRef(null)
-  const [dur, setDur] = useState(null)   // null = not measured yet → animation: none
-  const [paused, setPaused] = useState(false)
   const items = React.Children.toArray(children)
 
-  // Measure content width, derive duration, store in state.
-  // Double-RAF + setTimeout fallback so layout has settled before we read scrollWidth.
   useEffect(() => {
-    if (items.length === 0) return
+    const el = trackRef.current
+    if (!el || items.length === 0) return
+
     let cancelled = false
 
-    const measure = () => {
+    const activate = () => {
       if (cancelled || !trackRef.current) return
       const halfW = trackRef.current.scrollWidth / 2
       if (!halfW) return
-      setDur(Math.max(6, halfW / CAROUSEL_SPEED))
+      const dur = Math.max(6, halfW / CAROUSEL_SPEED)
+      trackRef.current.style.setProperty('--carousel-dur', `${dur}s`)
+      trackRef.current.style.animationPlayState = 'running'
     }
 
-    // Two-pass: first RAF waits for commit, second for paint
+    // Double-RAF so layout has settled; Safari retry after 100 ms
     const r1 = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        measure()
-        // Safari sometimes still returns 0 after two RAFs — one retry
-        if (trackRef.current && !trackRef.current.scrollWidth) setTimeout(measure, 100)
+        activate()
+        if (trackRef.current && !trackRef.current.scrollWidth)
+          setTimeout(activate, 100)
       })
     })
     return () => { cancelled = true; cancelAnimationFrame(r1) }
-  }, [items.length]) // re-run only when item count changes (async data load)
+  }, [items.length])
 
-  // Use individual sub-properties so React sets each one explicitly.
-  // Shorthand parsing can silently drop iteration-count; explicit props cannot.
-  const animStyle = dur
-    ? {
-        animationName: 'carousel-ticker',
-        animationDuration: `${dur}s`,
-        animationTimingFunction: 'linear',
-        animationIterationCount: 'infinite',
-        animationPlayState: paused ? 'paused' : 'running',
-      }
-    : { animationName: 'none' }
+  const pause  = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'paused' }
+  const resume = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'running' }
 
   return (
-    <div
-      className="overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {/* Track — direction:ltr so items flow left-to-right inside RTL page */}
+    <div className="overflow-hidden" onMouseEnter={pause} onMouseLeave={resume}>
       <div className="py-3">
+        {/* carousel-track class owns animation-name/timing/iteration-count */}
         <div
           ref={trackRef}
-          style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content', ...animStyle }}
+          className="carousel-track"
+          style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content' }}
         >
           {items}
           {items}
@@ -534,17 +522,23 @@ export default function HomePage() {
     getOutputs().then(({ data }) => setOutputs(data || []))
   }, [])
 
-  const examples = outputs.map(o => ({
-    name: o.name,
-    aiTool: o.aiTool,
-    logoUrl: o.logoUrl || '',
-    emoji: o.logoEmoji || getToolEmoji(o.aiTool) || '🤖',
-    shortDesc: o.shortDesc || o.description || '',
-    subject: o.subject,
-    topic: o.topic,
-    grade: o.grade,
-    link: o.link,
-  }))
+  // Supabase returns snake_case columns; normalize to camelCase
+  const examples = outputs.map(o => {
+    const aiTool   = o.ai_tool   ?? o.aiTool   ?? ''
+    const logoUrl  = o.logo_url  ?? o.logoUrl  ?? ''
+    const logoEmoji = o.logo_emoji ?? o.logoEmoji ?? ''
+    return {
+      name: o.name ?? '',
+      aiTool,
+      logoUrl,
+      emoji: logoEmoji || getToolEmoji(aiTool) || '🤖',
+      shortDesc: o.short_desc ?? o.shortDesc ?? o.description ?? '',
+      subject: o.subject ?? '',
+      topic: o.topic ?? '',
+      grade: o.grade ?? '',
+      link: o.link ?? '',
+    }
+  })
 
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :

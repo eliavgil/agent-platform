@@ -14,17 +14,17 @@ const STEPS = [
   {
     num: '01', icon: '📝', color: 'from-indigo-500 to-purple-500',
     title: 'מלאו טופס בקשה',
-    desc: 'בטופס הבקשה המורה מעביר הוראות לגבי התוצר המבוקש ואת החומר הלימודי שיופיע בו.\nלדוגמא — מורה מעביר קובץ Word של מבחן ומבקש לקבל חזרה גרסה של אותו מבחן, רק כזה שנבדק אוטומטית על ידי AI, מעביר ציון ומשוב לתלמיד ונתונים ופילוחים למורים.',
+    desc: 'ובו תיאור התוצר המבוקש והמידע הרלוונטי (למשל החומר הלימודי הרלוונטי)',
   },
   {
     num: '02', icon: '🤝', color: 'from-purple-500 to-pink-500',
     title: 'סוכן AI יצור קשר',
-    desc: 'במידת הצורך הסוכן ידייק את הבקשה על מנת לבנות תוצר מיטבי.\nלדוגמא — הסוכן יבקש לקבל תשובות כלליות או מפורטות כך שהמבחן יבדק על ידי ה-AI בדיוק כפי שהמורה רוצה.',
+    desc: 'ויסביר מה אפשרי ומה צריך בשביל לגרום לזה לקרות',
   },
   {
     num: '03', icon: '🚀', color: 'from-pink-500 to-orange-400',
     title: 'עובדים יחד',
-    desc: 'שיתוף הפעולה בין המורה לסוכן מבטיח תוצרים אמינים ומדויקים, מבוססים על חומר הלימוד שהמורה רוצה, ללא הפתעות או המצאות מצד ה-AI.',
+    desc: 'שיתוף פעולה מוביל לתוצר איכותי, אמין, פשוט לתפעול ויעיל להפליא',
   },
 ]
 
@@ -1096,19 +1096,56 @@ export default function HomePage() {
             {STEPS.map((step, i) => <StepCard key={i} step={step} idx={i} />)}
           </div>
 
-          <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { icon: '💬', title: 'צ׳אט ישיר',    desc: 'שוחחו עם הסוכן בזמן אמת דרך הפלטפורמה' },
-              { icon: '📎', title: 'שיתוף קבצים', desc: 'שלחו תכניות שיעור, עבודות תלמידים, או כל קובץ אחר' },
-              { icon: '🎯', title: 'פתרון מותאם', desc: 'הסוכן יבנה פתרון AI בדיוק לנושא ולכיתה שלכם' },
-            ].map((item, i) => (
-              <div key={i} className="rounded-2xl p-5 text-center bg-white"
-                   style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                <div className="text-3xl mb-2">{item.icon}</div>
-                <h4 className="font-bold text-sm mb-1" style={{ color: '#0f172a' }}>{item.title}</h4>
-                <p className="text-xs leading-relaxed" style={{ color: '#475569' }}>{item.desc}</p>
-              </div>
-            ))}
+          {/* Example flow — smart exam */}
+          <div className="mt-14 rounded-2xl overflow-hidden"
+               style={{ border: '1px solid #e2e8f0', background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
+            {/* Header */}
+            <div className="px-6 py-4 border-b" style={{ borderColor: '#f1f5f9', background: '#f8fafc' }}>
+              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#94a3b8' }}>
+                תהליך לדוגמא
+              </p>
+              <h4 className="font-black text-base mt-0.5" style={{ color: '#0f172a' }}>
+                🎓 יצירת מבחן חכם
+              </h4>
+            </div>
+
+            {/* Steps */}
+            <div className="divide-y" style={{ borderColor: '#f1f5f9' }}>
+              {[
+                {
+                  num: '1',
+                  color: '#6366f1',
+                  bg: 'rgba(99,102,241,0.08)',
+                  who: 'מורה',
+                  text: 'מעביר את החומר הלימודי ודרישות המבחן',
+                },
+                {
+                  num: '2',
+                  color: '#a855f7',
+                  bg: 'rgba(168,85,247,0.08)',
+                  who: 'סוכן מדייק',
+                  text: 'מבקש מהמורה להוסיף שאלות ותשובות לדוגמא',
+                },
+                {
+                  num: '3',
+                  color: '#f97316',
+                  bg: 'rgba(249,115,22,0.08)',
+                  who: 'תוצאה סופית',
+                  text: 'מבחן דיגיטלי על החומר שהעביר המורה — AI בודק את המבחן, מעביר לתלמידים ציון ומשוב מפורט, ולמורה את כל הנתונים',
+                },
+              ].map((item) => (
+                <div key={item.num} className="flex items-start gap-4 px-6 py-4" dir="rtl">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5"
+                       style={{ background: item.bg, color: item.color }}>
+                    {item.num}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold" style={{ color: item.color }}>{item.who}</span>
+                    <p className="text-sm leading-relaxed mt-0.5" style={{ color: '#475569' }}>{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="text-center mt-14">

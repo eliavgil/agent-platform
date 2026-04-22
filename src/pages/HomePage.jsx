@@ -321,14 +321,17 @@ function AutoCarousel({ children, gap = 16 }) {
 
     const activate = () => {
       if (cancelled || !trackRef.current) return
+      // scrollWidth = full width of both copies; halfW = exact width of one copy
       const halfW = trackRef.current.scrollWidth / 2
       if (!halfW) return
       const dur = Math.max(6, halfW / CAROUSEL_SPEED)
+      // --carousel-shift: exact pixel distance so translateX is never ambiguous
+      trackRef.current.style.setProperty('--carousel-shift', `${halfW}px`)
       trackRef.current.style.setProperty('--carousel-dur', `${dur}s`)
       trackRef.current.style.animationPlayState = 'running'
     }
 
-    // Double-RAF so layout has settled; Safari retry after 100 ms
+    // Double-RAF so layout has settled before we measure; Safari retry at 100 ms
     const r1 = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         activate()
@@ -342,17 +345,19 @@ function AutoCarousel({ children, gap = 16 }) {
   const pause  = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'paused' }
   const resume = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'running' }
 
+  // Clone second set with different keys so React doesn't de-duplicate them
+  const clone = items.map(item => React.cloneElement(item, { key: `c_${item.key}` }))
+
   return (
     <div className="overflow-hidden" onMouseEnter={pause} onMouseLeave={resume}>
       <div className="py-3">
-        {/* carousel-track class owns animation-name/timing/iteration-count */}
         <div
           ref={trackRef}
           className="carousel-track"
           style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content' }}
         >
           {items}
-          {items}
+          {clone}
         </div>
       </div>
     </div>

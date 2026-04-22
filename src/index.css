@@ -2,21 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Infinite carousel ticker — outside @layer so Safari finds it via animation-name */
+/* Infinite carousel ticker — outside @layer so Safari finds it via animation-name.
+   Uses a CSS custom property for the pixel offset so the translation is exact
+   (avoids -50% ambiguity with max-content widths). */
 @keyframes carousel-ticker {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  to   { transform: translateX(calc(-1 * var(--carousel-shift, 0px))); }
 }
 
-/* Carousel track: animation shape lives here so React's style reconciler never
-   touches animation-iteration-count. JS only sets --carousel-dur + play-state. */
+/* Carousel track: iteration-count lives in CSS so React never touches it.
+   JS sets --carousel-shift (px), --carousel-dur (s), and play-state. */
 .carousel-track {
   animation-name: carousel-ticker;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-duration: var(--carousel-dur, 40s);
-  animation-play-state: paused; /* JS sets to running after measuring width */
-  will-change: transform;
+  animation-play-state: paused;
 }
 
 @layer base {

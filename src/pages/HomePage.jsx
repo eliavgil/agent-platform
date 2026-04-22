@@ -902,8 +902,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Examples Section ───────────────────────────────────────────── */}
+      {examples.length > 0 && (
+        <section id="examples" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>
+          <div className="max-w-6xl mx-auto px-6">
+            <SectionHeading
+              badge="תוצרים"
+              title="מה אפשר לבנות?"
+              sub="דוגמאות אמיתיות שנוצרו בעזרת הסוכנים שלנו"
+              badgeColor="#f97316"
+            />
+            <AutoCarousel>
+              {examples.map((ex, i) => <HomeExampleCard key={i} example={ex} />)}
+            </AutoCarousel>
+            <div className="text-center mt-8">
+              <Link to="/outputs"
+                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
+                    style={{ background: 'rgba(249,115,22,0.08)', color: '#c2410c', border: '1px solid rgba(249,115,22,0.2)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.15)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(249,115,22,0.08)'}>
+                לגלריית כל התוצרים ←
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Tools Section ──────────────────────────────────────────────── */}
-      <section id="tools" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>
+      <section id="tools" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeading
             badge="למורים"
@@ -942,32 +968,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── Examples Section ───────────────────────────────────────────── */}
-      {examples.length > 0 && (
-        <section id="examples" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
-          <div className="max-w-6xl mx-auto px-6">
-            <SectionHeading
-              badge="תוצרים"
-              title="מה אפשר לבנות?"
-              sub="דוגמאות אמיתיות שנוצרו בעזרת הסוכנים שלנו"
-              badgeColor="#f97316"
-            />
-            <AutoCarousel>
-              {examples.map((ex, i) => <HomeExampleCard key={i} example={ex} />)}
-            </AutoCarousel>
-            <div className="text-center mt-8">
-              <Link to="/outputs"
-                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
-                    style={{ background: 'rgba(249,115,22,0.08)', color: '#c2410c', border: '1px solid rgba(249,115,22,0.2)' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.15)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(249,115,22,0.08)'}>
-                לגלריית כל התוצרים ←
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── Agents Section ─────────────────────────────────────────────── */}
       <section id="agents" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>

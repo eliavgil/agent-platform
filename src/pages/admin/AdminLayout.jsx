@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
@@ -19,10 +20,17 @@ const navItems = [
 ]
 
 export default function AdminLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="flex">
-      <Sidebar navItems={navItems} role="admin" />
-      <PageLayout>
+      <Sidebar
+        navItems={navItems}
+        role="admin"
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <PageLayout onMenuOpen={() => setSidebarOpen(true)}>
         <Outlet />
       </PageLayout>
     </div>

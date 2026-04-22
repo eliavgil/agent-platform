@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { List, MessageSquare } from 'lucide-react'
+import { List } from 'lucide-react'
 
 const navItems = [
   {
@@ -13,10 +14,17 @@ const navItems = [
 ]
 
 export default function AgentLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="flex">
-      <Sidebar navItems={navItems} role="agent" />
-      <PageLayout>
+      <Sidebar
+        navItems={navItems}
+        role="agent"
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <PageLayout onMenuOpen={() => setSidebarOpen(true)}>
         <Outlet />
       </PageLayout>
     </div>

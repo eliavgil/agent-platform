@@ -1,8 +1,102 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getOutputs as getOutputsFromSheets, getToolEmoji } from '../lib/googleSheets'
 import { getOutputs as getOutputsFromSupabase } from '../lib/supabase'
-import { Bot, ExternalLink, Search, Quote } from 'lucide-react'
+import { Bot, ExternalLink, Search, Quote, ChevronDown, X } from 'lucide-react'
+
+// ── Filter constants ───────────────────────────────────────────────────────────
+const CATEGORIES = [
+  'מבחנים / בחנים',
+  'מבדקים / משימות',
+  'מצגות',
+  'למידה עצמאית',
+  'שירים',
+  'מערכי שיעור',
+  'אחר',
+]
+
+const SUBJECTS = [
+  'מתמטיקה', 'עברית', 'אנגלית', 'מדעים', 'היסטוריה', 'גיאוגרפיה',
+  'אזרחות', 'ספרות', 'אמנות', 'מוזיקה', 'חינוך גופני', 'מחשבים', 'אחר',
+]
+
+const GRADES = ["ז׳", "ח׳", "ט׳", "י׳", "יא׳", "יב׳"]
+
+const VIEW_OPTIONS = [
+  { id: 'newest',   label: 'מהחדש לישן' },
+  { id: 'ai_tool',  label: 'לפי כלי AI' },
+  { id: 'reviewed', label: 'תוצרים שקיבלו ביקורת מורים' },
+]
+
+// ── Reusable dropdown ──────────────────────────────────────────────────────────
+function FilterDropdown({ label, options, value, onChange, isViewMode = false }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const isActive = value !== null
+
+  // For view-mode the displayed label comes from options array
+  const displayLabel = isViewMode
+    ? (value ? options.find(o => o.id === value)?.label ?? label : label)
+    : (value ?? label)
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all whitespace-nowrap"
+        style={isActive
+          ? { background: '#f97316', color: '#fff', borderColor: '#f97316' }
+          : { background: '#fff', color: '#475569', borderColor: '#e2e8f0' }
+        }
+      >
+        {displayLabel}
+        {isActive
+          ? <X size={13} onClick={e => { e.stopPropagation(); onChange(null) }} className="hover:opacity-70" />
+          : <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        }
+      </button>
+
+      {open && (
+        <div
+          className="absolute top-full mt-1.5 right-0 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1 overflow-hidden"
+          style={{ minWidth: 180 }}
+        >
+          {isViewMode ? (
+            options.map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => { onChange(opt.id === value ? null : opt.id); setOpen(false) }}
+                className="w-full text-right px-4 py-2.5 text-sm transition-colors hover:bg-orange-50"
+                style={value === opt.id ? { color: '#f97316', fontWeight: 600 } : { color: '#475569' }}
+              >
+                {opt.label}
+              </button>
+            ))
+          ) : (
+            options.map(opt => (
+              <button
+                key={opt}
+                onClick={() => { onChange(opt === value ? null : opt); setOpen(false) }}
+                className="w-full text-right px-4 py-2.5 text-sm transition-colors hover:bg-orange-50"
+                style={value === opt ? { color: '#f97316', fontWeight: 600 } : { color: '#475569' }}
+              >
+                {opt}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const CARD_HEIGHT = 280
 
@@ -209,8 +303,13 @@ function OutputCard({ output }) {
 export default function OutputsPage() {
   const [outputs, setOutputs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('הכל')
   const [search, setSearch] = useState('')
+
+  // Filters
+  const [filterCategory, setFilterCategory] = useState(null)
+  const [filterSubject,  setFilterSubject]  = useState(null)
+  const [filterGrade,    setFilterGrade]    = useState(null)
+  const [viewMode,       setViewMode]       = useState(null) // newest | ai_tool | reviewed
 
   useEffect(() => {
     Promise.all([
@@ -224,21 +323,32 @@ export default function OutputsPage() {
     })
   }, [])
 
-  const categories = ['הכל', ...new Set(outputs.map(o => o.category).filter(Boolean))]
-
   const filtered = outputs
-    .filter(o => filter === 'הכל' || o.category === filter)
     .filter(o => {
-      if (!search) return true
-      const q = search.toLowerCase()
-      return (
-        o.name?.toLowerCase().includes(q) ||
-        o.subject?.toLowerCase().includes(q) ||
-        o.topic?.toLowerCase().includes(q) ||
-        o.aiTool?.toLowerCase().includes(q) ||
-        o.shortDesc?.toLowerCase().includes(q) ||
-        o.description?.toLowerCase().includes(q)
-      )
+      if (filterCategory && o.category !== filterCategory) return false
+      if (filterSubject  && o.subject  !== filterSubject)  return false
+      if (filterGrade) {
+        const grades = (o.grade || '').split(',').map(g => g.trim())
+        if (!grades.some(g => g.includes(filterGrade.replace('׳', '')) || filterGrade.replace('׳', '').includes(g.replace('׳', '')))) return false
+      }
+      if (viewMode === 'reviewed' && !o.review) return false
+      if (search) {
+        const q = search.toLowerCase()
+        if (!(
+          o.name?.toLowerCase().includes(q) ||
+          o.subject?.toLowerCase().includes(q) ||
+          o.topic?.toLowerCase().includes(q) ||
+          o.aiTool?.toLowerCase().includes(q) ||
+          o.shortDesc?.toLowerCase().includes(q) ||
+          o.description?.toLowerCase().includes(q)
+        )) return false
+      }
+      return true
+    })
+    .sort((a, b) => {
+      if (viewMode === 'ai_tool') return (a.aiTool || '').localeCompare(b.aiTool || '', 'he')
+      // Default: newest first (by created_at or id)
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0)
     })
 
   return (
@@ -301,8 +411,9 @@ export default function OutputsPage() {
         </p>
       </div>
 
-      {/* Filters + Search */}
-      <div className="max-w-6xl mx-auto px-6 mb-8 space-y-4">
+      {/* Search + Filter bar */}
+      <div className="max-w-6xl mx-auto px-6 mb-8 space-y-3">
+        {/* Search */}
         <div className="relative max-w-sm">
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: '#94a3b8' }} />
           <input
@@ -311,30 +422,51 @@ export default function OutputsPage() {
             onChange={e => setSearch(e.target.value)}
             placeholder="חפש תוצר, מקצוע, כלי..."
             className="w-full pr-9 pl-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-            style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              color: '#0f172a',
-            }}
+            style={{ background: '#ffffff', border: '1px solid #e2e8f0', color: '#0f172a' }}
             onFocus={e => (e.target.style.borderColor = 'rgba(249,115,22,0.5)')}
             onBlur={e => (e.target.style.borderColor = '#e2e8f0')}
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {categories.map(cat => (
+
+        {/* "הצג לפי" dropdown bar */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-semibold text-gray-500 ml-1">הצג לפי:</span>
+
+          <FilterDropdown
+            label="קטגוריות"
+            options={CATEGORIES}
+            value={filterCategory}
+            onChange={setFilterCategory}
+          />
+          <FilterDropdown
+            label="מקצוע"
+            options={SUBJECTS}
+            value={filterSubject}
+            onChange={setFilterSubject}
+          />
+          <FilterDropdown
+            label="כיתה"
+            options={GRADES}
+            value={filterGrade}
+            onChange={setFilterGrade}
+          />
+          <FilterDropdown
+            label="כל התוצרים"
+            options={VIEW_OPTIONS}
+            value={viewMode}
+            onChange={setViewMode}
+            isViewMode
+          />
+
+          {/* Clear all — visible only when any filter is active */}
+          {(filterCategory || filterSubject || filterGrade || viewMode) && (
             <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
-              style={
-                filter === cat
-                  ? { background: '#f97316', color: '#fff', border: '1px solid #f97316' }
-                  : { background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0' }
-              }
+              onClick={() => { setFilterCategory(null); setFilterSubject(null); setFilterGrade(null); setViewMode(null) }}
+              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 underline underline-offset-2 transition-colors"
             >
-              {cat}
+              נקה הכל
             </button>
-          ))}
+          )}
         </div>
       </div>
 

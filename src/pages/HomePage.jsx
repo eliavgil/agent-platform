@@ -775,58 +775,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Examples Section ───────────────────────────────────────────── */}
-      {examples.length > 0 && (
-        <section id="examples" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>
-          <div className="max-w-6xl mx-auto px-6">
-            <SectionHeading
-              badge="תוצרים"
-              title="מה אפשר לבנות?"
-              sub="דוגמאות אמיתיות שנוצרו בעזרת הסוכנים שלנו"
-              badgeColor="#f97316"
-            />
-            <AutoCarousel>
-              {examples.map((ex, i) => <HomeExampleCard key={i} example={ex} />)}
-            </AutoCarousel>
-            <div className="text-center mt-8">
-              <Link to="/outputs"
-                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
-                    style={{ background: 'rgba(249,115,22,0.08)', color: '#c2410c', border: '1px solid rgba(249,115,22,0.2)' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.15)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(249,115,22,0.08)'}>
-                לגלריית כל התוצרים ←
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── Agents Section ─────────────────────────────────────────────── */}
-      <section id="agents" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionHeading
-            badge="הצוות שלנו"
-            title="הסוכנים שלנו"
-            sub="תלמידים מומחי AI מכיתות י–יב, מוכנים לעזור לכם בכיתה"
-            badgeColor="#8b5cf6"
-          />
-
-          <AutoCarousel>
-            {AGENTS.map(s => <HomeAgentCard key={s.name} student={s} />)}
-          </AutoCarousel>
-
-          <div className="text-center mt-8">
-            <Link to={ctaTo}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all shadow-lg"
-                  style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = '.88'}
-                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-              בחר סוכן ושלח בקשה ←
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── How It Works ───────────────────────────────────────────────── */}
       <section id="how" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
         <div className="max-w-5xl mx-auto px-6">
@@ -906,6 +854,58 @@ export default function HomePage() {
             <p className="text-xs mt-3" style={{ color: '#94a3b8' }}>
               חינם לחלוטין • בדרך כלל מגיבים תוך 24 שעות
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Examples Section ───────────────────────────────────────────── */}
+      {examples.length > 0 && (
+        <section id="examples" style={{ background: LIGHT_BG, paddingTop: '80px', paddingBottom: '80px' }}>
+          <div className="max-w-6xl mx-auto px-6">
+            <SectionHeading
+              badge="תוצרים"
+              title="מה אפשר לבנות?"
+              sub="דוגמאות אמיתיות שנוצרו בעזרת הסוכנים שלנו"
+              badgeColor="#f97316"
+            />
+            <AutoCarousel>
+              {examples.map((ex, i) => <HomeExampleCard key={i} example={ex} />)}
+            </AutoCarousel>
+            <div className="text-center mt-8">
+              <Link to="/outputs"
+                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl text-sm font-semibold transition-all"
+                    style={{ background: 'rgba(249,115,22,0.08)', color: '#c2410c', border: '1px solid rgba(249,115,22,0.2)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.15)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(249,115,22,0.08)'}>
+                לגלריית כל התוצרים ←
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Agents Section ─────────────────────────────────────────────── */}
+      <section id="agents" style={{ background: LIGHT_ALT, paddingTop: '80px', paddingBottom: '80px' }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionHeading
+            badge="הצוות שלנו"
+            title="הסוכנים שלנו"
+            sub="תלמידים מומחי AI מכיתות י–יב, מוכנים לעזור לכם בכיתה"
+            badgeColor="#8b5cf6"
+          />
+
+          <AutoCarousel>
+            {AGENTS.map(s => <HomeAgentCard key={s.name} student={s} />)}
+          </AutoCarousel>
+
+          <div className="text-center mt-8">
+            <Link to={ctaTo}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all shadow-lg"
+                  style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+              בחר סוכן ושלח בקשה ←
+            </Link>
           </div>
         </div>
       </section>

@@ -351,7 +351,7 @@ function AutoCarousel({ children, gap = 16 }) {
   const resume = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'running' }
 
   return (
-    <div className="overflow-hidden" onMouseEnter={pause} onMouseLeave={resume}>
+    <div className="overflow-hidden" dir="ltr" onMouseEnter={pause} onMouseLeave={resume}>
       <div className="py-3">
         <div
           ref={trackRef}

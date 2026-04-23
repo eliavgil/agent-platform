@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getToolEmoji } from '../lib/googleSheets'
 import { getOutputs, getAgents, supabase } from '../lib/supabase'
-import { ExternalLink, Menu, X } from 'lucide-react'
+import { ExternalLink, Menu, X, ClipboardList } from 'lucide-react'
+import SurveyModal, { STORAGE_KEY as SURVEY_KEY } from '../components/SurveyModal'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -521,6 +522,15 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [outputs, setOutputs] = useState([])
   const [agents, setAgents] = useState([])
+  const [showSurvey, setShowSurvey] = useState(false)
+
+  // Show survey for teachers who haven't completed it yet
+  useEffect(() => {
+    if (profile?.role === 'teacher' && !localStorage.getItem(SURVEY_KEY)) {
+      const t = setTimeout(() => setShowSurvey(true), 1500)
+      return () => clearTimeout(t)
+    }
+  }, [profile?.role])
 
   useEffect(() => {
     getAgents().then(({ data }) => setAgents(data || []))
@@ -571,6 +581,9 @@ export default function HomePage() {
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: LIGHT_BG }}>
 
+      {/* ── Survey modal ────────────────────────────────────────────── */}
+      {showSurvey && <SurveyModal onClose={() => setShowSurvey(false)} />}
+
       {/* ── CSS ───────────────────────────────────────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
@@ -612,6 +625,15 @@ export default function HomePage() {
                           }}>
                       {profile?.role === 'agent' ? 'לאיזור הסוכן' : 'לאיזור המורה'}
                     </Link>
+                  )}
+                  {profile?.role === 'teacher' && !localStorage.getItem(SURVEY_KEY) && (
+                    <button
+                      onClick={() => setShowSurvey(true)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
+                      style={{ background: 'rgba(34,197,94,0.12)', color: '#16a34a', border: '1px solid rgba(34,197,94,0.30)' }}>
+                      <ClipboardList size={14} />
+                      סקר מורים
+                    </button>
                   )}
                   {isAdmin && (
                     <Link to="/admin"

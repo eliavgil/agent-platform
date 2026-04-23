@@ -710,13 +710,14 @@ export default function HomePage() {
         <div className="relative z-10 flex flex-col items-center text-center max-w-2xl w-full mx-auto" dir="rtl">
 
           {/* Badge */}
-          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-5"
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide mb-5"
                 style={{
+                  fontSize: '0.6rem',
                   background: 'rgba(249,115,22,0.08)',
                   color: '#ea580c',
                   border: '1px solid rgba(249,115,22,0.22)',
                 }}>
-            סוכני AI שקמה
+            סוכני בינה שקמה
           </span>
 
           {/* Brand */}

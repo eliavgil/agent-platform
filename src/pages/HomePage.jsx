@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getToolEmoji } from '../lib/googleSheets'
-import { getOutputs } from '../lib/supabase'
+import { getOutputs, supabase } from '../lib/supabase'
 import { ExternalLink, Menu, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -313,6 +313,12 @@ function AutoCarousel({ children, gap = 16 }) {
   const trackRef = useRef(null)
   const items = React.Children.toArray(children)
 
+  // Four copies so the loop stays seamless even when total item width < viewport width.
+  // The CSS animation shifts by exactly one copy's width (scrollWidth / 4).
+  const clone1 = items.map(item => React.cloneElement(item, { key: `c1_${item.key}` }))
+  const clone2 = items.map(item => React.cloneElement(item, { key: `c2_${item.key}` }))
+  const clone3 = items.map(item => React.cloneElement(item, { key: `c3_${item.key}` }))
+
   useEffect(() => {
     const el = trackRef.current
     if (!el || items.length === 0) return
@@ -321,12 +327,11 @@ function AutoCarousel({ children, gap = 16 }) {
 
     const activate = () => {
       if (cancelled || !trackRef.current) return
-      // scrollWidth = full width of both copies; halfW = exact width of one copy
-      const halfW = trackRef.current.scrollWidth / 2
-      if (!halfW) return
-      const dur = Math.max(6, halfW / CAROUSEL_SPEED)
-      // --carousel-shift: exact pixel distance so translateX is never ambiguous
-      trackRef.current.style.setProperty('--carousel-shift', `${halfW}px`)
+      // scrollWidth = 4 copies; oneSetW = exact width of one copy
+      const oneSetW = trackRef.current.scrollWidth / 4
+      if (!oneSetW) return
+      const dur = Math.max(6, oneSetW / CAROUSEL_SPEED)
+      trackRef.current.style.setProperty('--carousel-shift', `${oneSetW}px`)
       trackRef.current.style.setProperty('--carousel-dur', `${dur}s`)
       trackRef.current.style.animationPlayState = 'running'
     }
@@ -345,9 +350,6 @@ function AutoCarousel({ children, gap = 16 }) {
   const pause  = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'paused' }
   const resume = () => { if (trackRef.current) trackRef.current.style.animationPlayState = 'running' }
 
-  // Clone second set with different keys so React doesn't de-duplicate them
-  const clone = items.map(item => React.cloneElement(item, { key: `c_${item.key}` }))
-
   return (
     <div className="overflow-hidden" onMouseEnter={pause} onMouseLeave={resume}>
       <div className="py-3">
@@ -357,7 +359,9 @@ function AutoCarousel({ children, gap = 16 }) {
           style={{ display: 'flex', gap, direction: 'ltr', width: 'max-content' }}
         >
           {items}
-          {clone}
+          {clone1}
+          {clone2}
+          {clone3}
         </div>
       </div>
     </div>
@@ -525,6 +529,15 @@ export default function HomePage() {
 
   useEffect(() => {
     getOutputs().then(({ data }) => setOutputs(data || []))
+
+    const channel = supabase
+      .channel('homepage-outputs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'outputs' }, () => {
+        getOutputs().then(({ data }) => setOutputs(data || []))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
   // Supabase returns snake_case columns; normalize to camelCase

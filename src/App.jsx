@@ -13,6 +13,7 @@ import AgentLayout from './pages/agent/AgentLayout'
 import AgentRequests from './pages/agent/AgentRequests'
 import AgentChat from './pages/agent/AgentChat'
 import AgentOutputs from './pages/agent/AgentOutputs'
+import AgentProfile from './pages/agent/AgentProfile'
 
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminRequests from './pages/admin/AdminRequests'
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="requests" element={<AgentRequests />} />
         <Route path="requests/:id" element={<AgentChat />} />
         <Route path="outputs" element={<AgentOutputs />} />
+        <Route path="profile" element={<AgentProfile />} />
       </Route>
 
       {/* Admin Routes */}

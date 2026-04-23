@@ -3,26 +3,11 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getToolEmoji } from '../lib/googleSheets'
-import { getOutputs, supabase } from '../lib/supabase'
+import { getOutputs, getAgents, supabase } from '../lib/supabase'
 import { ExternalLink, Menu, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-// ── Hardcoded agents (placeholders — replace with real names when ready) ───────
-const AGENTS = [
-  { name: 'אביעד כהן',    emoji: '' },
-  { name: 'מעין לוי',     emoji: '' },
-  { name: 'נועה גולן',    emoji: '' },
-  { name: 'יונתן בן-דוד', emoji: '' },
-  { name: 'תמר פרידמן',   emoji: '' },
-  { name: 'אורי שפירא',   emoji: '' },
-  { name: 'רוני אברהם',   emoji: '' },
-  { name: 'יעל מזרחי',    emoji: '' },
-  { name: 'דניאל כץ',     emoji: '' },
-  { name: 'שרה ביטון',    emoji: '' },
-  { name: 'עמית ברקאי',   emoji: '' },
-  { name: 'ליאל סגל',     emoji: '' },
-]
 
 const STEPS = [
   {
@@ -444,17 +429,17 @@ function HomeExampleCard({ example }) {
 // ── AgentCard ─────────────────────────────────────────────────────────────────
 
 function HomeAgentCard({ student }) {
-  const { name, logoUrl, emoji } = student
+  const name = student.full_name || student.name || ''
+  const avatarUrl = student.avatar_url || student.logoUrl || ''
+  const bio = student.bio || ''
   const [imgFailed, setImgFailed] = useState(false)
   const h = hashStr(name)
   const palette = ROBOT_PALETTES[h % ROBOT_PALETTES.length]
   const variant = h % 8
-  const showImg = logoUrl && !imgFailed
-  const showEmoji = !showImg && emoji
-  const showRobot = !showImg && !showEmoji
+  const showImg = avatarUrl && !imgFailed
 
   return (
-    <div className="flex-shrink-0 w-44 rounded-2xl p-5 text-center transition-all duration-200 hover:-translate-y-1"
+    <div className="flex-shrink-0 w-48 rounded-2xl p-5 text-center transition-all duration-200 hover:-translate-y-1"
          style={{
            background: '#ffffff',
            border: `1px solid ${palette[0]}25`,
@@ -464,24 +449,33 @@ function HomeAgentCard({ student }) {
         <div
           className="flex items-center justify-center overflow-hidden"
           style={{
-            width: showImg ? 64 : 64,
+            width: 64,
             height: showImg ? 64 : 80,
             borderRadius: showImg ? '50%' : '1rem',
             background: `${palette[0]}10`,
             border: `1px solid ${palette[0]}20`,
           }}
         >
-          {showImg && (
-            <img src={logoUrl} alt={name}
-                 className="w-full h-full object-cover"
-                 onError={() => setImgFailed(true)} />
-          )}
-          {showEmoji && <span className="text-3xl select-none">{emoji}</span>}
-          {showRobot && <RobotFigure c={palette} variant={variant} />}
+          {showImg
+            ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" onError={() => setImgFailed(true)} />
+            : <RobotFigure c={palette} variant={variant} />}
         </div>
       </div>
       <h3 className="font-bold text-sm leading-snug" style={{ color: '#0f172a' }}>{name}</h3>
-      <div className="mt-2 w-6 h-0.5 mx-auto rounded-full" style={{ background: palette[0] }} />
+      {bio ? (
+        <p className="text-xs mt-2 leading-relaxed"
+           style={{
+             color: '#64748b',
+             display: '-webkit-box',
+             WebkitLineClamp: 3,
+             WebkitBoxOrient: 'vertical',
+             overflow: 'hidden',
+           }}>
+          {bio}
+        </p>
+      ) : (
+        <div className="mt-2 w-6 h-0.5 mx-auto rounded-full" style={{ background: palette[0] }} />
+      )}
     </div>
   )
 }
@@ -526,8 +520,10 @@ export default function HomePage() {
   const { user, profile, loading, signOut, isAdmin } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [outputs, setOutputs] = useState([])
+  const [agents, setAgents] = useState([])
 
   useEffect(() => {
+    getAgents().then(({ data }) => setAgents(data || []))
     getOutputs().then(({ data }) => setOutputs(data || []))
 
     const channel = supabase
@@ -895,7 +891,7 @@ export default function HomePage() {
           />
 
           <AutoCarousel>
-            {AGENTS.map(s => <HomeAgentCard key={s.name} student={s} />)}
+            {agents.map(s => <HomeAgentCard key={s.id} student={s} />)}
           </AutoCarousel>
 
           <div className="text-center mt-8">

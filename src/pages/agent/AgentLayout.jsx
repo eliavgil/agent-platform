@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { List, GalleryHorizontal } from 'lucide-react'
+import { List, GalleryHorizontal, UserCircle } from 'lucide-react'
 
 const navItems = [
   {
@@ -15,6 +15,12 @@ const navItems = [
     path: '/agent/outputs',
     label: 'התוצרים שלי',
     icon: <GalleryHorizontal size={18} />,
+    end: false,
+  },
+  {
+    path: '/agent/profile',
+    label: 'הפרופיל שלי',
+    icon: <UserCircle size={18} />,
     end: false,
   },
 ]

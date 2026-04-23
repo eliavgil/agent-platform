@@ -1,39 +1,96 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
+import { supabase, getSurveyResponses } from '../../lib/supabase'
 import Header from '../../components/layout/Header'
 import Avatar from '../../components/ui/Avatar'
-import { Search, Check } from 'lucide-react'
+import { Search, Check, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
 
 const ROLES = ['teacher', 'agent', 'admin']
-
-const ROLE_LABELS = {
-  teacher: 'מורה',
-  agent:   'סוכן',
-  admin:   'מנהל',
-}
-
+const ROLE_LABELS = { teacher: 'מורה', agent: 'סוכן', admin: 'מנהל' }
 const ROLE_STYLE = {
   teacher: { background: 'rgba(99,102,241,0.1)',  color: '#6366f1' },
   agent:   { background: 'rgba(249,115,22,0.1)',  color: '#f97316' },
   admin:   { background: 'rgba(16,185,129,0.1)',  color: '#10b981' },
 }
 
+const TOOLS_MATRIX_KEYS = [
+  'כלי שמייצר ובודק מבחנים ומחזיר ציון ומשוב (כולל שאלות פתוחות)',
+  'כלי שמייצר עזרים ללמידה עצמאית כגון סיכום החומר, פודקסט, כרטיסיות למידה, שאלות לבחינה עצמית ועוד',
+  'כלי שמייצר מצגות מרהיבות על בסיס החומר הלימודי',
+  'כלי שבונה מערכי שיעור בהתאמה אישית',
+  'כלי שמייצר שירים/תמונות בהתאמה אישית',
+]
+const MATRIX_RATINGS = ['כלל לא', 'מעט', 'רלוונטי', 'מאד רלוונטי']
+
+function SurveyPanel({ survey }) {
+  if (!survey) return (
+    <p className="text-xs text-gray-400 italic">לא מילא/ה סקר עדיין</p>
+  )
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+      <Field label="מקצועות" value={survey.subjects} />
+      <Field label="שנות ותק" value={survey.seniority} />
+      <Field label="תפקידים נוספים" value={survey.roles} />
+      <Field label="תדירות שימוש AI" value={survey.ai_frequency} />
+      <Field label="רצון לשלב AI" value={survey.ai_desire ? `${survey.ai_desire} / 5` : null} />
+      <Field label="חסם עיקרי" value={survey.main_obstacle} />
+      <Field label="נכונות לשיתוף פעולה" value={survey.collaboration ? `${survey.collaboration} / 5` : null} />
+      {survey.comments && <Field label="הערות" value={survey.comments} className="sm:col-span-2" />}
+
+      {/* Tools matrix */}
+      {survey.tools_matrix && typeof survey.tools_matrix === 'object' && (
+        <div className="sm:col-span-2 mt-1">
+          <p className="text-xs font-semibold text-gray-500 mb-2">רלוונטיות כלים</p>
+          <div className="flex flex-col gap-1.5">
+            {TOOLS_MATRIX_KEYS.map(tool => {
+              const ri = survey.tools_matrix[tool] ?? null
+              const label = ri !== null ? MATRIX_RATINGS[ri] : '—'
+              return (
+                <div key={tool} className="flex justify-between items-start gap-4 text-xs">
+                  <span className="text-gray-600 leading-snug flex-1">{tool}</span>
+                  <span className="font-semibold text-indigo-600 whitespace-nowrap">{label}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Field({ label, value, className = '' }) {
+  if (!value) return null
+  return (
+    <div className={className}>
+      <p className="text-xs text-gray-400 mb-0.5">{label}</p>
+      <p className="text-sm text-gray-800">{value}</p>
+    </div>
+  )
+}
+
 export default function AdminUsers() {
   const [users, setUsers]       = useState([])
+  const [surveys, setSurveys]   = useState({}) // { user_id: survey }
   const [loading, setLoading]   = useState(true)
   const [search, setSearch]     = useState('')
-  const [saving, setSaving]     = useState({}) // { [id]: true }
-  const [saved, setSaved]       = useState({}) // { [id]: true } — brief green flash
+  const [saving, setSaving]     = useState({})
+  const [saved, setSaved]       = useState({})
+  const [expanded, setExpanded] = useState({}) // { user_id: bool }
 
-  useEffect(() => { loadUsers() }, [])
+  useEffect(() => { loadAll() }, [])
 
-  const loadUsers = async () => {
+  const loadAll = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('full_name')
-    setUsers(data || [])
+    const [{ data: profiles }, { data: surveyRows }] = await Promise.all([
+      supabase.from('profiles').select('*').order('full_name'),
+      getSurveyResponses(),
+    ])
+    setUsers(profiles || [])
+    const map = {}
+    for (const s of (surveyRows || [])) {
+      if (s.user_id && !map[s.user_id]) map[s.user_id] = s
+    }
+    setSurveys(map)
     setLoading(false)
   }
 
@@ -46,23 +103,18 @@ export default function AdminUsers() {
     setTimeout(() => setSaved(s => ({ ...s, [userId]: false })), 1500)
   }
 
+  const toggle = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }))
+
   const filtered = users.filter(u => {
     if (!search) return true
     const q = search.toLowerCase()
-    return (
-      u.full_name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q)
-    )
+    return u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
   })
 
   return (
     <>
-      <Header
-        title="ניהול משתמשים"
-        subtitle="שנה תפקידים — מורה, סוכן, מנהל"
-      />
+      <Header title="ניהול משתמשים" subtitle="פרופילים, תפקידים ותשובות סקר" />
 
-      {/* Search */}
       <div className="relative max-w-sm mb-6">
         <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
@@ -73,46 +125,54 @@ export default function AdminUsers() {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-gray-400 text-sm">טוען...</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-gray-400 text-sm">לא נמצאו משתמשים</div>
         ) : (
-          <table className="w-full" dir="rtl">
-            <thead>
-              <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <th className="text-right px-5 py-3">משתמש</th>
-                <th className="text-right px-5 py-3 hidden sm:table-cell">מייל</th>
-                <th className="text-right px-5 py-3">תפקיד</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.map(user => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                  {/* Name */}
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={user.full_name} size="sm" />
-                      <span className="text-sm font-semibold text-gray-800">{user.full_name || '—'}</span>
+          <div className="divide-y divide-gray-100" dir="rtl">
+            {filtered.map(user => {
+              const isOpen = !!expanded[user.id]
+              const survey = surveys[user.id]
+              const isTeacher = user.role === 'teacher'
+
+              return (
+                <div key={user.id}>
+                  {/* Main row */}
+                  <div className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
+
+                    {/* Avatar + name */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <Avatar name={user.full_name} size="sm" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{user.full_name || '—'}</p>
+                        <p className="text-xs text-gray-400 truncate">{user.email || '—'}</p>
+                      </div>
                     </div>
-                  </td>
 
-                  {/* Email */}
-                  <td className="px-5 py-3 hidden sm:table-cell">
-                    <span className="text-xs text-gray-400">{user.email || '—'}</span>
-                  </td>
+                    {/* Survey badge */}
+                    {isTeacher && (
+                      <span className={`hidden sm:flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${
+                        survey
+                          ? 'bg-green-50 text-green-600'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        <ClipboardList size={11} />
+                        {survey ? 'מילא סקר' : 'לא מילא'}
+                      </span>
+                    )}
 
-                  {/* Role selector */}
-                  <td className="px-5 py-3">
+                    {/* Role selector */}
                     <div className="flex gap-1.5 flex-wrap">
                       {ROLES.map(role => {
                         const isActive = user.role === role
                         return (
-                          <button
-                            key={role}
+                          <button key={role}
                             onClick={() => !isActive && changeRole(user.id, role)}
                             disabled={saving[user.id]}
                             className="px-3 py-1 rounded-full text-xs font-semibold border transition-all"
@@ -126,24 +186,50 @@ export default function AdminUsers() {
                         )
                       })}
                     </div>
-                  </td>
 
-                  {/* Saved indicator */}
-                  <td className="px-4 py-3 w-8">
-                    {saved[user.id] && (
-                      <Check size={16} className="text-green-500" />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {/* Saved / expand */}
+                    <div className="w-6 flex-shrink-0">
+                      {saved[user.id] ? (
+                        <Check size={16} className="text-green-500" />
+                      ) : (
+                        <button onClick={() => toggle(user.id)}
+                          className="text-gray-300 hover:text-gray-500 transition-colors">
+                          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expanded panel */}
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-3 bg-gray-50 border-t border-gray-100">
+                      {user.bio && (
+                        <div className="mb-4">
+                          <p className="text-xs text-gray-400 mb-1">ביו</p>
+                          <p className="text-sm text-gray-700 leading-relaxed">{user.bio}</p>
+                        </div>
+                      )}
+                      {isTeacher && (
+                        <>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                            תשובות סקר
+                          </p>
+                          <SurveyPanel survey={survey} />
+                        </>
+                      )}
+                      {!isTeacher && !user.bio && (
+                        <p className="text-xs text-gray-400 italic">אין מידע נוסף</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 
-      <p className="text-xs text-gray-400 mt-4 text-center">
-        {filtered.length} משתמשים
-      </p>
+      <p className="text-xs text-gray-400 mt-4 text-center">{filtered.length} משתמשים</p>
     </>
   )
 }

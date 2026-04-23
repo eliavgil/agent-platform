@@ -128,6 +128,13 @@ export const updateOutput = (id, data) =>
 export const deleteOutput = (id) =>
   supabase.from('outputs').delete().eq('id', id)
 
+// ---- SURVEY ----
+export const saveSurveyResponse = (data) =>
+  supabase.from('survey_responses').insert(data)
+
+export const getSurveyResponses = () =>
+  supabase.from('survey_responses').select('*').order('created_at', { ascending: false })
+
 // ---- FILE UPLOAD ----
 export const uploadFile = async (bucket, file, path) => {
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, {

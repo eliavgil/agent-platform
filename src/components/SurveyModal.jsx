@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { X, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react'
+import { saveSurveyResponse, supabase } from '../lib/supabase'
 
 const STORAGE_KEY = 'prometheus_survey_done'
 
@@ -93,31 +94,49 @@ export default function SurveyModal({ onClose }) {
   async function handleSubmit() {
     setSubmitting(true)
     try {
-      const matrixText = TOOLS_MATRIX.map(t =>
-        `${t}: ${MATRIX_RATINGS[form.toolsMatrix[t] ?? 0]}`
-      ).join(' | ')
+      const obstacleVal = form.mainObstacle === 'אחר'
+        ? `אחר: ${form.otherObstacle}`
+        : form.mainObstacle
 
-      const payload = {
-        timestamp: new Date().toISOString(),
+      // Save to Supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      await saveSurveyResponse({
+        user_id: user?.id ?? null,
         name: form.name,
         subjects: form.subjects,
         seniority: form.seniority,
         roles: form.roles,
-        aiFrequency: form.aiFrequency,
-        aiDesire: form.aiDesire,
-        mainObstacle: form.mainObstacle === 'אחר' ? `אחר: ${form.otherObstacle}` : form.mainObstacle,
-        toolsMatrix: matrixText,
+        ai_frequency: form.aiFrequency,
+        ai_desire: form.aiDesire,
+        main_obstacle: obstacleVal,
+        tools_matrix: form.toolsMatrix,
         collaboration: form.collaboration,
         comments: form.comments,
-      }
+      })
 
+      // Also send to Google Sheets
       if (APPS_SCRIPT_URL) {
-        await fetch(APPS_SCRIPT_URL, {
+        const matrixText = TOOLS_MATRIX.map(t =>
+          `${t}: ${MATRIX_RATINGS[form.toolsMatrix[t] ?? 0]}`
+        ).join(' | ')
+        fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
+          body: JSON.stringify({
+            timestamp: new Date().toISOString(),
+            name: form.name,
+            subjects: form.subjects,
+            seniority: form.seniority,
+            roles: form.roles,
+            aiFrequency: form.aiFrequency,
+            aiDesire: form.aiDesire,
+            mainObstacle: obstacleVal,
+            toolsMatrix: matrixText,
+            collaboration: form.collaboration,
+            comments: form.comments,
+          }),
+        }).catch(() => {})
       }
 
       localStorage.setItem(STORAGE_KEY, '1')

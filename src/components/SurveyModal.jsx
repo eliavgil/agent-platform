@@ -7,11 +7,11 @@ const STORAGE_KEY = 'prometheus_survey_done'
 const APPS_SCRIPT_URL = import.meta.env.VITE_SURVEY_SCRIPT_URL || ''
 
 const TOOLS_MATRIX = [
-  'ChatGPT / Claude',
-  'Gemini / NotebookLM',
-  'כלי יצירת תמונות (DALL-E, Midjourney)',
-  'כלי לתחום החינוך (MagicSchool, Khanmigo)',
-  'כלי יצירת מצגות / וידאו',
+  'כלי שמייצר ובודק מבחנים ומחזיר ציון ומשוב (כולל שאלות פתוחות)',
+  'כלי שמייצר עזרים ללמידה עצמאית כגון סיכום החומר, פודקסט, כרטיסיות למידה, שאלות לבחינה עצמית ועוד',
+  'כלי שמייצר מצגות מרהיבות על בסיס החומר הלימודי',
+  'כלי שבונה מערכי שיעור בהתאמה אישית',
+  'כלי שמייצר שירים/תמונות בהתאמה אישית',
 ]
 
 const MATRIX_RATINGS = ['כלל לא', 'מעט', 'רלוונטי', 'מאד רלוונטי']
@@ -231,7 +231,7 @@ export default function SurveyModal({ onClose }) {
                 <tbody>
                   {TOOLS_MATRIX.map(tool => (
                     <tr key={tool} className="border-t border-gray-100">
-                      <td className="py-2 pr-1 text-gray-700 text-right">{tool}</td>
+                      <td className="py-2 pr-1 text-gray-700 text-right leading-snug" style={{ maxWidth: '180px' }}>{tool}</td>
                       {MATRIX_RATINGS.map((_, ri) => (
                         <td key={ri} className="py-2 text-center">
                           <button
@@ -255,7 +255,7 @@ export default function SurveyModal({ onClose }) {
 
         {step === 6 && (
           <StepWrapper title="שיתוף פעולה עם סוכן AI">
-            <Label>עד כמה תהיה/י מוכן/ה לשתף פעולה עם סוכן AI של פרומפתאוס?</Label>
+            <Label>באיזה מידה הייתם מוכנים לשתף פעולה עם תלמיד מבית הספר שיבנה עבורכם תוצר AI בהתאם לדרישותכם, המתבסס על חומר לימודי שהעברתם/אישרתם?</Label>
             <p className="text-xs text-gray-400 mb-4">1 = כלל לא, 5 = בשמחה רבה</p>
             <ScaleSelector value={form.collaboration} onChange={v => set('collaboration', v)}
               labels={['כלל לא', 'בשמחה רבה']} />

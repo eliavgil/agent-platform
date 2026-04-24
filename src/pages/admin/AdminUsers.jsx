@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { supabase, getSurveyResponses } from '../../lib/supabase'
+import { useState, useEffect, useRef } from 'react'
+import { supabase, getSurveyResponses, updateProfile } from '../../lib/supabase'
 import Header from '../../components/layout/Header'
 import Avatar from '../../components/ui/Avatar'
-import { Search, Check, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
+import { Search, Check, ChevronDown, ChevronUp, ClipboardList, Camera, Loader2, Save } from 'lucide-react'
 
 const ROLES = ['teacher', 'agent', 'admin']
 const ROLE_LABELS = { teacher: 'מורה', agent: 'סוכן', admin: 'מנהל' }
@@ -68,6 +68,121 @@ function Field({ label, value, className = '' }) {
   )
 }
 
+function AgentEditPanel({ user, onUpdated }) {
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '')
+  const [bio, setBio]             = useState(user.bio || '')
+  const [uploading, setUploading] = useState(false)
+  const [saving, setSaving]       = useState(false)
+  const [saved, setSaved]         = useState(false)
+  const [error, setError]         = useState('')
+  const fileRef = useRef()
+
+  const handleAvatar = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const ext = file.name.split('.').pop().toLowerCase()
+      const path = `${user.id}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600' })
+      if (upErr) throw upErr
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      setAvatarUrl(publicUrl)
+    } catch {
+      setError('שגיאה בהעלאת התמונה.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    setError('')
+    try {
+      const { error: err } = await updateProfile(user.id, { avatar_url: avatarUrl, bio })
+      if (err) throw err
+      onUpdated(user.id, { avatar_url: avatarUrl, bio })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch {
+      setError('שגיאה בשמירה.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const initials = user.full_name?.split(' ').map(w => w[0]).join('').slice(0, 2) || '?'
+
+  return (
+    <div dir="rtl">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">עריכת פרופיל סוכן</p>
+
+      {/* Avatar upload */}
+      <div className="flex items-center gap-4 mb-4">
+        <div
+          className="relative w-20 h-20 rounded-full cursor-pointer group flex-shrink-0"
+          onClick={() => fileRef.current?.click()}
+          style={{ border: '3px solid #e2e8f0', background: '#f8fafc' }}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+          ) : (
+            <div className="w-full h-full rounded-full flex items-center justify-center text-2xl font-black"
+                 style={{ color: '#f97316' }}>{initials}</div>
+          )}
+          <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+               style={{ background: 'rgba(0,0,0,0.4)' }}>
+            {uploading
+              ? <Loader2 size={18} className="text-white animate-spin" />
+              : <Camera size={18} className="text-white" />}
+          </div>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
+        <div>
+          <p className="text-sm font-semibold text-gray-700">{user.full_name}</p>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="text-xs mt-1 underline underline-offset-2"
+            style={{ color: '#f97316' }}
+          >
+            {uploading ? 'מעלה...' : 'החלף תמונה'}
+          </button>
+        </div>
+      </div>
+
+      {/* Bio */}
+      <div className="mb-4">
+        <label className="block text-xs font-semibold text-gray-500 mb-1">ביו / תיאור הסוכן</label>
+        <textarea
+          value={bio}
+          onChange={e => setBio(e.target.value)}
+          rows={3}
+          maxLength={400}
+          placeholder="תיאור קצר של הסוכן, תחומי התמחות..."
+          className="w-full px-3 py-2 rounded-xl text-sm resize-none focus:outline-none border border-gray-200 focus:border-orange-400 transition-colors"
+        />
+      </div>
+
+      {error && (
+        <p className="text-xs text-red-500 mb-3">{error}</p>
+      )}
+
+      <button
+        onClick={handleSave}
+        disabled={saving || uploading}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-60"
+        style={{ background: saved ? '#10b981' : '#f97316' }}
+      >
+        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+        {saved ? '✓ נשמר' : 'שמור'}
+      </button>
+    </div>
+  )
+}
+
 export default function AdminUsers() {
   const [users, setUsers]       = useState([])
   const [surveys, setSurveys]   = useState({}) // { user_id: survey }
@@ -104,6 +219,10 @@ export default function AdminUsers() {
   }
 
   const toggle = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }))
+
+  const handleAgentUpdated = (userId, patch) => {
+    setUsers(u => u.map(p => p.id === userId ? { ...p, ...patch } : p))
+  }
 
   const filtered = users.filter(u => {
     if (!search) return true
@@ -203,14 +322,17 @@ export default function AdminUsers() {
                   {/* Expanded panel */}
                   {isOpen && (
                     <div className="px-6 pb-5 pt-3 bg-gray-50 border-t border-gray-100">
-                      {user.bio && (
-                        <div className="mb-4">
-                          <p className="text-xs text-gray-400 mb-1">ביו</p>
-                          <p className="text-sm text-gray-700 leading-relaxed">{user.bio}</p>
-                        </div>
+                      {user.role === 'agent' && (
+                        <AgentEditPanel user={user} onUpdated={handleAgentUpdated} />
                       )}
                       {isTeacher && (
                         <>
+                          {user.bio && (
+                            <div className="mb-4">
+                              <p className="text-xs text-gray-400 mb-1">ביו</p>
+                              <p className="text-sm text-gray-700 leading-relaxed">{user.bio}</p>
+                            </div>
+                          )}
                           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                             תשובות סקר
                           </p>

@@ -566,20 +566,15 @@ export default function HomePage() {
 
   // Spread so no two consecutive items share the same AI tool
   const examples = (() => {
-    const groups = {}
-    for (const o of examplesRaw) {
-      const key = o.aiTool || '—'
-      if (!groups[key]) groups[key] = []
-      groups[key].push(o)
-    }
-    const buckets = Object.values(groups)
+    const remaining = [...examplesRaw]
     const result = []
-    let i = 0
-    while (result.length < examplesRaw.length) {
-      for (const bucket of buckets) {
-        if (i < bucket.length) result.push(bucket[i])
-      }
-      i++
+    let lastTool = null
+    while (remaining.length > 0) {
+      const idx = remaining.findIndex(o => (o.aiTool || '—') !== lastTool)
+      if (idx === -1) { result.push(...remaining); break }
+      const [item] = remaining.splice(idx, 1)
+      result.push(item)
+      lastTool = item.aiTool || '—'
     }
     return result
   })()

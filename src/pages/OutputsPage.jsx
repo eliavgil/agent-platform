@@ -6,20 +6,16 @@ import { Bot, ExternalLink, Search, Quote, ChevronDown, X } from 'lucide-react'
 
 // ── Spread outputs so no two consecutive items share the same AI tool ─────────
 function spreadByTool(arr) {
-  const groups = {}
-  for (const o of arr) {
-    const key = o.aiTool || '—'
-    if (!groups[key]) groups[key] = []
-    groups[key].push(o)
-  }
-  const buckets = Object.values(groups)
+  if (arr.length === 0) return []
+  const remaining = [...arr]
   const result = []
-  let i = 0
-  while (result.length < arr.length) {
-    for (const bucket of buckets) {
-      if (i < bucket.length) result.push(bucket[i])
-    }
-    i++
+  let lastTool = null
+  while (remaining.length > 0) {
+    const idx = remaining.findIndex(o => (o.aiTool || o.ai_tool || '—') !== lastTool)
+    if (idx === -1) { result.push(...remaining); break }
+    const [item] = remaining.splice(idx, 1)
+    result.push(item)
+    lastTool = item.aiTool || item.ai_tool || '—'
   }
   return result
 }

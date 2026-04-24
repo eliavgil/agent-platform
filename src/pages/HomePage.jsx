@@ -566,15 +566,22 @@ export default function HomePage() {
 
   // Spread so no two consecutive items share the same AI tool
   const examples = (() => {
-    const remaining = [...examplesRaw]
+    const groups = {}
+    for (const o of examplesRaw) {
+      const key = o.aiTool || '—'
+      if (!groups[key]) groups[key] = []
+      groups[key].push(o)
+    }
     const result = []
     let lastTool = null
-    while (remaining.length > 0) {
-      const idx = remaining.findIndex(o => (o.aiTool || '—') !== lastTool)
-      if (idx === -1) { result.push(...remaining); break }
-      const [item] = remaining.splice(idx, 1)
-      result.push(item)
-      lastTool = item.aiTool || '—'
+    while (result.length < examplesRaw.length) {
+      const candidates = Object.entries(groups)
+        .filter(([k, v]) => k !== lastTool && v.length > 0)
+        .sort((a, b) => b[1].length - a[1].length)
+      const [key, items] = candidates.length > 0 ? candidates[0] : Object.entries(groups).find(([, v]) => v.length > 0)
+      result.push(items.shift())
+      lastTool = key
+      if (items.length === 0) delete groups[key]
     }
     return result
   })()

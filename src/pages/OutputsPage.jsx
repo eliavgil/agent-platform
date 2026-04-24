@@ -4,18 +4,25 @@ import { getOutputs as getOutputsFromSheets, getToolEmoji } from '../lib/googleS
 import { getOutputs as getOutputsFromSupabase } from '../lib/supabase'
 import { Bot, ExternalLink, Search, Quote, ChevronDown, X } from 'lucide-react'
 
-// ── Spread outputs so no two consecutive items share the same AI tool ─────────
+// ── Spread outputs — always pick the most-frequent tool that differs from last ─
 function spreadByTool(arr) {
   if (arr.length === 0) return []
-  const remaining = [...arr]
+  const groups = {}
+  for (const o of arr) {
+    const key = o.aiTool || o.ai_tool || '—'
+    if (!groups[key]) groups[key] = []
+    groups[key].push(o)
+  }
   const result = []
   let lastTool = null
-  while (remaining.length > 0) {
-    const idx = remaining.findIndex(o => (o.aiTool || o.ai_tool || '—') !== lastTool)
-    if (idx === -1) { result.push(...remaining); break }
-    const [item] = remaining.splice(idx, 1)
-    result.push(item)
-    lastTool = item.aiTool || item.ai_tool || '—'
+  while (result.length < arr.length) {
+    const candidates = Object.entries(groups)
+      .filter(([k, v]) => k !== lastTool && v.length > 0)
+      .sort((a, b) => b[1].length - a[1].length)
+    const [key, items] = candidates.length > 0 ? candidates[0] : Object.entries(groups).find(([, v]) => v.length > 0)
+    result.push(items.shift())
+    lastTool = key
+    if (items.length === 0) delete groups[key]
   }
   return result
 }

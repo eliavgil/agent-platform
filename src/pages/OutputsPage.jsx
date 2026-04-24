@@ -175,10 +175,10 @@ function normalizeOutput(row) {
   }
 }
 
-// Priority: clean logo map → output.logoUrl → emoji fallback
+// Priority: stored logo_url → logo map → emoji fallback
 function resolveDisplay(output) {
   return {
-    logoUrl: getLogoUrl(output.aiTool || '') || output.logoUrl || '',
+    logoUrl: output.logoUrl || getLogoUrl(output.aiTool || '') || '',
     emoji: output.logoEmoji || getToolEmoji(output.aiTool) || '🤖',
   }
 }

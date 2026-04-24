@@ -5,30 +5,10 @@ import PageLayout from '../../components/layout/PageLayout'
 import { Plus, List, GalleryHorizontalEnd, UserCircle } from 'lucide-react'
 
 const navItems = [
-  {
-    path: '/outputs',
-    label: 'ספריית תוצרים',
-    icon: <GalleryHorizontalEnd size={18} />,
-    end: false,
-  },
-  {
-    path: '/teacher/new-request',
-    label: 'בקשה חדשה',
-    icon: <Plus size={18} />,
-    end: false,
-  },
-  {
-    path: '/teacher/requests',
-    label: 'הבקשות שלי',
-    icon: <List size={18} />,
-    end: false,
-  },
-  {
-    path: '/teacher/profile',
-    label: 'הפרופיל שלי',
-    icon: <UserCircle size={18} />,
-    end: false,
-  },
+  { path: '/outputs',              label: 'ספריית תוצרים', shortLabel: 'תוצרים', icon: <GalleryHorizontalEnd size={20} />, end: false },
+  { path: '/teacher/new-request', label: 'בקשה חדשה',     shortLabel: 'בקשה',   icon: <Plus size={20} />, end: false },
+  { path: '/teacher/requests',    label: 'הבקשות שלי',    shortLabel: 'הבקשות', icon: <List size={20} />, end: false },
+  { path: '/teacher/profile',     label: 'הפרופיל שלי',   shortLabel: 'פרופיל', icon: <UserCircle size={20} />, end: false },
 ]
 
 export default function TeacherLayout() {
@@ -36,13 +16,8 @@ export default function TeacherLayout() {
 
   return (
     <div className="flex">
-      <Sidebar
-        navItems={navItems}
-        role="teacher"
-        mobileOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <PageLayout onMenuOpen={() => setSidebarOpen(true)}>
+      <Sidebar navItems={navItems} role="teacher" mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <PageLayout navItems={navItems}>
         <Outlet />
       </PageLayout>
     </div>

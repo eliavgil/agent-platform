@@ -435,7 +435,7 @@ export default function OutputsPage() {
           תוצרים ודוגמאות
         </h1>
         <p className="text-base max-w-lg mx-auto" style={{ color: '#64748b' }}>
-          תוצרים אמיתיים שנוצרו בעזרת סוכני ה-AI שלנו — הכנסו להתרשם
+          מגוון תוצרים שנוצרו בעזרת סוכני ה-AI שלנו — הכנסו להתרשם
         </p>
       </div>
 

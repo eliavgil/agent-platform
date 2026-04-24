@@ -16,8 +16,13 @@ export default function PageLayout({ children, navItems = [] }) {
       {/* Mobile bottom nav — hidden on md+ */}
       {hasMobileNav && (
         <nav
-          className="fixed bottom-0 right-0 left-0 z-50 md:hidden flex bg-white border-t border-gray-200"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          className="fixed bottom-0 right-0 left-0 z-50 md:hidden flex"
+          style={{
+            background: '#ffffff',
+            borderTop: '2px solid #e2e8f0',
+            boxShadow: '0 -4px 16px rgba(0,0,0,0.12)',
+            paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+          }}
           dir="rtl"
         >
           {navItems.map(item => (
@@ -26,8 +31,8 @@ export default function PageLayout({ children, navItems = [] }) {
               to={item.path}
               end={item.end}
               className={({ isActive }) =>
-                `flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 transition-colors ${
-                  isActive ? 'text-indigo-600' : 'text-gray-400'
+                `flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
+                  isActive ? 'text-indigo-600' : 'text-gray-500'
                 }`
               }
             >

@@ -72,6 +72,7 @@ export default function SurveyModal({ onClose }) {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [confirmSkip, setConfirmSkip] = useState(false)
 
   const [form, setForm] = useState({
     name: '',
@@ -175,10 +176,44 @@ export default function SurveyModal({ onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-lg font-bold text-gray-900">סקר מורים — AI בכיתה</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {!confirmSkip && (
+              <button
+                onClick={() => setConfirmSkip(true)}
+                className="text-xs text-gray-400 hover:text-gray-500 underline underline-offset-2 transition-colors"
+              >
+                דלג
+              </button>
+            )}
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <X size={20} />
+            </button>
+          </div>
         </div>
+
+        {confirmSkip && (
+          <div className="mb-4 px-4 py-3 rounded-xl text-sm flex items-center justify-between gap-3"
+               style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.25)' }}>
+            <span className="text-orange-700 font-medium">בטוחים? הסקר עוזר לנו להתאים לכם פתרונות באופן אישי</span>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={onClose}
+                className="text-xs px-3 py-1 rounded-lg font-semibold text-white"
+                style={{ background: '#f97316' }}
+              >
+                דלג בכל זאת
+              </button>
+              <button
+                onClick={() => setConfirmSkip(false)}
+                className="text-xs px-3 py-1 rounded-lg font-semibold"
+                style={{ background: '#f1f5f9', color: '#64748b' }}
+              >
+                ממלא
+              </button>
+            </div>
+          </div>
+        )}
+
         <p className="text-xs text-gray-400 mb-4">שלב {step} מתוך {TOTAL_STEPS}</p>
 
         <ProgressBar step={step} total={TOTAL_STEPS} />

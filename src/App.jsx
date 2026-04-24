@@ -8,6 +8,7 @@ import TeacherToolLibrary from './pages/teacher/TeacherToolLibrary'
 import TeacherNewRequest from './pages/teacher/TeacherNewRequest'
 import TeacherRequests from './pages/teacher/TeacherRequests'
 import TeacherChat from './pages/teacher/TeacherChat'
+import TeacherProfile from './pages/teacher/TeacherProfile'
 
 import AgentLayout from './pages/agent/AgentLayout'
 import AgentRequests from './pages/agent/AgentRequests'
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="new-request" element={<TeacherNewRequest />} />
         <Route path="requests" element={<TeacherRequests />} />
         <Route path="requests/:id" element={<TeacherChat />} />
+        <Route path="profile" element={<TeacherProfile />} />
       </Route>
 
       {/* Agent Routes */}

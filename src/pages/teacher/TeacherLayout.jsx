@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import PageLayout from '../../components/layout/PageLayout'
-import { Wand2, Plus, List, GalleryHorizontalEnd } from 'lucide-react'
+import { Plus, List, GalleryHorizontalEnd, UserCircle } from 'lucide-react'
 
 const navItems = [
   {
@@ -21,6 +21,12 @@ const navItems = [
     path: '/teacher/requests',
     label: 'הבקשות שלי',
     icon: <List size={18} />,
+    end: false,
+  },
+  {
+    path: '/teacher/profile',
+    label: 'הפרופיל שלי',
+    icon: <UserCircle size={18} />,
     end: false,
   },
 ]

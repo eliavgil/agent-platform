@@ -4,6 +4,26 @@ import { getOutputs as getOutputsFromSheets, getToolEmoji } from '../lib/googleS
 import { getOutputs as getOutputsFromSupabase } from '../lib/supabase'
 import { Bot, ExternalLink, Search, Quote, ChevronDown, X } from 'lucide-react'
 
+// ── Spread outputs so no two consecutive items share the same AI tool ─────────
+function spreadByTool(arr) {
+  const groups = {}
+  for (const o of arr) {
+    const key = o.aiTool || '—'
+    if (!groups[key]) groups[key] = []
+    groups[key].push(o)
+  }
+  const buckets = Object.values(groups)
+  const result = []
+  let i = 0
+  while (result.length < arr.length) {
+    for (const bucket of buckets) {
+      if (i < bucket.length) result.push(bucket[i])
+    }
+    i++
+  }
+  return result
+}
+
 // ── Filter constants ───────────────────────────────────────────────────────────
 const CATEGORIES = [
   'מבחנים / בחנים',
@@ -348,9 +368,13 @@ export default function OutputsPage() {
     })
     .sort((a, b) => {
       if (viewMode === 'ai_tool') return (a.aiTool || '').localeCompare(b.aiTool || '', 'he')
-      // Default: newest first (by created_at or id)
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      if (viewMode === 'newest')  return new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      return 0 // keep original order for spread
     })
+
+  const displayed = (viewMode === null || viewMode === undefined)
+    ? spreadByTool(filtered)
+    : filtered
 
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: '#f8fafc' }}>
@@ -490,7 +514,7 @@ export default function OutputsPage() {
               </div>
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : displayed.length === 0 ? (
           <div className="text-center py-24">
             <Bot size={48} className="mx-auto mb-4 opacity-20" style={{ color: '#94a3b8' }} />
             <p style={{ color: '#94a3b8' }}>
@@ -499,7 +523,7 @@ export default function OutputsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {filtered.map((output, i) => (
+            {displayed.map((output, i) => (
               <OutputCard key={i} output={output} />
             ))}
           </div>

@@ -547,7 +547,7 @@ export default function HomePage() {
   }, [])
 
   // Supabase returns snake_case columns; normalize to camelCase
-  const examples = outputs.map(o => {
+  const examplesRaw = outputs.map(o => {
     const aiTool   = o.ai_tool   ?? o.aiTool   ?? ''
     const logoUrl  = o.logo_url  ?? o.logoUrl  ?? ''
     const logoEmoji = o.logo_emoji ?? o.logoEmoji ?? ''
@@ -563,6 +563,26 @@ export default function HomePage() {
       link: o.link ?? '',
     }
   })
+
+  // Spread so no two consecutive items share the same AI tool
+  const examples = (() => {
+    const groups = {}
+    for (const o of examplesRaw) {
+      const key = o.aiTool || '—'
+      if (!groups[key]) groups[key] = []
+      groups[key].push(o)
+    }
+    const buckets = Object.values(groups)
+    const result = []
+    let i = 0
+    while (result.length < examplesRaw.length) {
+      for (const bucket of buckets) {
+        if (i < bucket.length) result.push(bucket[i])
+      }
+      i++
+    }
+    return result
+  })()
 
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :

@@ -92,8 +92,7 @@ function AgentEditPanel({ user, onUpdated }) {
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
       setAvatarUrl(publicUrl)
     } catch (err) {
-      console.error('avatar upload error:', err)
-      setError(err?.message || JSON.stringify(err) || 'שגיאה בהעלאת התמונה.')
+      setError(err?.message || 'שגיאה בהעלאת התמונה.')
     } finally {
       setUploading(false)
     }

@@ -1,38 +1,12 @@
-import { useState, useEffect } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Avatar from '../ui/Avatar'
 import Button from '../ui/Button'
-import { LogOut, Shield, Globe, ExternalLink, Bell, Home, X } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
+import { LogOut, Shield, Globe, ExternalLink, Home, X } from 'lucide-react'
 
 export default function Sidebar({ navItems, role, mobileOpen = false, onClose }) {
   const { profile, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
-  const [unreadCount, setUnreadCount] = useState(0)
-
-  useEffect(() => {
-    if (!profile?.id) return
-    const lastSeen = localStorage.getItem(`lastSeenMessages_${profile.id}`) || '2020-01-01T00:00:00Z'
-    supabase
-      .from('messages')
-      .select('id', { count: 'exact', head: true })
-      .neq('sender_id', profile.id)
-      .gt('created_at', lastSeen)
-      .then(({ count }) => setUnreadCount(count || 0))
-  }, [profile?.id])
-
-  const handleBellClick = () => {
-    if (profile?.id) {
-      localStorage.setItem(`lastSeenMessages_${profile.id}`, new Date().toISOString())
-      setUnreadCount(0)
-    }
-    const requestsItem = navItems.find(item =>
-      item.label?.includes('בקשות') || item.label?.includes('הודעות')
-    )
-    navigate(requestsItem?.path || (role === 'admin' ? '/admin' : role === 'agent' ? '/agent' : '/teacher'))
-    if (onClose) onClose()
-  }
 
   const handleNavClick = () => {
     if (onClose) onClose()
@@ -82,22 +56,6 @@ export default function Sidebar({ navItems, role, mobileOpen = false, onClose })
                 aria-label="סגור תפריט"
               >
                 <X size={18} className="text-gray-500" />
-              </button>
-              {/* Bell */}
-              <button
-                onClick={handleBellClick}
-                className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                title="הודעות"
-              >
-                <Bell size={18} className="text-gray-500" />
-                {unreadCount > 0 && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white font-bold"
-                    style={{ fontSize: '9px' }}
-                  >
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
               </button>
             </div>
           </div>

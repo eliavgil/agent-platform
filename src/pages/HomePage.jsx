@@ -524,9 +524,14 @@ export default function HomePage() {
   const [agents, setAgents] = useState([])
   const [showSurvey, setShowSurvey] = useState(false)
 
-  // Show survey for teachers who haven't completed it yet
+  // Show survey once per session for teachers who haven't completed it
   useEffect(() => {
-    if (profile?.role === 'teacher' && !localStorage.getItem(SURVEY_KEY)) {
+    if (
+      profile?.role === 'teacher' &&
+      !localStorage.getItem(SURVEY_KEY) &&
+      !sessionStorage.getItem('prometheus_survey_shown')
+    ) {
+      sessionStorage.setItem('prometheus_survey_shown', '1')
       const t = setTimeout(() => setShowSurvey(true), 1500)
       return () => clearTimeout(t)
     }

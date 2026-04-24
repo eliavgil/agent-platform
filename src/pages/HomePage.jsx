@@ -936,7 +936,7 @@ export default function HomePage() {
           <SectionHeading
             badge="הצוות שלנו"
             title="הסוכנים שלנו"
-            sub="תלמידים מומחי AI מכיתות י–יב, מוכנים לעזור לכם בכיתה"
+            sub="תלמידים מומחי AI מכיתות ח–יב, מוכנים לעזור לכם בכיתה"
             badgeColor="#8b5cf6"
           />
 

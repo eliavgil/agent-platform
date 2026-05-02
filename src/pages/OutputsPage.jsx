@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getOutputs as getOutputsFromSheets, getToolEmoji } from '../lib/googleSheets'
 import { getOutputs as getOutputsFromSupabase } from '../lib/supabase'
 import { Bot, ExternalLink, Search, Quote, ChevronDown, X } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 // ── Spread outputs — always pick the most-frequent tool that differs from last ─
 function spreadByTool(arr) {
@@ -325,6 +326,7 @@ function OutputCard({ output }) {
 }
 
 export default function OutputsPage() {
+  const { user, profile } = useAuth()
   const [outputs, setOutputs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -408,13 +410,37 @@ export default function OutputsPage() {
             >
               דף הבית
             </Link>
-            <Link
-              to="/login"
-              className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-              style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
-            >
-              כניסה
-            </Link>
+            {user ? (
+              <>
+                <span
+                  className="px-3 py-1.5 text-sm font-semibold rounded-xl"
+                  style={{ background: 'rgba(99,102,241,0.10)', color: '#4338ca', border: '1px solid rgba(99,102,241,0.20)' }}
+                >
+                  {profile?.full_name?.split(' ')[0] || 'שלום'}
+                </span>
+                {profile?.role && (
+                  <Link
+                    to={profile.role === 'admin' ? '/admin' : profile.role === 'agent' ? '/agent' : '/teacher'}
+                    className="px-3 py-1.5 text-sm font-semibold rounded-xl transition-colors"
+                    style={{
+                      background: profile.role === 'agent' ? 'rgba(168,85,247,0.12)' : 'rgba(99,102,241,0.10)',
+                      color: profile.role === 'agent' ? '#a855f7' : profile.role === 'admin' ? '#d97706' : '#4338ca',
+                      border: `1px solid ${profile.role === 'agent' ? 'rgba(168,85,247,0.30)' : profile.role === 'admin' ? 'rgba(245,158,11,0.30)' : 'rgba(99,102,241,0.20)'}`,
+                    }}
+                  >
+                    {profile.role === 'admin' ? 'ניהול' : profile.role === 'agent' ? 'לאיזור הסוכן' : 'לאיזור המורה'}
+                  </Link>
+                )}
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
+              >
+                כניסה
+              </Link>
+            )}
           </div>
         </div>
       </nav>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Users, Zap, Compass, BookOpen, ArrowLeft } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 const TRACK_ITEMS = [
   {
@@ -29,6 +30,7 @@ const TRACK_ITEMS = [
 ]
 
 export default function AboutPage() {
+  const { user, profile } = useAuth()
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: '#f8fafc' }}>
 
@@ -59,13 +61,23 @@ export default function AboutPage() {
               <ArrowLeft size={15} />
               דף הבית
             </Link>
-            <Link
-              to="/login"
-              className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-              style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
-            >
-              כניסה
-            </Link>
+            {user ? (
+              <Link
+                to={profile?.role === 'admin' ? '/admin' : profile?.role === 'agent' ? '/agent' : '/teacher'}
+                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
+              >
+                {profile?.full_name?.split(' ')[0] || 'לדשבורד'}
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
+              >
+                כניסה
+              </Link>
+            )}
           </div>
         </div>
       </nav>

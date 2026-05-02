@@ -317,10 +317,27 @@ alter table public.outputs enable row level security;
 create policy "Outputs are publicly viewable" on public.outputs
   for select using (true);
 
--- Only admins can insert/update/delete
+-- Admins can do everything
 create policy "Admins can manage outputs" on public.outputs
   for all using (
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- Agents can insert their own outputs
+create policy "Agents can insert outputs" on public.outputs
+  for insert with check (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'agent')
+  );
+
+-- Agents can update outputs they created (matched by their full_name)
+create policy "Agents can update own outputs" on public.outputs
+  for update using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid()
+      and role = 'agent'
+      and full_name = agent
+    )
   );
 
 create trigger outputs_updated_at

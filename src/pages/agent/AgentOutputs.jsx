@@ -120,8 +120,12 @@ function AddEditModal({ initial, agentName, onSave, onClose }) {
     setError('')
     try {
       const data = { ...form, agent: agentName } // always lock agent name
-      if (initial?.id) await updateOutput(initial.id, data)
-      else await createOutput(data)
+      const result = initial?.id
+        ? await updateOutput(initial.id, data)
+        : await createOutput(data)
+      if (result?.error) {
+        throw new Error(result.error.message || 'שגיאה בשמירת התוצר')
+      }
       onSave()
     } catch (err) {
       setError(err.message)

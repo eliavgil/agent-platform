@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { supabase, getProfile } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -10,90 +10,12 @@ const LOCAL_ADMIN_KEY = '_app_adm'
 const FALLBACK_ADMIN_USER    = { id: 'local-admin', email: 'admin@local', role: 'admin' }
 const FALLBACK_ADMIN_PROFILE = { id: 'local-admin', full_name: 'מנהל', role: 'admin', email: 'admin@local' }
 
-function clearSupabaseStorage() {
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('sb-'))
-    .forEach(k => localStorage.removeItem(k))
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser]       = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Check for local admin session first
-    if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
-      // Timeout safety — if Supabase hangs, fall back to local-admin immediately
-      const adminTimeout = setTimeout(() => {
-        setUser(FALLBACK_ADMIN_USER)
-        setProfile(FALLBACK_ADMIN_PROFILE)
-        setLoading(false)
-      }, 5000)
-
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        clearTimeout(adminTimeout)
-        if (session?.user) {
-          setUser(session.user)
-          fetchProfile(session.user)
-        } else {
-          setUser(FALLBACK_ADMIN_USER)
-          setProfile(FALLBACK_ADMIN_PROFILE)
-          setLoading(false)
-        }
-      }).catch(() => {
-        clearTimeout(adminTimeout)
-        setUser(FALLBACK_ADMIN_USER)
-        setProfile(FALLBACK_ADMIN_PROFILE)
-        setLoading(false)
-      })
-      return
-    }
-
-    const timeout = setTimeout(() => setLoading(false), 6000)
-
-    supabase.auth.getSession()
-      .then(({ data: { session }, error }) => {
-        if (error || !session) {
-          setUser(null)
-          setLoading(false)
-          return
-        }
-        setUser(session.user)
-        fetchProfile(session.user)
-      })
-      .catch(() => {
-        clearSupabaseStorage()
-        setUser(null)
-        setLoading(false)
-      })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Let Supabase events update the admin session normally —
-      // the admin's real Supabase session is handled by the regular flow below.
-      // We only block SIGNED_OUT from clearing an active admin session.
-      if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1' && (event === 'SIGNED_OUT')) {
-        return
-      }
-      if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user)
-      } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
-        // Only clear auth state when we're certain there's no session:
-        // SIGNED_OUT = explicit sign-out or expired refresh token
-        // INITIAL_SESSION with no session = first load, truly unauthenticated
-        // Other events (e.g. mid-token-refresh) → keep existing state to avoid premature redirect
-        setUser(null)
-        setProfile(null)
-        setLoading(false)
-      }
-    })
-
-    return () => {
-      clearTimeout(timeout)
-      subscription.unsubscribe()
-    }
-  }, [])
+  // Track whether we've already fetched the profile so we can skip re-fetching on TOKEN_REFRESHED
+  const profileFetchedRef = useRef(false)
 
   const fetchProfile = async (supabaseUser) => {
     const isAdminSession = localStorage.getItem(LOCAL_ADMIN_KEY) === '1'
@@ -138,9 +60,74 @@ export function AuthProvider({ children }) {
         avatar_url: supabaseUser.user_metadata?.avatar_url || null,
       })
     } finally {
+      profileFetchedRef.current = true
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // Safety timeout — if Supabase hangs, stop the loading spinner after 8s
+    const timeout = setTimeout(() => setLoading(false), 8000)
+
+    // onAuthStateChange is the single source of truth.
+    // INITIAL_SESSION fires immediately when the listener is attached, with the
+    // stored session (if any) — equivalent to calling getSession() but without
+    // the risk of a network-error catch block wiping localStorage.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+
+        if (event === 'TOKEN_REFRESHED' && profileFetchedRef.current) {
+          // Token silently refreshed — just update the user object (new JWT),
+          // no need to hit the DB again since the profile hasn't changed.
+          clearTimeout(timeout)
+          return
+        }
+
+        // INITIAL_SESSION / SIGNED_IN / USER_UPDATED — fetch/create the profile
+        await fetchProfile(session.user)
+        clearTimeout(timeout)
+
+      } else {
+        // No session in this event
+        if (event === 'SIGNED_OUT') {
+          // Explicit sign-out or expired refresh token.
+          // Guard: don't clear local-admin fallback session.
+          if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') return
+          setUser(null)
+          setProfile(null)
+          profileFetchedRef.current = false
+          setLoading(false)
+          clearTimeout(timeout)
+
+        } else if (event === 'INITIAL_SESSION') {
+          // First load, genuinely no session.
+          if (localStorage.getItem(LOCAL_ADMIN_KEY) === '1') {
+            // Local admin fallback — no real Supabase session needed
+            setUser(FALLBACK_ADMIN_USER)
+            setProfile(FALLBACK_ADMIN_PROFILE)
+            profileFetchedRef.current = true
+          } else {
+            setUser(null)
+            setProfile(null)
+          }
+          setLoading(false)
+          clearTimeout(timeout)
+        }
+        // Other events (e.g. PASSWORD_RECOVERY) with no session → ignore, keep current state
+      }
+    })
+
+    // If LOCAL_ADMIN_KEY is set and there IS a real Supabase session,
+    // INITIAL_SESSION will fire with it and fetchProfile will run normally.
+    // If there is NO real Supabase session, INITIAL_SESSION fires with null
+    // and the fallback admin is set above.
+
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const signIn = async (email, password) => {
     // Secret admin login — not shown in UI
@@ -181,6 +168,7 @@ export function AuthProvider({ children }) {
       console.warn('[Admin] falling back to local-only mode — DB operations may be blocked by RLS')
       setUser(FALLBACK_ADMIN_USER)
       setProfile(FALLBACK_ADMIN_PROFILE)
+      profileFetchedRef.current = true
       setLoading(false)
       return { user: FALLBACK_ADMIN_USER }
     }
@@ -215,6 +203,7 @@ export function AuthProvider({ children }) {
       try { await supabase.auth.signOut() } catch { /* ignore */ }
       setUser(null)
       setProfile(null)
+      profileFetchedRef.current = false
       setLoading(false)
       return
     }
@@ -223,9 +212,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error('signOut error:', err)
     } finally {
-      clearSupabaseStorage()
       setUser(null)
       setProfile(null)
+      profileFetchedRef.current = false
       setLoading(false)
     }
   }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { getToolEmoji } from '../lib/googleSheets'
 import { getOutputs, getAgents, supabase } from '../lib/supabase'

@@ -30,6 +30,7 @@ import AdminOutputs from './pages/admin/AdminOutputs'
 import AdminUsers from './pages/admin/AdminUsers'
 
 import OutputsPage from './pages/OutputsPage'
+import RemotionDemo from './pages/RemotionDemo'
 import AboutPage from './pages/AboutPage'
 import LoadingScreen from './components/ui/LoadingScreen'
 
@@ -49,6 +50,7 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/outputs" element={<OutputsPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/remotion-demo" element={<RemotionDemo />} />
 
       {/* Auth */}
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />

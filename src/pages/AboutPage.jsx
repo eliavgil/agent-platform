@@ -1,6 +1,53 @@
 import { Link } from 'react-router-dom'
 import { Users, Zap, BookOpen, GraduationCap, Heart, ArrowLeft, Sparkles, School } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { Player } from '@remotion/player'
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from 'remotion'
+
+// ── Stats Counter composition ──────────────────────────────────────────────────
+const STATS = [
+  { value: 13, label: 'סוכנים',   color: '#6366f1', arc: 'rgba(99,102,241,0.18)'  },
+  { value: 50, label: 'תוצרים',   color: '#f97316', arc: 'rgba(249,115,22,0.18)', plus: true },
+  { value: 1,  label: 'בית ספר',  color: '#10b981', arc: 'rgba(16,185,129,0.18)'  },
+]
+
+function StatsCounter() {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+
+  return (
+    <AbsoluteFill style={{ background: '#ffffff', alignItems: 'center', justifyContent: 'center', gap: 48, flexDirection: 'row', direction: 'rtl' }}>
+      {STATS.map((stat, i) => {
+        const delay = i * 14
+        const sc = spring({ frame: frame - delay, fps, config: { damping: 16, stiffness: 100 } })
+        const displayed  = Math.round(interpolate(sc, [0, 1], [0, stat.value]))
+        const opacity    = interpolate(frame - delay, [0, 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+        const scale      = interpolate(sc, [0, 0.8, 1], [0.5, 1.08, 1])
+        const circumference = 2 * Math.PI * 38
+        const dashOffset = circumference * (1 - interpolate(sc, [0, 1], [0, 0.75]))
+        return (
+          <div key={stat.label} style={{ opacity, transform: `scale(${scale})`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <div style={{ position: 'relative', width: 100, height: 100 }}>
+              <svg width="100" height="100" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
+                <circle cx="50" cy="50" r="38" fill="none" stroke={stat.arc} strokeWidth="8" />
+                <circle cx="50" cy="50" r="38" fill="none" stroke={stat.color} strokeWidth="8"
+                        strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 28, fontWeight: 900, color: stat.color, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                  {displayed}{stat.plus ? '+' : ''}
+                </span>
+              </div>
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#475569', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              {stat.label}
+            </span>
+          </div>
+        )
+      })}
+    </AbsoluteFill>
+  )
+}
 
 const TOOLS = [
   { name: 'Gemini',     logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg' },
@@ -63,6 +110,23 @@ export default function AboutPage() {
         <p className="text-sm" style={{ color: '#94a3b8' }}>
           בית הספר שקמה דרכא · יד מרדכי · 2025
         </p>
+      </div>
+
+      {/* ── Stats Counter ──────────────────────────────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-6 mb-2">
+        <div className="rounded-3xl overflow-hidden"
+             style={{ border: '1px solid #e2e8f0', boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
+          <Player
+            component={StatsCounter}
+            durationInFrames={90}
+            compositionWidth={600}
+            compositionHeight={200}
+            fps={30}
+            style={{ width: '100%', display: 'block' }}
+            loop
+            autoPlay
+          />
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-6 pb-6 space-y-5">

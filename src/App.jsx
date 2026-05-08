@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 function ScrollToTop() {
@@ -30,7 +30,7 @@ import AdminOutputs from './pages/admin/AdminOutputs'
 import AdminUsers from './pages/admin/AdminUsers'
 
 import OutputsPage from './pages/OutputsPage'
-import RemotionDemo from './pages/RemotionDemo'
+const RemotionDemo = lazy(() => import('./pages/RemotionDemo'))
 import AboutPage from './pages/AboutPage'
 import LoadingScreen from './components/ui/LoadingScreen'
 
@@ -50,7 +50,7 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/outputs" element={<OutputsPage />} />
       <Route path="/about" element={<AboutPage />} />
-      <Route path="/remotion-demo" element={<RemotionDemo />} />
+      <Route path="/remotion-demo" element={<Suspense fallback={<LoadingScreen />}><RemotionDemo /></Suspense>} />
 
       {/* Auth */}
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />

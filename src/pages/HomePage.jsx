@@ -616,6 +616,13 @@ export default function HomePage() {
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
         .font-orbitron { font-family: 'Orbitron', 'Inter', monospace; }
         .cta-primary:hover { box-shadow: 0 6px 28px rgba(249,115,22,0.45), 0 2px 8px rgba(249,115,22,0.2); }
+        @keyframes heroDance {
+          0%   { transform: translateY(0px)    translateX(0px)  rotate(var(--rot,0deg)); }
+          20%  { transform: translateY(-5px)   translateX(2px)  rotate(calc(var(--rot,0deg) + 2deg)); }
+          45%  { transform: translateY(-2px)   translateX(-2px) rotate(calc(var(--rot,0deg) - 1.5deg)); }
+          70%  { transform: translateY(-6px)   translateX(1px)  rotate(calc(var(--rot,0deg) + 1deg)); }
+          100% { transform: translateY(0px)    translateX(0px)  rotate(var(--rot,0deg)); }
+        }
       `}</style>
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
@@ -750,11 +757,16 @@ export default function HomePage() {
       <section id="top" className="relative overflow-hidden flex items-center justify-center px-4"
                style={{ minHeight: '92vh', background: '#ffffff' }}>
 
-        {/* Scattered tool logos — decorative, desktop only */}
-        {SCATTERED_LOGOS.map(({ file, pos, size, rotate }) => (
+        {/* Scattered tool logos — decorative, desktop only — with gentle dance */}
+        {SCATTERED_LOGOS.map(({ file, pos, size, rotate }, idx) => (
           <img key={file} src={`/logos/${file}`} alt="" aria-hidden="true"
                className="absolute object-contain pointer-events-none hidden lg:block"
-               style={{ ...pos, width: size, height: size, opacity: 0.35, transform: `rotate(${rotate})` }} />
+               style={{
+                 ...pos, width: size, height: size, opacity: 0.35,
+                 '--rot': rotate,
+                 animation: `heroDance ${3.6 + (idx % 4) * 0.7}s ease-in-out ${idx * 0.45}s infinite`,
+                 willChange: 'transform',
+               }} />
         ))}
 
         {/* Soft gradient blobs */}
@@ -776,40 +788,92 @@ export default function HomePage() {
         <div className="relative z-10 flex flex-col items-center text-center max-w-2xl w-full mx-auto" dir="rtl">
 
           {/* Badge */}
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide mb-5"
-                style={{
-                  fontSize: '0.6rem',
-                  background: 'rgba(249,115,22,0.08)',
-                  color: '#ea580c',
-                  border: '1px solid rgba(249,115,22,0.22)',
-                }}>
+          <motion.span
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide mb-5"
+            style={{
+              fontSize: '0.6rem',
+              background: 'rgba(249,115,22,0.08)',
+              color: '#ea580c',
+              border: '1px solid rgba(249,115,22,0.22)',
+            }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+          >
             סוכני בינה שקמה
-          </span>
+          </motion.span>
 
-          {/* Brand */}
-          <p className="font-orbitron tracking-[0.28em] mb-5"
-             style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-            {Array.from('PROMPTHEUS').map((ch, i) => (
-              <span key={i} style={i === 0 || i === 4 ? { color: '#f97316' } : {}}>{ch}</span>
-            ))}
-            <span style={{ fontSize: '0.6em', color: '#f97316', marginRight: '3px' }}> AI</span>
-          </p>
+          {/* Brand — letter by letter with glow flash */}
+          <motion.p
+            className="font-orbitron tracking-[0.28em] mb-5"
+            style={{ fontSize: '0.9rem', color: '#94a3b8' }}
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.048, delayChildren: 0.25 } } }}
+          >
+            {Array.from('PROMPTHEUS').map((ch, i) => {
+              const isOrange = i === 0 || i === 4
+              return (
+                <motion.span
+                  key={i}
+                  style={{ display: 'inline-block', color: isOrange ? '#f97316' : undefined }}
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      textShadow: isOrange
+                        ? ['0 0 18px rgba(249,115,22,1)', '0 0 18px rgba(249,115,22,0.6)', '0 0 0px rgba(249,115,22,0)']
+                        : ['0 0 14px rgba(148,163,184,0.8)', '0 0 14px rgba(148,163,184,0.4)', '0 0 0px rgba(148,163,184,0)'],
+                      transition: { duration: 0.55, times: [0, 0.25, 1] },
+                    },
+                  }}
+                >{ch}</motion.span>
+              )
+            })}
+            <motion.span
+              style={{ display: 'inline-block', fontSize: '0.6em', color: '#f97316', marginRight: '3px' }}
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  textShadow: ['0 0 18px rgba(249,115,22,1)', '0 0 18px rgba(249,115,22,0.6)', '0 0 0px rgba(249,115,22,0)'],
+                  transition: { duration: 0.55, times: [0, 0.25, 1] },
+                },
+              }}
+            > AI</motion.span>
+          </motion.p>
 
-          {/* Headline */}
-          <h1 className="font-black leading-tight mb-5"
-              style={{ fontSize: 'clamp(2.6rem, 6vw, 4rem)', color: '#0f172a', letterSpacing: '-0.02em' }}>
+          {/* Headline — zooms in from large */}
+          <motion.h1
+            className="font-black leading-tight mb-5"
+            style={{ fontSize: 'clamp(2.6rem, 6vw, 4rem)', color: '#0f172a', letterSpacing: '-0.02em' }}
+            initial={{ scale: 1.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', damping: 22, stiffness: 140, delay: 0.72 }}
+          >
             מביאים את הבינה לכיתה
-          </h1>
+          </motion.h1>
 
           {/* Description */}
-          <p className="text-base leading-relaxed mb-9 max-w-lg" style={{ color: '#64748b' }}>
+          <motion.p
+            className="text-base leading-relaxed mb-9 max-w-lg"
+            style={{ color: '#64748b' }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 1.05 }}
+          >
             קבוצת תלמידים מוכשרים יוצרים עבור מורים תוצרי AI בהזמנה אישית<br />
             המורים על הפדגוגיה — התלמידים על הטכנולוגיה<br />
             יחד, מביאים את הבינה לכיתה!
-          </p>
+          </motion.p>
 
           {/* CTAs */}
-          <div className="flex items-center gap-3 flex-wrap justify-center mb-12">
+          <motion.div
+            className="flex items-center gap-3 flex-wrap justify-center mb-12"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 1.2 }}
+          >
             <a href="#how"
                className="px-7 py-3 rounded-2xl font-semibold text-sm transition-all"
                style={{ background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
@@ -833,7 +897,7 @@ export default function HomePage() {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569' }}>
               תוצרים לדוגמה
             </Link>
-          </div>
+          </motion.div>
 
         </div>
       </section>

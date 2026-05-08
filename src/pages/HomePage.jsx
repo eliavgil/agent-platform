@@ -625,13 +625,22 @@ export default function HomePage() {
         {/* Main bar */}
         <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between" dir="ltr">
 
-          {/* Left: logo */}
-          <a href="#top" className="flex items-center gap-2">
-            <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
-            <span className="font-bold text-sm tracking-wide" style={{ color: '#0f172a' }}>
-              AI פרומפתאוס
-            </span>
-          </a>
+          {/* Left: logo + about link */}
+          <div className="flex items-center gap-3">
+            <a href="#top" className="flex items-center gap-2">
+              <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
+              <span className="font-bold text-sm tracking-wide" style={{ color: '#0f172a' }}>
+                AI פרומפתאוס
+              </span>
+            </a>
+            <Link to="/about"
+                  className="hidden sm:inline-flex text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                  style={{ color: '#6366f1' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+              הסיפור שלנו
+            </Link>
+          </div>
 
           {/* Left: CTA (always visible) + hamburger */}
           <div className="flex items-center gap-2">
@@ -713,6 +722,14 @@ export default function HomePage() {
                     onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569' }}>
                 תוצרים
+              </Link>
+              <Link to="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-3 py-2 text-sm rounded-lg transition-colors"
+                    style={{ color: '#475569' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569' }}>
+                הסיפור שלנו
               </Link>
               {user && (
                 <button

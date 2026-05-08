@@ -1,80 +1,46 @@
 import { Link } from 'react-router-dom'
-import { Users, Zap, Compass, BookOpen, ArrowLeft } from 'lucide-react'
+import { Users, Zap, BookOpen, GraduationCap, Heart, ArrowLeft, Sparkles, School } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
-const TRACK_ITEMS = [
-  {
-    icon: <BookOpen size={22} className="flex-shrink-0" style={{ color: '#6366f1' }} />,
-    title: 'הכשרה מקצועית',
-    desc: 'לימוד פרומפטינג מתקדם, עבודה עם כלי פיתוח כמו Base44, ושימוש בפלטפורמות לימודיות כמו סטאדי-ווייז וקנבה.',
-    accent: '#6366f1',
-    bg: 'rgba(99,102,241,0.06)',
-    border: 'rgba(99,102,241,0.18)',
-  },
-  {
-    icon: <Compass size={22} className="flex-shrink-0" style={{ color: '#f97316' }} />,
-    title: 'השראה מהשטח',
-    desc: 'סיורים בחברות הטכנולוגיה המובילות (גוגל, מטא, למונייד) ומפגשים עם מומחי תוכן מהתעשייה.',
-    accent: '#f97316',
-    bg: 'rgba(249,115,22,0.06)',
-    border: 'rgba(249,115,22,0.18)',
-  },
-  {
-    icon: <Users size={22} className="flex-shrink-0" style={{ color: '#10b981' }} />,
-    title: 'שותפות פדגוגית',
-    desc: 'עבודה צמודה עם צוות המורים כדי לזהות צרכים וליצור תוצרים שישפרו את הלמידה לכלל תלמידי הכיתה.',
-    accent: '#10b981',
-    bg: 'rgba(16,185,129,0.06)',
-    border: 'rgba(16,185,129,0.18)',
-  },
+const TOOLS = [
+  { name: 'Gemini',     logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg' },
+  { name: 'NotebookLM', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/57/NotebookLM_logo.svg' },
+  { name: 'StudyWise',  logo: 'https://framerusercontent.com/images/4quFySEBAybfqylG0TqkmbAQA0.png' },
+  { name: 'Base44',     logo: 'https://base44.com/apple-touch-icon.png' },
 ]
 
 export default function AboutPage() {
   const { user, profile } = useAuth()
+
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: '#f8fafc' }}>
 
-      {/* Navbar */}
-      <nav
-        className="sticky top-0 z-40 border-b"
-        style={{
-          background: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(16px)',
-          borderColor: '#e2e8f0',
-        }}
-      >
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src="/logo3.png" alt="Prometheus" className="h-9 w-9 object-contain" />
-            <span className="font-bold text-sm hidden sm:block" style={{ color: '#0f172a' }}>
-              פרומפתאוס AI
-            </span>
+      {/* ── Navbar ──────────────────────────────────────────────────────────── */}
+      <nav className="sticky top-0 z-40 border-b"
+           style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', borderColor: '#e2e8f0' }}>
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo3.png" alt="Prometheus" className="h-7 w-7 object-contain" />
+            <span className="font-bold text-sm" style={{ color: '#0f172a' }}>פרומפתאוס AI</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg transition-colors"
-              style={{ color: '#475569' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#0f172a')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
-            >
-              <ArrowLeft size={15} />
+            <Link to="/" className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg transition-colors"
+                  style={{ color: '#475569' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#0f172a')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#475569')}>
+              <ArrowLeft size={14} />
               דף הבית
             </Link>
             {user ? (
-              <Link
-                to={profile?.role === 'admin' ? '/admin' : profile?.role === 'agent' ? '/agent' : '/teacher'}
-                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
-              >
+              <Link to={profile?.role === 'admin' ? '/admin' : profile?.role === 'agent' ? '/agent' : '/teacher'}
+                    className="px-4 py-1.5 text-sm font-semibold rounded-xl transition-all"
+                    style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}>
                 {profile?.full_name?.split(' ')[0] || 'לדשבורד'}
               </Link>
             ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 text-sm font-semibold rounded-xl transition-all"
-                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}
-              >
+              <Link to="/login"
+                    className="px-4 py-1.5 text-sm font-semibold rounded-xl transition-all"
+                    style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: '#fff' }}>
                 כניסה
               </Link>
             )}
@@ -82,135 +48,199 @@ export default function AboutPage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <div className="max-w-4xl mx-auto px-6 pt-16 pb-10 text-center">
-        <span
-          className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-5"
-          style={{
-            background: 'rgba(99,102,241,0.08)',
-            color: '#6366f1',
-            border: '1px solid rgba(99,102,241,0.2)',
-          }}
-        >
-          מי אנחנו
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
+        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-5"
+              style={{ background: 'rgba(249,115,22,0.1)', color: '#ea580c', border: '1px solid rgba(249,115,22,0.22)' }}>
+          הסיפור שלנו
         </span>
-
-        <h1 className="text-4xl sm:text-5xl font-black mb-4" style={{ color: '#0f172a' }}>
-          פרומפתאוס AI
+        <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight" style={{ color: '#0f172a' }}>
+          נבחרת פרומפתאוס<span style={{ color: '#f97316' }}>.ai</span>
         </h1>
-
-        <p className="text-base font-medium" style={{ color: '#64748b' }}>
-          נוסדה בפברואר 2026 · יד מרדכי
+        <p className="text-xl font-semibold mb-3" style={{ color: '#475569' }}>
+          תלמידים מביאים את הבינה לכיתה
+        </p>
+        <p className="text-sm" style={{ color: '#94a3b8' }}>
+          בית הספר שקמה דרכא · יד מרדכי · 2025
         </p>
       </div>
 
-      {/* Main story */}
-      <div className="max-w-3xl mx-auto px-6 pb-6">
-        <div
-          className="rounded-3xl p-8 sm:p-10 mb-6"
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
-          }}
-        >
-          <div className="flex items-start gap-3 mb-5">
-            <Zap size={20} style={{ color: '#cc6633', marginTop: '2px', flexShrink: 0 }} />
-            <h2 className="text-lg font-black" style={{ color: '#0f172a' }}>הסיפור שלנו</h2>
-          </div>
-          <p className="text-base leading-loose" style={{ color: '#334155' }}>
-            נבחרת פרומפתאוס AI הוקמה מתוך חזון ברור: להשביח את מערכת החינוך באמצעות הטמעה יעילה של
-            בינה מלאכותית על ידי התלמידים עצמם.
-          </p>
-        </div>
+      <div className="max-w-3xl mx-auto px-6 pb-6 space-y-5">
 
-        {/* Team composition */}
-        <div
-          className="rounded-3xl p-8 sm:p-10 mb-6"
-          style={{
-            background: 'linear-gradient(135deg,rgba(99,102,241,0.05),rgba(204,102,51,0.04))',
-            border: '1px solid rgba(99,102,241,0.14)',
-            boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-          }}
-        >
+        {/* ── The Insight ──────────────────────────────────────────────────── */}
+        <div className="rounded-3xl p-8 sm:p-10"
+             style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 2px 20px rgba(0,0,0,0.05)' }}>
           <div className="flex items-center gap-3 mb-5">
-            <div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-sm"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
-            >
-              15
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0"
+                 style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)' }}>
+              <Zap size={16} color="#fff" />
             </div>
-            <h2 className="text-lg font-black" style={{ color: '#0f172a' }}>הנבחרת</h2>
+            <h2 className="text-xl font-black" style={{ color: '#0f172a' }}>רקע ורעיון</h2>
           </div>
-          <p className="text-base leading-loose" style={{ color: '#334155' }}>
-            הנבחרת מורכבת מ‑15 <strong>"סוכני בינה"</strong> נבחרים משכבות ז' עד י"ב — משוהם ועד יהונתן —
-            שעוברים הכשרה אינטנסיבית כדי להפוך למנהיגים טכנולוגיים בבית הספר.
+          <p className="text-base leading-loose mb-4" style={{ color: '#334155' }}>
+            נבחרת פרומפתאוס.ai הוקמה מתוך הבנה כי בינה מלאכותית יכולה לייצר שינוי עמוק וחיובי במערכת
+            החינוך – ומתוך הכרה בקושי האמיתי להטמיע AI בבתי ספר. מורים פועלים בעומס מתמשך, ולרוב
+            אינם פנויים ללמוד, להתנסות ולאמץ כלים חדשים.
           </p>
+          <div className="rounded-2xl p-5"
+               style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.18)' }}>
+            <p className="text-base leading-loose font-medium" style={{ color: '#334155' }}>
+              מתוך תובנות אלו נולד <strong style={{ color: '#ea580c' }}>רעיון הפוך מהמקובל</strong>: במקום
+              להטמיע AI באמצעות המורים – לעשות זאת באמצעות התלמידים. תלמידים סקרנים, בעלי מוטיבציה
+              ויכולת, שמצויים בעולמות הדיגיטל וה-AI, ויש להם גם את הזמן והגמישות ללמוד,
+              להתנסות ולייצר פתרונות.
+            </p>
+          </div>
         </div>
 
-        {/* Track items */}
-        <h2 className="text-lg font-black mb-4 px-1" style={{ color: '#0f172a' }}>המסלול שלנו כולל</h2>
-        <div className="space-y-4 mb-6">
-          {TRACK_ITEMS.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-2xl p-6"
-              style={{
-                background: item.bg,
-                border: `1px solid ${item.border}`,
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: '#ffffff', border: `1px solid ${item.border}` }}
-                >
-                  {item.icon}
-                </div>
-                <div>
-                  <h3 className="font-bold text-base mb-1" style={{ color: '#0f172a' }}>
-                    {item.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
+        {/* ── The Team ─────────────────────────────────────────────────────── */}
+        <div className="rounded-3xl p-8 sm:p-10"
+             style={{ background: 'linear-gradient(135deg,rgba(99,102,241,0.05),rgba(139,92,246,0.04))',
+                      border: '1px solid rgba(99,102,241,0.16)', boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-sm flex-shrink-0"
+                 style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+              13
             </div>
-          ))}
+            <h2 className="text-xl font-black" style={{ color: '#0f172a' }}>הסוכנים וההכשרה</h2>
+          </div>
+          <p className="text-base leading-loose mb-5" style={{ color: '#334155' }}>
+            לנבחרת גויסו 13 תלמידים נהדרים בעלי עניין ויכולת, שעברו תהליך הכשרה ייעודי הכולל
+            למידה פרונטלית, מפגשים מקוונים, סדנאות, הרצאות, סיורים לימודיים ותחרויות נושאות פרסים.
+          </p>
+          <p className="text-sm font-semibold mb-3" style={{ color: '#6366f1' }}>
+            הכלים שאיתם עובדים:
+          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            {TOOLS.map(t => (
+              <div key={t.name} className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                   style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                <img src={t.logo} alt={t.name} className="w-5 h-5 object-contain"
+                     onError={e => { e.target.style.display = 'none' }} />
+                <span className="text-sm font-semibold" style={{ color: '#334155' }}>{t.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Closing tagline */}
-        <div
-          className="rounded-3xl p-8 sm:p-10 text-center"
-          style={{
-            background: '#0f172a',
-            border: '1px solid #1e293b',
-          }}
-        >
-          <p className="text-xl sm:text-2xl font-black leading-relaxed" style={{ color: '#ffffff' }}>
-            אנחנו לא רק לומדים על העתיד —
+        {/* ── Dual Value ───────────────────────────────────────────────────── */}
+        <div>
+          <h2 className="text-xl font-black mb-4 px-1" style={{ color: '#0f172a' }}>ערך חינוכי כפול</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+
+            {/* Teachers */}
+            <div className="rounded-2xl p-6"
+                 style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                     style={{ background: 'rgba(16,185,129,0.1)' }}>
+                  <School size={16} style={{ color: '#10b981' }} />
+                </div>
+                <span className="font-bold text-sm" style={{ color: '#10b981' }}>המורים מקבלים</span>
+              </div>
+              <ul className="space-y-2.5">
+                {['פתרונות AI ישימים, מותאמים לצרכים אמיתיים','חשיפה לאפשרויות השונות של כלי AI','חיסכון בזמן יקר'].map(item => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#10b981' }} />
+                    <span className="text-sm leading-relaxed" style={{ color: '#475569' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Students */}
+            <div className="rounded-2xl p-6"
+                 style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                     style={{ background: 'rgba(99,102,241,0.1)' }}>
+                  <GraduationCap size={16} style={{ color: '#6366f1' }} />
+                </div>
+                <span className="font-bold text-sm" style={{ color: '#6366f1' }}>התלמידים רוכשים</span>
+              </div>
+              <ul className="space-y-2.5">
+                {['היכרות מעמיקה עם עולם ה-AI','פיתוח יצירתיות ופתרון בעיות','עבודת צוות ולמידה עצמאית ויישומית'].map(item => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#6366f1' }} />
+                    <span className="text-sm leading-relaxed" style={{ color: '#475569' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Response quote */}
+          <div className="mt-4 rounded-2xl px-6 py-4 flex items-center gap-3"
+               style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.18)' }}>
+            <Sparkles size={16} style={{ color: '#f97316', flexShrink: 0 }} />
+            <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+              הפעילות זוכה לתגובות <strong style={{ color: '#ea580c' }}>חיוביות ומתמשכות</strong> ממורים, תלמידים ואנשי חינוך.
+            </p>
+          </div>
+        </div>
+
+        {/* ── Support ──────────────────────────────────────────────────────── */}
+        <div className="rounded-3xl p-8 sm:p-10"
+             style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0"
+                 style={{ background: 'rgba(245,158,11,0.12)' }}>
+              <Heart size={16} style={{ color: '#d97706' }} />
+            </div>
+            <h2 className="text-xl font-black" style={{ color: '#0f172a' }}>ליווי ותמיכה</h2>
+          </div>
+          <p className="text-base leading-loose mb-5" style={{ color: '#334155' }}>
+            הקמת הנבחרת והפעילות השוטפת זכו בליווי ומימון על ידי שני גורמים מרכזיים:
           </p>
-          <p className="text-xl sm:text-2xl font-black leading-relaxed mt-1" style={{ color: '#cc6633' }}>
-            אנחנו בונים אותו, סוכן אחרי סוכן.
+          <div className="space-y-3">
+            {[
+              { title: 'הקרן לעידוד יוזמות חינוכיות', desc: 'ליווי ומימון לפעילות הנבחרת', color: '#d97706', bg: 'rgba(245,158,11,0.07)', border: 'rgba(245,158,11,0.22)' },
+              { title: 'בית הספר שקמה דרכא יד מרדכי', desc: 'תמיכה ומימון מצד הנהלת בית הספר, בראשה מנהלת בית הספר נופר מלכה', color: '#6366f1', bg: 'rgba(99,102,241,0.06)', border: 'rgba(99,102,241,0.18)' },
+            ].map(s => (
+              <div key={s.title} className="rounded-2xl px-5 py-4"
+                   style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+                <p className="font-bold text-sm mb-0.5" style={{ color: s.color }}>{s.title}</p>
+                <p className="text-sm" style={{ color: '#475569' }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Closing tagline ───────────────────────────────────────────────── */}
+        <div className="rounded-3xl p-8 sm:p-10 text-center"
+             style={{ background: '#0f172a', border: '1px solid #1e293b' }}>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Users size={18} color="rgba(255,255,255,0.5)" />
+          </div>
+          <p className="text-xl sm:text-2xl font-black leading-relaxed mb-2" style={{ color: '#ffffff' }}>
+            מודל חדשני להטמעת AI בבתי ספר
+          </p>
+          <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
+            המבוסס על שותפות יעילה בין תלמידים למורים,
+            ושאיפה ארוכת טווח להשפיע על דמותה של מערכת החינוך בישראל.
           </p>
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="text-center py-14">
-        <Link
-          to="/outputs"
-          className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-semibold transition-all"
-          style={{ background: 'rgba(204,102,51,0.1)', color: '#cc6633', border: '1px solid rgba(204,102,51,0.25)' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(204,102,51,0.18)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(204,102,51,0.1)')}
-        >
-          לגלריית התוצרים שלנו ←
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
+      <div className="text-center py-14 flex items-center justify-center gap-3">
+        <Link to="/outputs"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-semibold transition-all"
+              style={{ background: 'rgba(249,115,22,0.1)', color: '#ea580c', border: '1px solid rgba(249,115,22,0.25)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(249,115,22,0.18)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(249,115,22,0.1)')}>
+          לגלריית התוצרים ←
+        </Link>
+        <Link to="/"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-semibold transition-all"
+              style={{ background: 'rgba(99,102,241,0.08)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.08)')}>
+          לדף הבית ←
         </Link>
       </div>
 
-      {/* Footer */}
+      {/* ── Footer ───────────────────────────────────────────────────────────── */}
       <footer style={{ background: '#03040a', borderTop: '1px solid rgba(255,255,255,0.06)' }} className="py-8 px-6">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">

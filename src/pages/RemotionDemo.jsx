@@ -6,6 +6,126 @@ import {
 } from 'remotion'
 
 // ─────────────────────────────────────────────────────────────
+// COMPOSITION 0 — Full Hero Animation (NEW)
+// Letter-by-letter "Prometheus.ai" with per-letter glow flash,
+// then headline zoom-out into place, logos dancing on sides.
+// ─────────────────────────────────────────────────────────────
+const HERO_LOGOS = [
+  { file: 'black-gemini-logo_svgstack_com_37151775116405.png',          side: 'L', top: '10%',  phase: 0  },
+  { file: 'chatgpt-monocolor-logo-icon_svgstack_com_4611775116925.png', side: 'L', top: '44%',  phase: 22 },
+  { file: 'midjourney-logo-icon_svgstack_com_4581775116879.png',        side: 'L', top: '76%',  phase: 40 },
+  { file: 'black-claude-logo_svgstack_com_36981775116477.png',          side: 'R', top: '10%',  phase: 11 },
+  { file: 'grok-ai-app-logo_svgstack_com_37211775116703.png',           side: 'R', top: '44%',  phase: 31 },
+  { file: 'black-cohere-logo_svgstack_com_37031775117384.png',          side: 'R', top: '76%',  phase: 17 },
+]
+
+function HeroFull() {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+
+  const WORD       = 'Prometheus'
+  const SUFFIX     = '.ai'
+  const FPL        = 2                           // frames per letter (at 60 fps → 0.03s each)
+  const allDone    = WORD.length * FPL + 4       // ~24: all text visible
+  const headDelay  = allDone + 3                 // ~27
+
+  // Headline: fast spring zoom-out (large → 1×)
+  const sc = spring({ frame: frame - headDelay, fps, config: { damping: 22, stiffness: 140 } })
+  const headScale   = interpolate(sc,              [0, 1], [2.6, 1])
+  const headOpacity = interpolate(frame - headDelay, [0, 7], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+
+  // Logos: fade in then dance forever
+  const logoFadeOpacity = interpolate(frame, [8, 28], [0, 1], { extrapolateRight: 'clamp' })
+
+  return (
+    <AbsoluteFill style={{ background: '#07080f', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+
+      {/* Radial glow — appears when text is complete */}
+      <div style={{
+        position: 'absolute', width: 500, height: 300, borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(249,115,22,0.16) 0%, transparent 70%)',
+        opacity: interpolate(frame, [allDone, allDone + 12], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+      }} />
+
+      {/* Dancing logos */}
+      {HERO_LOGOS.map(({ file, side, top, phase }) => {
+        const dy = Math.sin((frame + phase) / 20) * 5
+        const dx = Math.cos((frame + phase) / 28) * 3
+        const dr = Math.sin((frame + phase) / 35) * 3.5
+        return (
+          <img key={file} src={`/logos/${file}`} alt=""
+               style={{
+                 position: 'absolute', top,
+                 [side === 'L' ? 'left' : 'right']: '4%',
+                 width: 44, height: 44, objectFit: 'contain',
+                 opacity: logoFadeOpacity * 0.38,
+                 filter: 'invert(1)',
+                 transform: `translate(${dx}px,${dy}px) rotate(${dr}deg)`,
+               }} />
+        )
+      })}
+
+      {/* Center text block */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, position: 'relative', zIndex: 1 }}>
+
+        {/* Letter-by-letter "Prometheus.ai" */}
+        <div style={{ display: 'flex', alignItems: 'baseline', direction: 'ltr' }}>
+          {WORD.split('').map((ch, i) => {
+            const cf    = i * FPL
+            const flash = interpolate(frame - cf, [0, 2, 14], [0, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+            return (
+              <span key={i} style={{
+                fontSize: 68, fontWeight: 900, letterSpacing: '-2px',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                color: '#ffffff',
+                opacity: frame >= cf ? 1 : 0,
+                textShadow: `0 0 ${flash * 50}px rgba(255,255,255,${flash * 0.95}),
+                             0 0 ${flash * 24}px rgba(249,115,22,${flash * 0.55})`,
+              }}>{ch}</span>
+            )
+          })}
+          {/* ".ai" — orange, appears after last letter */}
+          {(() => {
+            const sf    = WORD.length * FPL
+            const flash = interpolate(frame - sf, [0, 2, 16], [0, 1, 0.25], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+            return (
+              <span style={{
+                fontSize: 68, fontWeight: 900, letterSpacing: '-1px',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                color: '#f97316',
+                opacity: frame >= sf ? 1 : 0,
+                textShadow: `0 0 ${flash * 60}px rgba(249,115,22,${flash}),
+                             0 0 ${flash * 30}px rgba(249,115,22,0.6)`,
+              }}>{SUFFIX}</span>
+            )
+          })()}
+        </div>
+
+        {/* Headline zooms in */}
+        <p style={{
+          fontSize: 30, fontWeight: 700,
+          fontFamily: 'Inter, system-ui, sans-serif',
+          color: 'rgba(255,255,255,0.82)',
+          direction: 'rtl', margin: 0, whiteSpace: 'nowrap',
+          opacity: headOpacity,
+          transform: `scale(${headScale})`,
+          transformOrigin: 'center center',
+        }}>
+          מביאים את הבינה לכיתה
+        </p>
+      </div>
+
+      {/* Bottom accent line */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
+        background: 'linear-gradient(90deg,transparent,#f97316,#6366f1,transparent)',
+        opacity: interpolate(frame, [allDone + 6, allDone + 20], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+      }} />
+    </AbsoluteFill>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
 // COMPOSITION 1 — Hero Title Reveal
 // Idea: replaces the static hero text with a cinematic entrance.
 // Each word springs in from below, with an orange glow at peak.
@@ -345,6 +465,15 @@ function BrandedLoader() {
 // ─────────────────────────────────────────────────────────────
 const DEMOS = [
   {
+    id: 'hero-full',
+    title: 'Prometheus.ai — Hero מלא',
+    where: 'דף הבית — סקשן הפתיחה',
+    desc: 'אות-אות "Prometheus.ai" עם פלאש זוהר לכל אות, הכותרת "מביאים את הבינה לכיתה" נוחתת מ-zoom-out, ולוגואים של כלי AI רוקדים בצדדים. הכל קורה תוך 2.5 שניות.',
+    comp: HeroFull,
+    w: 900, h: 460, fps: 60, dur: 150,
+    bg: '#07080f',
+  },
+  {
     id: 'hero',
     title: 'כותרת Hero קולנועית',
     where: 'דף הבית — סקשן הפתיחה',
@@ -413,7 +542,7 @@ export default function RemotionDemo() {
           אנימציות Remotion <span style={{ color: '#f97316' }}>— ניסוי</span>
         </h1>
         <p style={{ color: 'rgba(255,255,255,0.5)' }} className="text-base max-w-xl mx-auto">
-          4 רעיונות לאפקטי וידאו שניתן להוסיף לאתר.
+          5 רעיונות לאפקטי וידאו שניתן להוסיף לאתר.
           כל אחד רץ ישירות בדפדפן — אין קבצי mp4, אין שרת.
         </p>
       </div>

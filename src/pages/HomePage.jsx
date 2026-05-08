@@ -806,7 +806,7 @@ export default function HomePage() {
           {/* Brand — letter by letter with glow flash */}
           <motion.p
             className="font-orbitron tracking-[0.28em] mb-5"
-            style={{ fontSize: '0.9rem', color: '#94a3b8' }}
+            style={{ fontSize: '0.9rem', color: '#94a3b8', direction: 'ltr' }}
             initial="hidden"
             animate="visible"
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.048, delayChildren: 0.25 } } }}

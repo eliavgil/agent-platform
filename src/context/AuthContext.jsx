@@ -10,10 +10,24 @@ const LOCAL_ADMIN_KEY = '_app_adm'
 const FALLBACK_ADMIN_USER    = { id: 'local-admin', email: 'admin@local', role: 'admin' }
 const FALLBACK_ADMIN_PROFILE = { id: 'local-admin', full_name: 'מנהל', role: 'admin', email: 'admin@local' }
 
+// Check synchronously whether a session token exists in localStorage.
+// If none → we know immediately the visitor is a guest → skip loading screen entirely.
+function hasLocalSession() {
+  try {
+    return Object.keys(localStorage).some(k =>
+      (k.startsWith('sb-') || k.includes('supabase')) &&
+      (localStorage.getItem(k) || '').includes('access_token')
+    )
+  } catch { return false }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null)
   const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Only block render if there's actually a stored session to resolve
+  const [loading, setLoading] = useState(
+    hasLocalSession() || localStorage.getItem(LOCAL_ADMIN_KEY) === '1'
+  )
   // Track whether we've already fetched the profile so we can skip re-fetching on TOKEN_REFRESHED
   const profileFetchedRef = useRef(false)
 
@@ -84,9 +98,13 @@ export function AuthProvider({ children }) {
           return
         }
 
-        // INITIAL_SESSION / SIGNED_IN / USER_UPDATED — fetch/create the profile
-        await fetchProfile(session.user)
+        // Stop the loading screen immediately — profile fetches in the background.
+        // This way the page renders right away instead of waiting for the DB query.
+        setLoading(false)
         clearTimeout(timeout)
+
+        // INITIAL_SESSION / SIGNED_IN / USER_UPDATED — fetch/create the profile
+        fetchProfile(session.user)
 
       } else {
         // No session in this event

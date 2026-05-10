@@ -42,7 +42,6 @@ function AppRoutes() {
   const { user, profile, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
-  if (user && !profile) return <LoadingScreen />
 
   const dashRoute =
     profile?.role === 'admin' ? '/admin' :
@@ -103,8 +102,10 @@ function AppRoutes() {
 }
 
 function RequireRole({ role, children }) {
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
   if (profile?.role === 'admin') return children
+  // Profile still loading in background — wait silently instead of redirecting
+  if (user && !profile) return <LoadingScreen />
   if (profile?.role !== role) return <Navigate to="/" replace />
   return children
 }
